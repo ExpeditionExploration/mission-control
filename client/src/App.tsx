@@ -4,52 +4,29 @@ import logo from './assets/exs.svg';
 import {
     LightBulbIcon
 } from '@heroicons/react/24/outline';
-import type { default as ClientModule } from '../modules/ClientModule';
-import * as modules from '../modules/client';
+import type ClientModule from './modules/ClientModule';
+import * as modules from './modules';
+
+const host = 'localhost:16501';
 
 function App() {
-    const [count, setCount] = useState(0);
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
-    function toggleStream() {
-        if (socket) {
-            socket.close();
-            setSocket(null);
-        } else {
-            var playerElement = document.getElementById('viewer');
-            if (playerElement) {
-                playerElement.innerHTML = '';
-
-                // @ts-ignore
-                const Player = window.Player as any;
-                const player = new Player({
-                    useWorker: true,
-                    workerFile: '/broadway/Decoder.js',
-                    webgl: 'auto',
-                    // size: { width: 1920, height: 1080 }
-                });
-
-                playerElement.appendChild(player.canvas);
-
-                const socket = new WebSocket('ws://raspberrypi.local:16501');
-                socket.binaryType = "arraybuffer";
-                socket.addEventListener('open', (event) => {
-                    setSocket(socket);
-                });
-                // Listen for messages
-                socket.addEventListener('message', (event) => {
-                    player.decode(new Uint8Array(event.data));
-                    // console.log('Message', event.data);
-                });
-            }
-        }
-    }
+    useEffect(() => {
+        const socket = new WebSocket(`ws://${host}`);
+        socket.binaryType = "arraybuffer";
+        socket.addEventListener('open', (event) => {
+            console.log('Listening')
+            setSocket(socket);
+        });
+        socket.addEventListener('message', (event) => {
+            console.log('Message', event.data);
+        });
+    }, []);
 
     return (
         <>
-            {Object.values(modules).map((Module: typeof ClientModule) => Module.type === 'window' ? <Module key={Module.name} /> : null)}
-
-            <div id="viewer" className='fixed z-0 flex justify-center items-stretch inset-0'></div>
+            {Object.values(modules).map((Module: typeof ClientModule) => Module.location === 'window' ? <Module key={Module.name} /> : null)}
             <div className='z-10 absolute inset-0'>
                 <div className='absolute top-0 w-full p-8'>
                 </div>

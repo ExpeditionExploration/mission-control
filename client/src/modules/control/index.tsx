@@ -23,20 +23,20 @@ export class Control extends Module {
     componentDidMount() {
         window.addEventListener('keydown', event => {
             switch (event.code) {
-                case 'Space':
+                case 'WKey':
                     this.startMove(1);
                     break;
-                case 'ShiftLeft':
+                case 'SKey':
                     this.startMove(-1);
                     break;
             }
         });
         window.addEventListener('keyup', event => {
             switch (event.code) {
-                case 'Space':
+                case 'WKey':
                     this.stopMove();
                     break;
-                case 'ShiftLeft':
+                case 'SKey':
                     this.stopMove();
                     break;
             }
