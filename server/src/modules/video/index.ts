@@ -29,20 +29,21 @@ export class Video extends ServerModule {
     }
 
     startStream() {
-        this.stream = spawn('libcamera-vid', [
+        this.stream = spawn('raspivid', [
             '-t', '0',
             '-o', '-',
-            '--width', '1280',
-            '--height', '720',
-            '--framerate', '30',
+            '-w', '1920',
+            '-h', '1080',
+            '-fps', '30',
             '-pf', 'baseline',
             // '-roi', '0,0,0.995,1',
-            // '--sharpness', '50',
-            // '-ex', 'night',
-            // '-vs',
-            // '-ev', '10'
-            // --hflip,
-            // --vflip,
+            '--sharpness', '50',
+            '-ex', 'night',
+            '-vs',
+            '-ev', '10',
+            '-awb', 'auto'
+            // '--hflip',
+            // '--vflip',
         ]);
         this.stream.on('error', function (err) {
             console.error('Failed to start camera');

@@ -7,7 +7,7 @@ import {
 import type ClientModule from './modules/ClientModule';
 import * as modules from './modules';
 
-const host = 'localhost:16501';
+const host = 'raspberrypi.local:16501';
 
 function App() {
     const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -44,7 +44,7 @@ function App() {
                             </div>
                         </div>
                         <div className='flex items-center  space-x-8'>
-                            {Object.values(modules).map((Module: typeof ClientModule) => Module.location === 'right' ? <Module key={Module.name} /> : null)}
+                            {Object.values(modules).map((Module: typeof ClientModule) => Module.location === 'right' ? <Module socket={socket} key={Module.name} /> : null)}
                             {/* <button onClick={() => toggleStream()}>Start Stream</button> */}
                         </div>
                     </div>
