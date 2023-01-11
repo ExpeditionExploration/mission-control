@@ -18,7 +18,7 @@ export class Video extends ServerModule {
         this.settingNals = [];
 
         this.system.socket.on('connection', socket => {
-            this.settingNals.forEach(frame => socket.send(frame, { binary: true }));
+            this.send({ type: 'connected' });
         });
 
         this.socket = new WebSocket.Server({ port: websocketPort });

@@ -12,6 +12,7 @@
     "dependencies": {
         "express": "^4.18.2",
         "stream-split": "^1.1.0",
+        "systeminformation": "^5.17.3",
         "ws": "^8.11.0"
     },
     "devDependencies": {

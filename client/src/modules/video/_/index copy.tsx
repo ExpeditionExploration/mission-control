@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import Module, { ModuleLocation } from "../ClientModule";
+import Module, { ModuleLocation } from "../../ClientModule";
 import clsx from "clsx";
 
 export class Video extends Module {

@@ -1,9 +1,8 @@
 import React, { useEffect } from "react"
-import Module, { ModuleLocation } from "../ClientModule";
+import type { ClientModule as Module } from "../ClientModule";
 import clsx from "clsx";
 
-import DecodeWorker from './worker?worker'
-const worker = new DecodeWorker();
+import DecodeWorker from './worker?worker';
 
 // @ts-ignore
 import YUVBuffer from "yuv-buffer";
@@ -29,101 +28,51 @@ const format = YUVBuffer.format({
     displayWidth: 1920,
     displayHeight: 1080
 });
-export class Video extends Module {
-    static location: ModuleLocation = "window";
-    socket: WebSocket | null = null;
 
-    componentDidMount() {
+export const Video: Module = () => {
+    useEffect(() => {
+        const encoderWorker = new DecodeWorker();
+        const videoSteamSocket = new WebSocket('ws://raspberrypi.local:16502');
+
         const canvas = document.getElementById('canvas') as HTMLCanvasElement;
         const yuv = YUVCanvas.attach(canvas);
 
-        this.socket = new WebSocket('ws://raspberrypi.local:16502');
-        this.socket.binaryType = "arraybuffer";
-        this.socket.onmessage = (event) => {
+        videoSteamSocket.binaryType = "arraybuffer";
+        videoSteamSocket.onmessage = (event) => {
             const data = new Uint8Array(event.data);
-            worker.postMessage(data.buffer, [data.buffer])
+            encoderWorker.postMessage(data.buffer, [data.buffer])
             // console.log(event.data);
 
         }
 
-        worker.onmessage = (event) => {
+        encoderWorker.onmessage = (event) => {
             const data = new Uint8Array(event.data);
-            const y = YUVBuffer.lumaPlane(format, data);
-            const u = YUVBuffer.chromaPlane(format, data, undefined, format.width * format.height);
-            const v = YUVBuffer.chromaPlane(format, data, undefined, format.width * format.height + format.chromaWidth * format.chromaHeight);
+            try {
+                const y = YUVBuffer.lumaPlane(format, data);
+                const u = YUVBuffer.chromaPlane(format, data, undefined, format.width * format.height);
+                const v = YUVBuffer.chromaPlane(format, data, undefined, format.width * format.height + format.chromaWidth * format.chromaHeight);
 
-            const frame = YUVBuffer.frame(format,
-                y,
-                u,
-                v
-            );
-            yuv.drawFrame(frame);
+                const frame = YUVBuffer.frame(format,
+                    y,
+                    u,
+                    v
+                );
+                yuv.drawFrame(frame);
+            } catch (error) { }
         }
-        // this.socket = new WebSocket('ws://raspberrypi.local:16502');
-        // this.socket.binaryType = "arraybuffer";
-        // this.socket.onmessage = (event) => {
-        //     // console.log(event.data);
-        //     // decoder.decode(new Uint8Array(event.data));
-        // }
-        // const playerElement = document.getElementById('viewer');
 
-        // if (playerElement) {
-        //     playerElement.innerHTML = '';
+        return () => {
+            encoderWorker.terminate();
+            videoSteamSocket.close();
+        }
+    }, []);
 
-        //     // @ts-ignore
-        //     const Player = window.Player as any;
-        //     const player = new Player({
-        //         useWorker: true,
-        //         workerFile: '/broadway/Decoder.js',
-        //         webgl: 'auto',
-        //         size: { width: 1920, height: 1080 }
-        //     });
-
-        //     playerElement.appendChild(player.canvas);
-
-        //     this.socket.onmessage = (event) => {
-        //         // console.log(event.data);
-        //         player.decode(new Uint8Array(event.data));
-        //     }
-        // }
-    }
-
-
-    // function toggleStream() {
-    //     if (socket) {
-    //         socket.close();
-    //         setSocket(null);
-    //     } else {
-    //         var playerElement = document.getElementById('viewer');
-    //         if (playerElement) {
-    //             playerElement.innerHTML = '';
-
-    //             // @ts-ignore
-    //             const Player = window.Player as any;
-    //             const player = new Player({
-    //                 useWorker: true,
-    //                 workerFile: '/broadway/Decoder.js',
-    //                 webgl: 'auto',
-    //                 // size: { width: 1920, height: 1080 }
-    //             });
-
-    //             playerElement.appendChild(player.canvas);
-
-    //             // Listen for messages
-    //             socket.addEventListener('message', (event) => {
-    //                 player.decode(new Uint8Array(event.data));
-    //                 // console.log('Message', event.data);
-    //             });
-    //         }
-    //     }
-    // }
-
-
-    render() {
-        return (
-            <div id="viewer" className='fixed z-0 flex justify-center items-stretch inset-0'>
-                <canvas id="canvas" width="1280" height="720"></canvas>
-            </div>
-        )
-    }
+    return (
+        <div id="viewer" className='fixed z-0 flex justify-center items-stretch inset-0'>
+            <canvas id="canvas" width="1920" height="1080"></canvas>
+        </div>
+    )
 }
+
+Video.location = "window";
+Video.id = "video";

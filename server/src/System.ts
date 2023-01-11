@@ -24,6 +24,6 @@ export default class System extends EventEmitter {
     }
 
     broadcast(moduleId: string, data: any) {
-        this.socket.clients.forEach(client => client.send(JSON.stringify({ module: moduleId, data }), { binary: true }));
+        this.socket.clients.forEach(client => client.send(JSON.stringify({ module: moduleId, data })));
     }
 }

@@ -1,41 +1,82 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, FunctionComponent } from 'react'
 import './App.css';
 import logo from './assets/exs.svg';
 import {
-    LightBulbIcon
+    LightBulbIcon,
+    Bars3Icon,
+    ArrowsPointingOutIcon,
+    ArrowsPointingInIcon,
 } from '@heroicons/react/24/outline';
-import type ClientModule from './modules/ClientModule';
+
+import type { ClientModule, ModuleLocation } from './modules/ClientModule';
 import * as modules from './modules';
+import { EventEmitter } from 'events';
 
 const host = 'raspberrypi.local:16501';
 
+
 function App() {
-    const [socket, setSocket] = useState<WebSocket | null>(null);
+    const [socket, setSocket] = useState(new WebSocket(`ws://${host}`));
+    const [events, setEvents] = useState(new EventEmitter());
+    const [fullScreen, setFullscreen] = useState(false);
+
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    function send(module: string, data: any) {
+        console.log(module, data);
+    }
+
+    function loadModules(location: ModuleLocation) {
+        return Object.values(modules).map((Module: ClientModule) => Module.location === location ?
+            <Module
+                key={Module.name}
+                events={events}
+                send={(data: any) => send(Module.id, data)}
+            /> : null)
+    }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
 
     useEffect(() => {
-        const socket = new WebSocket(`ws://${host}`);
-        socket.binaryType = "arraybuffer";
+        window.addEventListener('fullscreenchange', (event: any) => { 
+            setFullscreen(!!document.fullscreenElement);
+        });
+        // socket.binaryType = "arraybuffer";
         socket.addEventListener('open', (event) => {
             console.log('Listening')
-            setSocket(socket);
         });
         socket.addEventListener('message', (event) => {
-            console.log('Message', event.data);
+            const data = JSON.parse(event.data);
+            events.emit(`module:${data.module}`, data.data);
         });
     }, []);
 
+
     return (
         <>
-            {Object.values(modules).map((Module: typeof ClientModule) => Module.location === 'window' ? <Module key={Module.name} /> : null)}
+            {loadModules('window')}
             <div className='z-10 absolute inset-0'>
-                <div className='absolute top-0 w-full p-8'>
+                <div className='bg-gradient-to-b space-x-8 p-8 pt-4 from-black/50 to-transparent absolute top-0 flex items-center justify-between w-full'>
+                    <div className='cursor-pointer' onClick={() => toggleFullScreen()}>
+                        {fullScreen ? <ArrowsPointingInIcon className='h-6' /> : <ArrowsPointingOutIcon className='h-6' />}
+                    </div>
+                    <div className='w-full text-left'>{loadModules('header')}</div>
+                    <div>
+                        <Bars3Icon className='h-8 cursor-pointer' />
+                    </div>
                 </div>
                 <div className='absolute bottom-0 w-full px-12 pb-4 pt-8  bg-gradient-to-t from-black/50 to-transparent'>
                     <div className='h-24 flex justify-between items-bottom '>
                         <div className='flex items-center space-x-8 w-full'>
                             <img src={logo} className='h-12' />
 
-                            {Object.values(modules).map((Module: typeof ClientModule) => Module.location === 'left' ? <Module key={Module.name} /> : null)}
+                            {loadModules('left')}
                             <div className='space-y-2'>
                                 <div className='h-16 flex justify-center items-center'>
                                     <LightBulbIcon className='h-8 text-yellow-200' />
@@ -44,8 +85,7 @@ function App() {
                             </div>
                         </div>
                         <div className='flex items-center  space-x-8'>
-                            {Object.values(modules).map((Module: typeof ClientModule) => Module.location === 'right' ? <Module socket={socket} key={Module.name} /> : null)}
-                            {/* <button onClick={() => toggleStream()}>Start Stream</button> */}
+                            {loadModules('right')}
                         </div>
                     </div>
 

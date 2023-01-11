@@ -1,10 +1,12 @@
-import React from 'react';
-export type ModuleLocation = 'left' | 'right' | 'window' | 'menu';
+import React, { FunctionComponent } from 'react';
+import type { EventEmitter } from 'events';
+export type ModuleLocation = 'left' | 'right' | 'window' | 'menu' | 'header';
 
-export default abstract class Module extends React.Component {
-    static location: ModuleLocation = 'left';
-
-    constructor(props: any) {
-        super(props);
-    }
+export type ClientModule = FunctionComponent<{
+    events: EventEmitter,
+    send: (data:any) => void
+}> & {
+    location: ModuleLocation;
+    id: string;
+    menu?: JSX.Element;
 }

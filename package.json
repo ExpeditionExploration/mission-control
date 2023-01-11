@@ -12,6 +12,7 @@
         "postinstall": "npm run install:server && npm run install:client"
     },
     "dependencies": {
+        "events": "^3.3.0",
         "gulp": "^4.0.2",
         "minimist": "^1.2.7",
         "yargs": "^17.6.2"
