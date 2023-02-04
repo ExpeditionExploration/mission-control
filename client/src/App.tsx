@@ -1,5 +1,4 @@
 import { useEffect, useState, FunctionComponent } from 'react'
-import './App.css';
 import logo from './assets/exs.svg';
 import {
     LightBulbIcon,
@@ -8,65 +7,82 @@ import {
     ArrowsPointingInIcon,
 } from '@heroicons/react/24/outline';
 
-import type { ClientModule, ModuleLocation } from './modules/ClientModule';
+import type { Module, Controller } from './modules/Module';
 import * as modules from './modules';
 import { EventEmitter } from 'events';
 
-const host = 'raspberrypi.local:16501';
+const host = import.meta.env.DEV ? 'ws://localhost:16501' : 'ws://raspberrypi.local:16501';
 
+type SocketPayload = {
+    module: string;
+    data: any;
+}
 
 function App() {
-    const [socket, setSocket] = useState(new WebSocket(`ws://${host}`));
-    const [events, setEvents] = useState(new EventEmitter());
-    const [fullScreen, setFullscreen] = useState(false);
+    const [socket, setSocket] = useState<WebSocket | null>(null);
+    const [events] = useState(new EventEmitter());
 
     const [menuOpen, setMenuOpen] = useState(false);
 
     function send(module: string, data: any) {
-        console.log(module, data);
+        if (socket?.readyState == WebSocket.OPEN) {
+            const payload: SocketPayload = { module, data };
+            socket.send(JSON.stringify(payload));
+        }
     }
 
-    function loadModules(location: ModuleLocation) {
-        return Object.values(modules).map((Module: ClientModule) => Module.location === location ?
-            <Module
-                key={Module.name}
-                events={events}
-                send={(data: any) => send(Module.id, data)}
-            /> : null)
+    function loadModules(type: keyof Module) {
+        return Object.entries(modules)
+            .filter(([name, module]) => !!module[type])
+            .map(([name, module]) => {
+                const Controller = module[type] as Controller;
+                return <Controller
+                    key={name}
+                    events={events}
+                    send={(data: any) => send(name, data)}
+                />;
+            })
     }
 
-    function toggleFullScreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else if (document.exitFullscreen) {
-            document.exitFullscreen();
+    function connectSocket() {
+        if (!socket || socket?.readyState == WebSocket.CLOSED) {
+            const socket = new WebSocket(host);
+            socket.onopen = (event) => {
+                console.log('Open')
+            };
+            socket.onmessage = (event) => {
+                const payload: SocketPayload = JSON.parse(event.data) as any;
+                events.emit(`module:${payload.module}`, payload.data);
+            };
+            socket.onclose = (event) => {
+                console.log('Closed, retry in 1s');
+                setTimeout(() => connectSocket(), 1000);
+            };
+
+            setSocket(socket);
         }
     }
 
     useEffect(() => {
-        window.addEventListener('fullscreenchange', (event: any) => { 
-            setFullscreen(!!document.fullscreenElement);
-        });
-        // socket.binaryType = "arraybuffer";
-        socket.addEventListener('open', (event) => {
-            console.log('Listening')
-        });
-        socket.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
-            events.emit(`module:${data.module}`, data.data);
-        });
+        connectSocket();
+        return () => {
+            if (socket) {
+                socket.onclose = null;
+                socket.onopen = null;
+                socket.onmessage = null;
+                socket.close();
+            }
+        }
     }, []);
-
 
     return (
         <>
             {loadModules('window')}
             <div className='z-10 absolute inset-0'>
                 <div className='bg-gradient-to-b space-x-8 p-8 pt-4 from-black/50 to-transparent absolute top-0 flex items-center justify-between w-full'>
-                    <div className='cursor-pointer' onClick={() => toggleFullScreen()}>
-                        {fullScreen ? <ArrowsPointingInIcon className='h-6' /> : <ArrowsPointingOutIcon className='h-6' />}
+                    <div className='w-full text-left flex items-center space-x-8'>
+                        {loadModules('header')}
                     </div>
-                    <div className='w-full text-left'>{loadModules('header')}</div>
                     <div>
                         <Bars3Icon className='h-8 cursor-pointer' />
                     </div>
@@ -75,14 +91,7 @@ function App() {
                     <div className='h-24 flex justify-between items-bottom '>
                         <div className='flex items-center space-x-8 w-full'>
                             <img src={logo} className='h-12' />
-
                             {loadModules('left')}
-                            <div className='space-y-2'>
-                                <div className='h-16 flex justify-center items-center'>
-                                    <LightBulbIcon className='h-8 text-yellow-200' />
-                                </div>
-                                <div className='text-xs'>Lights</div>
-                            </div>
                         </div>
                         <div className='flex items-center  space-x-8'>
                             {loadModules('right')}

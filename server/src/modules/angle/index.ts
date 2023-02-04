@@ -1,4 +1,4 @@
-import ServerModule from '../ServerModule';
+import ServerModule from '../Module';
 export default class Angle extends ServerModule {
 
 }

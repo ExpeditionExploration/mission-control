@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+    user-select: none;
+}
+
 #viewer canvas {
     width: 100% !important;
     height: 100% !important;
