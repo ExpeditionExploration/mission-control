@@ -1,4 +1,4 @@
-import { useEffect, useState, FunctionComponent } from 'react'
+import { useEffect, useState, FunctionComponent, useRef } from 'react'
 import logo from './assets/exs.svg';
 import {
     LightBulbIcon,
@@ -10,24 +10,27 @@ import {
 import type { Module, Controller } from './modules/Module';
 import * as modules from './modules';
 import { EventEmitter } from 'events';
+import logger from 'debug';
 
-const host = import.meta.env.DEV ? 'ws://localhost:16501' : 'ws://raspberrypi.local:16501';
+const host = false ? 'ws://localhost:16501' : 'ws://raspberrypi.local:16501';
 
 type SocketPayload = {
     module: string;
+    event: string;
     data: any;
 }
 
 function App() {
-    const [socket, setSocket] = useState<WebSocket | null>(null);
-    const [events] = useState(new EventEmitter());
+    const debug = logger('MissionControl:App');
+    const appSocket = useRef<WebSocket>();
+    const events = useRef(new EventEmitter());
 
     const [menuOpen, setMenuOpen] = useState(false);
 
-    function send(module: string, data: any) {
-        if (socket?.readyState == WebSocket.OPEN) {
-            const payload: SocketPayload = { module, data };
-            socket.send(JSON.stringify(payload));
+    function send(module: string, event: string = '', data: any) {
+        if (appSocket.current?.readyState == WebSocket.OPEN) {
+            const payload: SocketPayload = { module, data, event };
+            appSocket.current.send(JSON.stringify(payload));
         }
     }
 
@@ -38,39 +41,47 @@ function App() {
                 const Controller = module[type] as Controller;
                 return <Controller
                     key={name}
-                    events={events}
-                    send={(data: any) => send(name, data)}
+                    debug={logger(`MissionControl:Module:${name}`)}
+                    events={events.current}
+                    send={(data: any, event?: string) => send(name, event, data)}
                 />;
             })
     }
 
     function connectSocket() {
-        if (!socket || socket?.readyState == WebSocket.CLOSED) {
+        debug('Connecting application socket');
+        if (!appSocket.current || appSocket.current?.readyState == WebSocket.CLOSED) {
+            debug('Creating application socket');
+
             const socket = new WebSocket(host);
             socket.onopen = (event) => {
-                console.log('Open')
+                debug('Application socket connected');
             };
             socket.onmessage = (event) => {
                 const payload: SocketPayload = JSON.parse(event.data) as any;
-                events.emit(`module:${payload.module}`, payload.data);
+                events.current.emit(`Module:${payload.module}${payload.event ? `:${payload.event}` : ''}`, payload.data);
             };
             socket.onclose = (event) => {
-                console.log('Closed, retry in 1s');
+                debug('Application socket closed, retrying in 1s');
                 setTimeout(() => connectSocket(), 1000);
             };
 
-            setSocket(socket);
+            appSocket.current = socket;
         }
     }
 
+
     useEffect(() => {
+        debug('Setup app');
         connectSocket();
         return () => {
-            if (socket) {
-                socket.onclose = null;
-                socket.onopen = null;
-                socket.onmessage = null;
-                socket.close();
+            debug('Cleanup app');
+            if (appSocket.current) {
+                appSocket.current.onclose = null;
+                appSocket.current.onopen = null;
+                appSocket.current.onmessage = null;
+                appSocket.current.close();
+                appSocket.current = undefined;
             }
         }
     }, []);

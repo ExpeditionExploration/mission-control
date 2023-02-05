@@ -1,4 +1,10 @@
-import ServerModule from '../Module';
-export default class Angle extends ServerModule {
+import Module from '../Module';
 
+export const Control: Module = {
+    controller: ({
+        send,
+        events
+    }) => {
+
+    }
 }

@@ -6,12 +6,13 @@ const { hideBin } = require('yargs/helpers');
 const argv = yargs(hideBin(process.argv)).argv
 
 function clean(done) {
-    spawnSync('rm', ['-rf', './build'], { stdio: 'inherit' });
+    spawnSync('rm', ['-rf', 'build'], { stdio: 'inherit' });
     spawnSync('mkdir', ['build'], { stdio: 'inherit' });
     done();
 }
 
 function server(done) {
+    spawnSync('rm', ['-rf', 'dist'], { stdio: 'inherit', cwd: path.join(__dirname, 'server') });
     spawnSync('npm', ['run', 'build'], { stdio: 'inherit', cwd: path.join(__dirname, 'server') });
     spawnSync('cp', ['-r', 'server/dist/', 'build'], { stdio: 'inherit' });
     spawnSync('cp', ['server/package.json', 'build'], { stdio: 'inherit' });
@@ -19,28 +20,32 @@ function server(done) {
 }
 
 function client(done) {
+    spawnSync('rm', ['-rf', 'dist'], { stdio: 'inherit', cwd: path.join(__dirname, 'client') });
     spawnSync('npm', ['run', 'build'], { stdio: 'inherit', cwd: path.join(__dirname, 'client') });
     spawnSync('cp', ['-r', 'client/dist/', 'build/public'], { stdio: 'inherit' });
     done();
 }
 
 function deploy(done) {
-    // const password = argv.p;
-    // const doInstall = argv.i;
-    const updateOnly = argv.update;
-    const host = 'pi@raspberrypi.local';
-    const dir = '~/mission/mission-control';
-    if (!updateOnly) {
+    const install = argv.install;
+    const clean = argv.clean;
+    const user = 'pi';
+    const host = `${user}@raspberrypi.local`;
+    const dir = `/home/${user}/ExplorationSystems/MissionControl`;
+
+    if (clean) {
         console.log(`Cleaning directory on ${host}`);
         spawnSync('ssh', [host, `rm -rf ${dir}`], { stdio: 'inherit' });
     }
 
     console.log(`Copying files to ${host}`);
+    spawnSync('ssh', [host, `mkdir -p ${dir}`], { stdio: 'inherit' }); // Ensure directory exists
     spawnSync('rsync', ['-r', 'build/', `${host}:${dir}`], { stdio: 'inherit' });
 
-    if (!updateOnly) {
+    if (install) {
         console.log(`Installing dependencies on ${host}`);
-        spawnSync('ssh', [host, `cd ${dir}`, '&&', 'npm install --omit=dev'], { stdio: 'inherit' });
+        console.log(`Please wait while dependencies are installed...`);
+        spawnSync('ssh', [host, `cd ${dir} && bash --login -c 'npm install --omit=dev'`], { stdio: 'inherit' });
     }
     done();
 }

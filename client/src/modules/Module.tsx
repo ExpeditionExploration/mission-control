@@ -1,10 +1,11 @@
 import React from 'react';
 import type { EventEmitter } from 'events';
-
+import debug, { Debugger } from 'debug';
 
 export type Controller = (props: {
     events: EventEmitter,
-    send: (data: any) => void
+    send: (data: any, event?: string) => void,
+    debug: Debugger
 }) => JSX.Element | null;
 
 export type Module = {

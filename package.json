@@ -3,8 +3,8 @@
     "version": "0.0.1",
     "scripts": {
         "build": "gulp build",
-        "deploy": "npm run build && gulp deploy",
-        "update": "npm run build && gulp deploy --update",
+        "deploy": "npm run build && gulp deploy --install",
+        "update": "npm run build && gulp deploy",
         "install:server": "cd server && npm install",
         "start:server": "cd server && npm start",
         "install:client": "cd client && npm install",

@@ -23,7 +23,7 @@ export const Stats: Module = {
         });
 
         useEffect(() => {
-            events.on('module:Stats', (stats: Stats) => setState({
+            events.on('Module:Stats', (stats: Stats) => setState({
                 cpu: stats.cpu || 0,
                 mem: stats.mem || 0,
                 temp: stats.temp || 0

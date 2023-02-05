@@ -4,6 +4,7 @@ import type { Server } from 'ws';
 
 import type { Module, Controller } from './modules/Module';
 import * as modules from './modules';
+import logger from 'debug';
 
 import express from 'express';
 import WebSocket from 'ws';
@@ -11,6 +12,7 @@ import path from 'path';
 
 type SocketPayload = {
     module: string;
+    event: string;
     data: any;
 }
 
@@ -20,41 +22,38 @@ type SocketPayload = {
 // }
 
 export default function App() {
+    const debug = logger('MissionControl:App');
     const app = express();
     const webserverPort = 16500;
     const websocketPort = 16501;
     const events = new EventEmitter();
 
     app.use(express.static('public'));
-    // app.get('/', function (req, res) {
-    //     res.redirect('/index.html');
-    // });
-
 
     const sockets = new WebSocket.Server({ port: websocketPort });
     sockets.on('connection', socket => {
-        socket.on('close', () => console.log('Client disconnected. Clients: ', sockets.clients.size));
+        socket.on('close', () => debug('Client disconnected. Clients:', sockets.clients.size));
         socket.on('message', (message: string) => {
             try {
                 const payload: SocketPayload = JSON.parse(message) as any;
                 if (payload.module) {
-                    events.emit(`module:${payload.module}`, payload.data);
+                    events.emit(`Module:${payload.module}${payload.event ? `:${payload.event}` : ''}`, payload.data);
                 } else {
                     throw new Error('Invalid payload, missing module');
                 }
             } catch (error) {
-                console.error(error);
+                debug('Socket message error', error);
             }
         })
-        console.log('Client connected. Clients:', sockets.clients.size);
+        debug('Client connected. Clients:', sockets.clients.size);
     });
 
     app.listen(webserverPort, () => {
-        console.log(`Mission Control server listening on port ${webserverPort}`)
+        debug(`Mission Control server listening on port ${webserverPort}`);
     });
 
-    function send(module: string, data: any) {
-        const payload: SocketPayload = { module, data };
+    function send(module: string, event: string = '', data: any) {
+        const payload: SocketPayload = { module, event, data };
         sockets.clients.forEach(client => client.send(JSON.stringify(payload)));
     }
 
@@ -62,7 +61,8 @@ export default function App() {
         const Controller = module.controller as Controller;
         Controller({
             events,
-            send: (data: any) => send(name, data)
+            debug: logger(`MissionControl:Module:${name}`),
+            send: (data: any, event?: string) => send(name, event, data)
         });
     })
 }
