@@ -43,6 +43,10 @@ export const Lights: Module = {
             }
         }, []);
 
+        useEffect(() => {
+            send(brightness, 'setBrightness');
+        }, [brightness]);
+
         return <FooterController
             className='w-10'
             icon={

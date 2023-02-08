@@ -1,4 +1,4 @@
 export * from './control';
-// export * from './angle';
+export * from './lights';
 export * from './media';
 export * from './stats';

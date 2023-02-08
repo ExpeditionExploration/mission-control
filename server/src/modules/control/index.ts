@@ -1,74 +1,77 @@
 import Module from '../Module';
-import { Gpio } from 'pigpio';
+import { Gpio, waveAddGeneric, waveTxBusy, waveClear, waveTxStop, waveCreate, waveTxSend, WAVE_MODE_ONE_SHOT_SYNC } from 'pigpio';
 
 const pins = {
     motorLeftPwm: 21,
     motorLeftDir: 20,
     motorRightPwm: 16,
     motorRightDir: 12,
+    turnLeftPin: 1,
+    turnLeftDir: 7
 }
+
+const stepperDegreesPerStep = 18;
+const gearRatio = 21;
+const degreesPerStep = stepperDegreesPerStep / gearRatio; // 0.9 is the closest to the origional ratio that doesnt cause rounding errors.
 
 type Move = {
     left: number;
     right: number;
 }
 
+type Turn = {
+    left: number;
+    right: number;
+}
+type Step = {
+    gpioOn: number;
+    gpioOff: number;
+    usDelay: number;
+}
 export const Control: Module = {
     controller: ({
         send,
+        debug,
         events
     }) => {
-        const motorLeftPwm = new Gpio(pins.motorLeftPwm, { mode: Gpio.OUTPUT });
-        const motorLeftDir = new Gpio(pins.motorLeftDir, { mode: Gpio.OUTPUT });
+        const a1 = 21;
+        const a2 = 20;
+        const b1 = 16;
+        const b2 = 12;
 
-        const motorRightPwm = new Gpio(pins.motorRightPwm, { mode: Gpio.OUTPUT });
-        const motorRightDir = new Gpio(pins.motorRightDir, { mode: Gpio.OUTPUT });
+        const delay = 500;
 
-        const pwmFrequency = 10000;
-        const pwmRange = 100;
+        new Gpio(a1, { mode: Gpio.OUTPUT });
+        new Gpio(a2, { mode: Gpio.OUTPUT });
+        new Gpio(b1, { mode: Gpio.OUTPUT });
+        new Gpio(b2, { mode: Gpio.OUTPUT });
 
-        motorLeftPwm.pwmFrequency(pwmFrequency);
-        motorRightPwm.pwmFrequency(pwmFrequency);
-
-        motorLeftPwm.pwmRange(pwmRange);
-        motorRightPwm.pwmRange(pwmRange);
-
-        let targetMove = {
-            left: 0,
-            right: 0
+        const steps: {
+            [key: number]: Step[]
+        } = {
+            0: [{ gpioOn: a1, gpioOff: a2, usDelay: delay }, { gpioOn: b2, gpioOff: b1, usDelay: delay }],
+            1: [{ gpioOn: a1, gpioOff: a2, usDelay: delay }, { gpioOn: b1, gpioOff: b2, usDelay: delay }],
+            2: [{ gpioOn: a2, gpioOff: a1, usDelay: delay }, { gpioOn: b1, gpioOff: b2, usDelay: delay }],
+            3: [{ gpioOn: a2, gpioOff: a1, usDelay: delay }, { gpioOn: b2, gpioOff: b1, usDelay: delay }],
         }
-        let currentMove = {
-            left: 0,
-            right: 0
+        let lastStep = 0;
+        function doWave() {
+            let waveform: Step[] = [];
+            for (let i = 0; i < 210; i++) {
+                lastStep = (lastStep + 1) % 4;
+                waveform.push(...steps[lastStep]);
+            }
+
+            waveClear();
+            waveAddGeneric(waveform);
+            let waveId = waveCreate();
+            waveTxSend(waveId, WAVE_MODE_ONE_SHOT_SYNC);
         }
-        events.on('Module:Control:setMotors', (move: Move) => {
-            targetMove = move
-        });
 
         setInterval(() => {
-            // Ramp speed
-            if (currentMove.left < 0) motorLeftDir.digitalWrite(1); // Reverse
-            else motorLeftDir.digitalWrite(0); // Forward
-
-            if (currentMove.right < 0) motorRightDir.digitalWrite(1); // Reverse
-            else motorRightDir.digitalWrite(0); // Forward
-
-            motorLeftPwm.pwmWrite(currentMove.left);
-            motorRightPwm.pwmWrite(currentMove.right);
-
-            currentMove.left = rampValue(currentMove.left, targetMove.left, 10);
-            currentMove.right = rampValue(currentMove.right, targetMove.right, 10);
-        }, 50);
+            if (!waveTxBusy()) {
+                doWave();
+            }
+        }, 500);
     }
-}
-
-function rampValue(value: number, target: number, ramp: number) {
-    if (value < target) {
-        value += ramp;
-        if (value > target) value = target;
-    } else if (value > target) {
-        value -= ramp;
-        if (value < target) value = target;
-    }
-    return value;
 }

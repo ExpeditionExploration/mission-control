@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react"
 import type Module from "../Module";
 import clsx from "clsx";
+import { stat } from "fs";
+
 export const Control: Module = {
     right: ({
         send,
@@ -42,7 +44,7 @@ export const Control: Module = {
             setCanDrag(canDrag => !canDrag);
         }
 
-        function togglesetMove(evt: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+        function toggleSetMove(evt: React.MouseEvent<HTMLDivElement, MouseEvent>) {
             setCanSetMove(canSetMove => !canSetMove);
         }
 
@@ -72,6 +74,9 @@ export const Control: Module = {
 
         function keyupListener(event: KeyboardEvent) {
             switch (event.code) {
+                case 'Escape':
+                    setCanDrag(false);
+                    break;
                 case 'ArrowDown':
                     setMove(state => ({
                         ...state,
@@ -103,7 +108,10 @@ export const Control: Module = {
         }, []);
 
         useEffect(() => {
-            send(state);
+            send({
+                left: Math.round(state.y * 90),
+                right: Math.round(state.x * 90),
+            }, 'setTurn');
         }, [state])
 
         useEffect(() => {
@@ -132,7 +140,7 @@ export const Control: Module = {
                     <div
                         className='h-16 flex justify-center items-center'>
                         <div
-                            onClick={evt => togglesetMove(evt)}
+                            onClick={evt => toggleSetMove(evt)}
                             onMouseMove={evt => moveSpeedSlider(evt)}
                             className="relative w-6 h-12 flex justify-center">
                             <div className='pointer-events-none h-full w-0 relative border-0 border-l-2 border-white'></div>

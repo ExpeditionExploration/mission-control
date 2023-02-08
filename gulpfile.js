@@ -52,6 +52,7 @@ function deploy(done) {
 
 exports.build = series(
     clean,
-    parallel(server, client)
+    server
+    // parallel(server, client)
 );
 exports.deploy = deploy;
