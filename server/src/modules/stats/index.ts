@@ -1,6 +1,7 @@
 import Module from '../Module';
 import si from 'systeminformation';
 // https://systeminformation.io/cpu.html
+
 export const Stats: Module = {
     controller: ({
         send,

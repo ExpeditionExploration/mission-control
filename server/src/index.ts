@@ -1,43 +1,51 @@
-import pigpio from 'pigpio';
+import cp from 'child_process';
+import path from 'path';
 // pigpio.configureClock(1, pigpio.CLOCK_PCM);
+import { EventEmitter } from 'events';
+import logger from 'debug';
+import { SocketPayload } from './types';
 
-import App from './App';
-App();
-const { Gpio, waveClear, waveTxSend, waveTxBusy, waveCreate, waveAddGeneric, waveChain, WAVE_MODE_ONE_SHOT_SYNC } = pigpio;
+import express from 'express';
+import WebSocket from 'ws';
 
-async function main() {
-    const stepPin = 1;
-    const dirPin = 7;
-    const delay = 500;
-    let dir = 1;
+const debug = logger('MissionControl:App');
+const webserverPort = 16500;
+const websocketPort = 16501;
+// const events = new EventEmitter();
 
-    new Gpio(stepPin, { mode: Gpio.OUTPUT });
-    new Gpio(dirPin, { mode: Gpio.OUTPUT });
-
-    function goDir() {
-        waveClear();
-
-        const waveform = [];
-        if (dir < 0) waveform.push({ gpioOn: dirPin, gpioOff: 0, usDelay: delay }) //turnLeftDir.digitalWrite(1); // Reverse
-        else waveform.push({ gpioOn: 0, gpioOff: dirPin, usDelay: delay }); //turnLeftDir.digitalWrite(0); // Forward
+const app = express();
+app.use(express.static('public'));
+app.listen(webserverPort, () => {
+    debug(`Mission Control server listening on port ${webserverPort}`);
+});
 
 
-        for (let i = 0; i < 105; i++) { // Go 90;
-            waveform.push({ gpioOn: stepPin, gpioOff: 0, usDelay: delay }, { gpioOn: 0, gpioOff: stepPin, usDelay: delay });
+// Load modules as child processes
+const modules = cp.fork(path.join(__dirname, './modules'));
+
+// When recieving a message from a module, send it to all clients
+modules.on('message', (payload: SocketPayload) => {
+    sockets.clients.forEach(client => client.send(JSON.stringify(payload)));
+});
+
+const sockets = new WebSocket.Server({ port: websocketPort });
+sockets.on('connection', socket => {
+    socket.on('close', () => debug('Client disconnected. Clients:', sockets.clients.size));
+    socket.on('message', (message: string) => {
+        try {
+            // Send the message from the client to the modules
+            const payload: SocketPayload = JSON.parse(message) as any;
+            if (payload.module) {
+                modules.send(payload);
+            } else {
+                throw new Error('Invalid payload, missing module');
+            }
+        } catch (error) {
+            debug('Socket message error', error);
         }
+    })
+    debug('Client connected. Clients:', sockets.clients.size);
+});
 
-        waveAddGeneric(waveform);
 
-        let waveId = waveCreate();
-        waveTxSend(waveId, WAVE_MODE_ONE_SHOT_SYNC);
-    }
 
-    setInterval(() => {
-        if (!waveTxBusy()) {
-            dir = dir * -1;
-            goDir();
-        }
-    }, 500);
-}
-
-// main();

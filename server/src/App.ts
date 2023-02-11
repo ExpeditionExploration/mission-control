@@ -5,16 +5,10 @@ import type { Server } from 'ws';
 import type { Module, Controller } from './modules/Module';
 import * as modules from './modules';
 import logger from 'debug';
-
 import express from 'express';
 import WebSocket from 'ws';
 import path from 'path';
 
-type SocketPayload = {
-    module: string;
-    event: string;
-    data: any;
-}
 
 // interface IAppProps {
 //     server: Express;

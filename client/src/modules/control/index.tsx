@@ -109,9 +109,9 @@ export const Control: Module = {
 
         useEffect(() => {
             send({
-                left: Math.round(state.y * 90),
+                left: Math.round((state.x * 90) / 5) * 5,
                 right: Math.round(state.x * 90),
-            }, 'setTurn');
+            }, 'setRudders');
         }, [state])
 
         useEffect(() => {

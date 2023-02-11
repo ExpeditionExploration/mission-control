@@ -1,5 +1,6 @@
 import Module from '../Module';
 import { Gpio, waveAddGeneric, waveTxBusy, waveClear, waveTxStop, waveCreate, waveTxSend, WAVE_MODE_ONE_SHOT_SYNC } from 'pigpio';
+import Stepper from './Stepper';
 
 const pins = {
     motorLeftPwm: 21,
@@ -10,24 +11,17 @@ const pins = {
     turnLeftDir: 7
 }
 
-const stepperDegreesPerStep = 18;
-const gearRatio = 21;
-const degreesPerStep = stepperDegreesPerStep / gearRatio; // 0.9 is the closest to the origional ratio that doesnt cause rounding errors.
-
-type Move = {
+type Motor = {
     left: number;
     right: number;
 }
 
-type Turn = {
+type Rudder = {
     left: number;
     right: number;
 }
-type Step = {
-    gpioOn: number;
-    gpioOff: number;
-    usDelay: number;
-}
+
+
 export const Control: Module = {
     controller: ({
         send,
@@ -38,40 +32,35 @@ export const Control: Module = {
         const a2 = 20;
         const b1 = 16;
         const b2 = 12;
+        const stepper = new Stepper({ a1, a2, b1, b2 });
+        // stepper.findZero();
 
-        const delay = 500;
+        events.on('Module:Control:setRudders', (rudder: Rudder) => {
+            debug('setRudders', rudder);
+            /**
+             * Adds the next turn to the variable to be processed next 
+             * time the turn is updated. This is to prevent the turn
+             * from being updated while the turn is being processed.
+             * This will overwrite the previous turn.
+             */
 
-        new Gpio(a1, { mode: Gpio.OUTPUT });
-        new Gpio(a2, { mode: Gpio.OUTPUT });
-        new Gpio(b1, { mode: Gpio.OUTPUT });
-        new Gpio(b2, { mode: Gpio.OUTPUT });
+            // if (Math.abs(rudder.left) == 90) stepper.goTo(rudder.left);
 
-        const steps: {
-            [key: number]: Step[]
-        } = {
-            0: [{ gpioOn: a1, gpioOff: a2, usDelay: delay }, { gpioOn: b2, gpioOff: b1, usDelay: delay }],
-            1: [{ gpioOn: a1, gpioOff: a2, usDelay: delay }, { gpioOn: b1, gpioOff: b2, usDelay: delay }],
-            2: [{ gpioOn: a2, gpioOff: a1, usDelay: delay }, { gpioOn: b1, gpioOff: b2, usDelay: delay }],
-            3: [{ gpioOn: a2, gpioOff: a1, usDelay: delay }, { gpioOn: b2, gpioOff: b1, usDelay: delay }],
-        }
-        let lastStep = 0;
-        function doWave() {
-            let waveform: Step[] = [];
-            for (let i = 0; i < 210; i++) {
-                lastStep = (lastStep + 1) % 4;
-                waveform.push(...steps[lastStep]);
-            }
+            stepper.goTo(rudder.left);
+        });
 
-            waveClear();
-            waveAddGeneric(waveform);
-            let waveId = waveCreate();
-            waveTxSend(waveId, WAVE_MODE_ONE_SHOT_SYNC);
-        }
+        // let dir = 1;
 
-        setInterval(() => {
-            if (!waveTxBusy()) {
-                doWave();
-            }
-        }, 500);
+        // function step() {
+        //     stepper.goTo(90 * dir);
+        //     dir = dir * -1;
+        //     setTimeout(step, 1500);
+        // }
+
+        // step();
     }
+}
+
+async function wait(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
