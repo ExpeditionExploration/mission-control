@@ -21,7 +21,7 @@ app.listen(webserverPort, () => {
 
 
 // Load modules as child processes
-const modules = cp.fork(path.join(__dirname, './modules'));
+const modules = cp.fork(path.join(__dirname, './modules/loader'));
 
 // When recieving a message from a module, send it to all clients
 modules.on('message', (payload: SocketPayload) => {

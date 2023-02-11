@@ -1,6 +1,6 @@
 import Module from '../Module';
 import { Gpio, waveAddGeneric, waveTxBusy, waveClear, waveTxStop, waveCreate, waveTxSend, WAVE_MODE_ONE_SHOT_SYNC } from 'pigpio';
-import Stepper from './Stepper';
+import Stepper from './StepperWithWaves';
 
 const pins = {
     motorLeftPwm: 21,
@@ -33,6 +33,8 @@ export const Control: Module = {
         const b1 = 16;
         const b2 = 12;
         const stepper = new Stepper({ a1, a2, b1, b2 });
+
+        // const stepper = new Stepper({ step: 21, dir: 20 });
         // stepper.findZero();
 
         events.on('Module:Control:setRudders', (rudder: Rudder) => {

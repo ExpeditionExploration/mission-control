@@ -11,9 +11,10 @@ type Pins = {
 }
 
 type Options = {
-    delay: number,
-    degreesPerStep: number,
-    gearRatio: number,
+    delay?: number,
+    degreesPerStep?: number,
+    baseDegreesPerStep?: number,
+    gearRatio?: number,
 }
 
 type Step = {
@@ -35,7 +36,6 @@ type StepperPhase = {
 }
 
 export default class Stepper {
-    // pins!: { a1: Gpio, a2: Gpio, b1: Gpio, b2: Gpio };
     pins!: Pins;
     degreesPerStep!: number;
     delay!: number;
@@ -45,12 +45,13 @@ export default class Stepper {
     busy: boolean = false;
 
     constructor(pins: Pins, options: Options = {
-        delay: 1000,
-        degreesPerStep: 18,
-        gearRatio: 21,
+        delay: 5000,
+        degreesPerStep: 1,
+        // baseDegreesPerStep: 18,
+        // gearRatio: 21,
     }) {
-        this.delay = options.delay;
-        this.degreesPerStep = options.degreesPerStep / options.gearRatio;
+        this.delay = options.delay || 5000;
+        this.degreesPerStep = options.degreesPerStep ? options.degreesPerStep : options.baseDegreesPerStep && options.gearRatio ? options.baseDegreesPerStep / options.gearRatio : 1;
 
         this.pins = pins;
         const a1 = new Gpio(pins.a1, { mode: Gpio.OUTPUT });
@@ -65,12 +66,6 @@ export default class Stepper {
         this.sendWaveform([this.stepperPhases[0]]);
     }
 
-    // stepperPhases: { [pin: string]: StepperPhase } = {
-    //     0: { a1: true, a2: false, b1: false, b2: false },
-    //     1: { a1: false, a2: false, b1: true, b2: false },
-    //     2: { a1: false, a2: true, b1: false, b2: false },
-    //     3: { a1: false, a2: false, b1: false, b2: true }
-    // }
     private get stepperPhases(): { [key: number]: Step } {
         return {
             0: { gpioOn: this.pins.a1, gpioOff: this.pins.b2, usDelay: this.delay },
@@ -78,12 +73,6 @@ export default class Stepper {
             2: { gpioOn: this.pins.a2, gpioOff: this.pins.b1, usDelay: this.delay },
             3: { gpioOn: this.pins.b2, gpioOff: this.pins.a2, usDelay: this.delay },
         }
-        // return {
-        //     0: [{ gpioOn: this.pins.b1, gpioOff: this.pins.b2, usDelay: this.delay }, { gpioOn: this.pins.a1, gpioOff: this.pins.a2, usDelay: this.delay }],
-        //     1: [{ gpioOn: this.pins.b2, gpioOff: this.pins.b1, usDelay: this.delay }, { gpioOn: this.pins.a1, gpioOff: this.pins.a2, usDelay: this.delay }],
-        //     2: [{ gpioOn: this.pins.b2, gpioOff: this.pins.b1, usDelay: this.delay }, { gpioOn: this.pins.a2, gpioOff: this.pins.a1, usDelay: this.delay }],
-        //     3: [{ gpioOn: this.pins.b1, gpioOff: this.pins.b2, usDelay: this.delay }, { gpioOn: this.pins.a2, gpioOff: this.pins.a1, usDelay: this.delay }],
-        // }
     }
 
     sendWaveform(waveform: Step[]) {
@@ -132,11 +121,11 @@ export default class Stepper {
                     this.busy = false;
                     resolve();
 
-                    // if (this.queuedDegrees !== null) {
-                    //     const queuedDegrees = this.queuedDegrees;
-                    //     this.queuedDegrees = null;
-                    //     this.goTo(queuedDegrees);
-                    // }
+                    if (this.queuedDegrees !== null) {
+                        const queuedDegrees = this.queuedDegrees;
+                        this.queuedDegrees = null;
+                        this.goTo(queuedDegrees);
+                    }
                 }
             }, 10);
         });
@@ -146,7 +135,7 @@ export default class Stepper {
         debug(`Going to ${degrees} degrees`);
         // If there is something queued, update the queued value
         // Wait for wave if initial setup wave is still going or if we are busy
-        if (waveTxBusy() || this.busy) {
+        if (this.busy) {
             debug(`Queued degrees: ${this.queuedDegrees}`);
             this.queuedDegrees = degrees;
         } else {
@@ -162,9 +151,7 @@ export default class Stepper {
 
     }
 
-    async findZero() {
-        await this.goTo(90);
-        await this.goTo(-90);
-        await this.goTo(0);
+    findZero() {
+
     }
 }

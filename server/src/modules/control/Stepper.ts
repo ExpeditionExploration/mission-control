@@ -44,7 +44,7 @@ export default class Stepper {
     busy: boolean = false;
 
     constructor(pins: Pins, options: Options = {
-        delay: 100,
+        delay: 5,
         degreesPerStep: 18,
         gearRatio: 21,
     }) {
@@ -99,7 +99,7 @@ export default class Stepper {
         // Turn off all pins if null
         const stepperPhase: StepperPhase = this.stepperPhases[phase];
 
-        debug('setPhase', phase, stepperPhase)
+        // debug('setPhase', phase, stepperPhase)
         this.pins.a1.digitalWrite(+stepperPhase.a1);
         this.pins.a2.digitalWrite(+stepperPhase.a2);
         this.pins.b1.digitalWrite(+stepperPhase.b1);
