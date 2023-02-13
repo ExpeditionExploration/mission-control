@@ -29,7 +29,7 @@ const format = YUVBuffer.format({
     displayWidth: 1280,//1920,
     displayHeight: 720,//1080
 });
-const host = false ? 'ws://localhost:16502' : 'ws://raspberrypi.local:16502';
+const host = true ? 'ws://localhost:16502' : 'ws://raspberrypi.local:16502';
 
 export const Media: Module = {
     // controller: () => {

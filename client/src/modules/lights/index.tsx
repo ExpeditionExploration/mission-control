@@ -14,19 +14,34 @@ export const Lights: Module = {
 
         function keyupListener(event: KeyboardEvent) {
             switch (event.code) {
-                case 'Digit0':
-                    setBrightness(0);
-                    break;
                 case 'Digit1':
-                    setBrightness(brightness => brightness == 25 ? 0 : 25);
+                    setBrightness(brightness => brightness == 10 ? 0 : 10);
                     break;
                 case 'Digit2':
-                    setBrightness(brightness => brightness == 50 ? 0 : 50);
+                    setBrightness(brightness => brightness == 20 ? 0 : 20);
                     break;
                 case 'Digit3':
-                    setBrightness(brightness => brightness == 75 ? 0 : 75);
+                    setBrightness(brightness => brightness == 30 ? 0 : 30);
                     break;
                 case 'Digit4':
+                    setBrightness(brightness => brightness == 40 ? 0 : 40);
+                    break;
+                case 'Digit5':
+                    setBrightness(brightness => brightness == 50 ? 0 : 50);
+                    break;
+                case 'Digit6':
+                    setBrightness(brightness => brightness == 60 ? 0 : 60);
+                    break;
+                case 'Digit7':
+                    setBrightness(brightness => brightness == 70 ? 0 : 70);
+                    break;
+                case 'Digit8':
+                    setBrightness(brightness => brightness == 80 ? 0 : 80);
+                    break;
+                case 'Digit9':
+                    setBrightness(brightness => brightness == 90 ? 0 : 90);
+                    break;
+                case 'Digit0':
                     setBrightness(brightness => brightness == 100 ? 0 : 100);
                     break;
                 case 'KeyQ':
@@ -51,19 +66,31 @@ export const Lights: Module = {
             className='w-10'
             icon={
                 <div onClick={() => {
-                    setBrightness(brightness => (brightness + 25) > 100 ? 0 : brightness + 25);
+                    setBrightness(brightness => (brightness + 10) > 100 ? 0 : brightness + 10);
                 }}>
                     <LightBulbIcon className={clsx('h-8 cursor-pointer text-gray-700',
                         isIR ? {
-                            '!text-fuchsia-700': brightness == 25,
-                            '!text-fuchsia-600': brightness == 50,
-                            '!text-fuchsia-500': brightness == 75,
-                            '!text-fuchsia-400': brightness == 100
+                            '!text-fuchsia-800': brightness == 10,
+                            '!text-fuchsia-700': brightness == 20,
+                            '!text-fuchsia-600': brightness == 30,
+                            '!text-fuchsia-500': brightness == 40,
+                            '!text-fuchsia-400': brightness == 50,
+                            '!text-fuchsia-300': brightness == 60,
+                            '!text-fuchsia-200': brightness == 70,
+                            '!text-fuchsia-100': brightness == 80,
+                            '!text-fuchsia-50': brightness == 90,
+                            '!text-white': brightness == 100
                         } : {
-                            '!text-yellow-700': brightness == 25,
-                            '!text-yellow-500': brightness == 50,
-                            '!text-yellow-300': brightness == 75,
-                            '!text-yellow-100': brightness == 100
+                            '!text-yellow-800': brightness == 10,
+                            '!text-yellow-700': brightness == 20,
+                            '!text-yellow-600': brightness == 30,
+                            '!text-yellow-500': brightness == 40,
+                            '!text-yellow-400': brightness == 50,
+                            '!text-yellow-300': brightness == 60,
+                            '!text-yellow-200': brightness == 70,
+                            '!text-yellow-100': brightness == 80,
+                            '!text-yellow-50': brightness == 90,
+                            '!text-white': brightness == 100
                         })} />
                 </div>
             }

@@ -60,4 +60,8 @@ function startStream() {
     });
 }
 
-startStream();
+try{
+    startStream();
+}catch(err){
+    debug("Camera Failure", err);
+}
