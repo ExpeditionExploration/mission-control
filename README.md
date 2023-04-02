@@ -12,6 +12,8 @@ https://pimylifeup.com/raspberry-pi-nodejs/
 # Deploy
 Add your computer ssh key to your raspberry pi if you want to avoid inserting a password all the time.
 Computer's public key from `~/.ssh/id_rsa.pub` into the `~/.ssh/authorized_keys` folder on your raspberry pi.
+OR
+Run `ssh-copy-id remote-user@server-ip`
 
 # Starting
 - sudo DEBUG="MissionControl:*" node index.js

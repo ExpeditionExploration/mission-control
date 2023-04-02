@@ -13,6 +13,7 @@ export const Stats: Module = {
                 si.mem(),
                 si.cpuTemperature(),
             ]);
+
             send({
                 cpu: cpu.currentLoad,
                 mem: mem.free / mem.total * 100,

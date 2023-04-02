@@ -29,9 +29,8 @@ function client(done) {
 function deploy(done) {
     const install = argv.install;
     const clean = argv.clean;
-    const user = 'pi';
-    const host = `${user}@raspberrypi.local`;
-    const dir = `/home/${user}/ExplorationSystems/MissionControl`;
+    const host = `jupiter2@explorationsystems.local`;
+    const dir = `/home/xs/ExplorationSystems/MissionControl`;
 
     if (clean) {
         console.log(`Cleaning directory on ${host}`);
@@ -45,14 +44,14 @@ function deploy(done) {
     if (install) {
         console.log(`Installing dependencies on ${host}`);
         console.log(`Please wait while dependencies are installed...`);
-        spawnSync('ssh', [host, `cd ${dir} && bash --login -c 'npm install --omit=dev'`], { stdio: 'inherit' });
+        spawnSync('ssh', [host, `cd ${dir} && npm install --omit=dev`], { stdio: 'inherit' });
     }
     done();
 }
 
 exports.build = series(
     clean,
-    server
-    // parallel(server, client)
+    // server
+    parallel(server, client)
 );
 exports.deploy = deploy;

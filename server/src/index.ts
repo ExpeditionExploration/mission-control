@@ -1,6 +1,6 @@
 import cp from 'child_process';
 import path from 'path';
-// pigpio.configureClock(1, pigpio.CLOCK_PCM);
+
 import { EventEmitter } from 'events';
 import logger from 'debug';
 import { SocketPayload } from './types';
@@ -18,7 +18,6 @@ app.use(express.static('public'));
 app.listen(webserverPort, () => {
     debug(`Mission Control server listening on port ${webserverPort}`);
 });
-
 
 // Load modules as child processes
 const modules = cp.fork(path.join(__dirname, './modules/loader'));
