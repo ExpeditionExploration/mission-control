@@ -12,7 +12,7 @@ import * as modules from './modules';
 import { EventEmitter } from 'events';
 import logger from 'debug';
 
-const host = true ? 'ws://localhost:16501' : 'ws://raspberrypi.local:16501';
+const host = false ? 'ws://localhost:16501' : 'ws://explorationsystems.local:16501';
 
 type SocketPayload = {
     module: string;
