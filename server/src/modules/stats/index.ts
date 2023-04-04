@@ -16,7 +16,7 @@ export const Stats: Module = {
 
             send({
                 cpu: cpu.currentLoad,
-                mem: mem.free / mem.total * 100,
+                mem: mem.used / mem.total * 100,
                 temp: temp.main
             });
         }, 1000)

@@ -15,7 +15,8 @@
         "forceConsistentCasingInFileNames": true,
         "module": "ESNext",
         "moduleResolution": "Node",
-        //   "baseUrl": "./src",
+        "baseUrl": "./",
+        "rootDir": "./",
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
@@ -23,10 +24,5 @@
     },
     "include": [
         "src"
-    ],
-    "references": [
-        {
-            "path": "./tsconfig.node.json"
-        }
     ]
 }

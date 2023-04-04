@@ -5,6 +5,7 @@
         "build": "gulp build",
         "deploy": "npm run build && gulp deploy --install",
         "update": "npm run build && gulp deploy",
+        "update:server": "gulp updateServer",
         "install:server": "cd server && npm install",
         "start:server": "cd server && npm start",
         "install:client": "cd client && npm install",

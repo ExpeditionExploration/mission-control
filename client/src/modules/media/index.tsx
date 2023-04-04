@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import type Module from "../Module";
 import clsx from "clsx";
-
-const host = `ws://${window.location.hostname}:16502`;
+import { hostname } from "../../env";
 
 export const Media: Module = {
     // controller: () => {
@@ -17,15 +16,14 @@ export const Media: Module = {
         const canvasRef = useRef<HTMLCanvasElement>(null);
 
         function connectVideoStream() {
+            console.log('Connecting video stream')
             if (!videoSteamSocket.current || videoSteamSocket.current?.readyState == WebSocket.CLOSED) {
-                const socket = new WebSocket(host);
+                const socket = new WebSocket(`ws://${hostname}:16502`);
 
-                const canvas = canvasRef.current;
-                const ctx = canvas.current?.getContext('2d');
+                const canvas = canvasRef.current as HTMLCanvasElement;
+                const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
                 const img = new Image();
                 img.onload = function () {
-                    let loadedImageWidth = img.width;
-                    let loadedImageHeight = img.height;
                     // get the scale
                     // it is the min of the 2 ratios
                     let scale_factor = Math.min(canvas.width / img.width, canvas.height / img.height);
@@ -42,7 +40,7 @@ export const Media: Module = {
                     // When drawing the image, we have to scale down the image
                     // width and height in order to fit within the canvas
                     ctx.drawImage(img, x, y, newWidth, newHeight);
-                    ctx?.drawImage(img, 0, 0);
+                    // ctx?.drawImage(img, 0, 0);
                 };
 
                 socket.binaryType = "arraybuffer";

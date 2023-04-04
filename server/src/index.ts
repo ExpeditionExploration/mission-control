@@ -16,7 +16,7 @@ const websocketPort = 16501;
 const app = express();
 app.use(express.static('public'));
 app.listen(webserverPort, () => {
-    debug(`Mission Control server listening on port ${webserverPort}`);
+    console.log(`Mission Control server listening on port ${webserverPort}, sockets on ${websocketPort}`);
 });
 
 // Load modules as child processes

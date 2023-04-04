@@ -11,8 +11,7 @@ import type { Module, Controller } from './modules/Module';
 import * as modules from './modules';
 import { EventEmitter } from 'events';
 import logger from 'debug';
-
-const host = `ws://${window.location.hostname}:16501`;
+import { hostname } from './env';
 
 type SocketPayload = {
     module: string;
@@ -53,7 +52,7 @@ function App() {
         if (!appSocket.current || appSocket.current?.readyState == WebSocket.CLOSED) {
             debug('Creating application socket');
 
-            const socket = new WebSocket(host);
+            const socket = new WebSocket(`ws://${hostname}:16501`);
             socket.onopen = (event) => {
                 debug('Application socket connected');
             };

@@ -30,7 +30,7 @@ sockets.on('connection', socket => {
 });
 
 function startStream() {
-    stream = spawn('v4l2-ctl -d4 --stream-mmap --stream-to -', { shell: true });
+    stream = spawn('v4l2-ctl -d3 --stream-mmap --stream-to -', { shell: true });
     stream.stdout.pipe(p2j);
 
     stream.on("exit", function (code) {
