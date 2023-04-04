@@ -12,5 +12,11 @@ export const Media: Module = {
         debug
     }) => {
         const mediaStream = cp.fork(path.join(__dirname, './mediaStream'));
+        // events.on('capture', () => {
+        //     mediaStream.send('capture');
+        // })
+        // mediaStream.on('message', (data: Buffer) => {
+        //     send('capture', data);
+        // });
     }
 }
