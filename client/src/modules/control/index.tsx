@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react"
-import type Module from "../Module";
+import type Module from "../../types";
 import clsx from "clsx";
 import { stat } from "fs";
 

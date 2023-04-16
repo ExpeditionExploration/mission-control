@@ -20,7 +20,7 @@ app.listen(webserverPort, () => {
 });
 
 // Load modules as child processes
-const modules = cp.fork(path.join(__dirname, './modules/loader'));
+const modules = cp.fork(path.join(__dirname, './modules'));
 
 // When recieving a message from a module, send it to all clients
 modules.on('message', (payload: SocketPayload) => {
@@ -34,16 +34,12 @@ sockets.on('connection', socket => {
         try {
             // Send the message from the client to the modules
             const payload: SocketPayload = JSON.parse(message) as any;
-            if (payload.module) {
-                modules.send(payload);
-            } else {
-                throw new Error('Invalid payload, missing module');
-            }
+            modules.send(payload);
         } catch (error) {
-            debug('Socket message error', error);
+            console.error('Socket message error', error);
         }
     })
-    debug('Client connected. Clients:', sockets.clients.size);
+    console.log('Client connected. Clients:', sockets.clients.size);
 });
 
 

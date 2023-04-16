@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import Module from "../Module";
+import Module from "../../types";
 import clsx from "clsx";
 import FooterController from "../../components/FooterController";
 

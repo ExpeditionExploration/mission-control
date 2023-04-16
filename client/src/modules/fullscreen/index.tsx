@@ -1,5 +1,5 @@
 import { useEffect, useState, FunctionComponent } from "react"
-import type Module from "../Module";
+import type Module from "../../types";
 import clsx from "clsx";
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon } from "@heroicons/react/24/outline";
 

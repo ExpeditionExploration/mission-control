@@ -1,7 +1,5 @@
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import type Module from '../Module';
 import WebSocket, { Server } from 'ws';
-import cp from 'child_process';
 import logger from 'debug';
 import { Transform } from 'stream';
 
