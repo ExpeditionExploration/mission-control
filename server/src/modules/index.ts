@@ -1,11 +1,23 @@
 import * as modules from './modules';
 import { SocketPayload, Module } from '../types';
 import { EventEmitter } from 'events';
+import debug from 'debug';
+
+const log = debug('MissionControl:Module');
 
 const events = new EventEmitter();
+class ModuleEventPayload {
+    data: any = {};
+    event: string = '';
+
+    constructor(event: string, data: any) {
+        this.event = event;
+        this.data = data;
+    }
+}
 
 process.on('message', (payload: SocketPayload) => {
-    console.log('Recieved message from child', payload)
+    log('Recieved message from child', payload)
 
     events.emit(`${payload.event}:_`, payload.data); // Emit the base event
     events.emit(payload.event, payload.data); // Emit any events that are specified
@@ -21,24 +33,36 @@ for (const [name, module] of Object.entries(modules as Record<string, Module>)) 
     const id = `Module:${name}`
 
     const controllerArray = Array.isArray(module) ? module : [module];
-    console.debug(`Loading module ${name}`)
+    log(`Loading module ${name}`)
 
     for (const controller of controllerArray) {
-        console.debug(`Loading ${name} controller`)
+        log(`Loading ${name} controller`)
         controller({
             events,
             on: (...args: any[]) => {
                 let event = id;
-                let callback = () => { };
+                let callback = (arg:any) => { };
 
                 if (args.length == 1) {
                     callback = args[0];
-                    event += `:_`; // Default event must not be blank so that when the module emits a base event, it doesn't trigger the default event and create an infinite loop
                 } else if (args.length == 2) {
                     event += `:${args[0]}`;
                     callback = args[1];
                 }
-                events.on(event, callback)
+                events.on(event, (payload: ModuleEventPayload | any) => {
+                    if(payload instanceof ModuleEventPayload){
+                        // Payload came from a module, check if the event is the same as the listener
+                        // if so, don't fire the callback to prevent an infinite loop.
+                        // This is because the base emit might be called from inside the base on function.
+
+                        if(payload.event !== event){
+                            callback(payload.data);
+                        }
+                    }else{
+                        // Payload didn't come from inside a module.
+                        callback(payload);
+                    }
+                })
             },
             emit: (...args: any[]) => {
                 let event = id;
@@ -50,10 +74,14 @@ for (const [name, module] of Object.entries(modules as Record<string, Module>)) 
                     event += `:${args[0]}`;
                     data = args[1];
                 }
-                console.log('Emitting', event, data)
-                events.emit(event, data) // Emit to the events object so that other modules can listen to it
+
+                log('Emitting', event, data)
+
+                const payload = new ModuleEventPayload(event, data);
+                events.emit(event, payload) // Emit to the events object so that other modules can listen to it
                 send(event, data) // Send to the server
-            }
+            },
+            log: log.extend(name)
         })
     }
 }

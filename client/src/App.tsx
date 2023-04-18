@@ -12,7 +12,9 @@ import * as modules from './modules';
 import { EventEmitter } from 'events';
 import loadModules from './modules';
 import { hostname } from './env';
+import debug from 'debug';
 
+const log = debug('MissionControl:App');
 const events = new EventEmitter();
 
 function App() {
@@ -36,22 +38,21 @@ function App() {
     }
 
     function connectSocket() {
-        console.debug('Connecting application socket');
+        log('Connecting App socket');
         if (!appSocket.current || appSocket.current?.readyState == WebSocket.CLOSED) {
-            console.debug('Creating application socket');
+            log('Creating App socket');
 
             const socket = new WebSocket(`ws://${hostname}:16501`);
             socket.onopen = (event) => {
-                console.debug('Application socket connected');
+                log('App socket connected');
             };
             socket.onmessage = (event) => {
                 const payload: SocketPayload = JSON.parse(event.data) as any;
-                console.debug('Application socket message', payload);
-                events.emit(`${payload.event}:_`, payload.data); // Emit the base event
+                log('App socket message', payload);
                 events.emit(payload.event, payload.data); // Emit any events that are specified
             };
             socket.onclose = (event) => {
-                console.debug('Application socket closed, retrying in 1s');
+                log('App socket closed, retrying in 1s');
                 setTimeout(() => connectSocket(), 1000);
             };
 
@@ -61,12 +62,12 @@ function App() {
 
 
     useEffect(() => {
-        console.debug('Setup app');
+        log('Setup app');
         connectSocket();
         setLoadedControllers(loadModules({ events, send }))
 
         return () => {
-            console.debug('Cleanup app');
+            log('Cleanup app');
             if (appSocket.current) {
                 appSocket.current.onclose = null;
                 appSocket.current.onopen = null;

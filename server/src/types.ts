@@ -1,3 +1,4 @@
+import type { Debugger } from 'debug'
 import type { EventEmitter } from 'events';
 export enum Location {
     Header,
@@ -17,9 +18,14 @@ export type OnFunction = (...args: [string, OnEventCallback] | [OnEventCallback]
 export type Controller = (props: {
     events: EventEmitter,
     on: OnFunction,
-    emit: EmitFunction
+    emit: EmitFunction,
+    log: Debugger
 }) => void;
 
+type EventPayload = {
+    data: any,
+    module: string,
+}
 type ControllerArray = Array<Controller>;
 
 export type Module = ControllerArray | Controller;

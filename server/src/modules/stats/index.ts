@@ -3,7 +3,8 @@ import si from 'systeminformation';
 import { Module } from '../../types';
 
 export const Stats: Module = ({
-    emit
+    emit,
+    log
 }) => {
     setInterval(async () => {
         const [cpu, mem, temp] = await Promise.all([
@@ -12,12 +13,14 @@ export const Stats: Module = ({
             si.cpuTemperature(),
         ]);
 
-        console.log(mem)
-
-        emit({
+        const data = {
             cpu: cpu.currentLoad,
             mem: mem.available / mem.total * 100,
             temp: temp.main
-        });
+        }
+
+        log('Stats', data);
+
+        emit(data);
     }, 1000)
 }

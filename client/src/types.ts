@@ -1,6 +1,6 @@
 import React from 'react';
 import type { EventEmitter } from 'events';
-import debug, { Debugger } from 'debug';
+import type { Debugger } from 'debug';
 
 export enum Location {
     Header,
@@ -19,29 +19,24 @@ export enum Location {
 // }) => JSX.Element | null;
 
 
-type EmitData = Record<string,any>
-export type EmitFunction = (...args: [string, EmitData] | [EmitData]) => void
+export type EmitFunction = (...args: [string, any] | [any]) => void
 
 type OnEventCallback = (data: any) => void
 export type OnFunction = (...args: [string, OnEventCallback] | [OnEventCallback]) => void
 
 export type Controller = {
-    location: Location;
+    location?: Location;
     (props: {
         events: EventEmitter,
         on: OnFunction,
-        emit: EmitFunction
+        emit: EmitFunction,
+        log: Debugger
     }): JSX.Element | null;
 };
 
 type ControllerArray = Array<Controller>;
 
 export type Module = ControllerArray | Controller;
-
-export type SocketPayload = {
-    event: string;
-    data: any;
-}
 
 // export type Module = {
 //     id: string;
@@ -54,7 +49,10 @@ export type SocketPayload = {
 // }
 
 export type LoadedControllers = { [key in Location]: Array<JSX.Element | null> };
-
+export type SocketPayload = {
+    event: string;
+    data: any;
+}
 
 // Create a typescript type that is a function with a static parameter
 
