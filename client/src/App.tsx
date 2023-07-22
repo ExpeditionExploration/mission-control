@@ -77,7 +77,7 @@ function App() {
             }
         }
     }, []);
-
+    console.log(loadedControllers);
     return (
         <>
             <div className='!hidden absolute -z-10'>
