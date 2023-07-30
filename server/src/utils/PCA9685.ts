@@ -1,8 +1,10 @@
 import * as i2c from 'i2c-bus';
+import debug from 'debug';
 export const ADDRESS = 0x40;
 export const FREQUENCY = 50;
 export const MODE1 = 0x00;
 export const PRESCALE = 0xfe;
+const log = debug('PCA9685');
 
 export const channels: Record<
     number,
@@ -32,8 +34,11 @@ export const channels: Record<
 const ic2Bus = i2c.openSync(0);
 const ic2BusPromisified = ic2Bus.promisifiedBus();
 
+// Reset the device
+reset();
+
 // Go to sleep
-ic2Bus.writeByteSync(ADDRESS, MODE1, 0x11);
+sleep();
 
 // Set the prescaler
 const prescale = Math.round(25000000 / (4096 * FREQUENCY)) - 1;
@@ -42,8 +47,18 @@ ic2Bus.writeByteSync(ADDRESS, PRESCALE, prescale);
 // Leave sleep mode
 ic2Bus.writeByteSync(ADDRESS, MODE1, 0x1);
 
-export function mapValue(current: number, out_min = 0, out_max = 1, in_min = 0, in_max = 1) {
-    const mapped = ((current - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+export function sleep() {
+    log('Going To Sleep');
+    ic2Bus.writeByteSync(ADDRESS, MODE1, parseInt('00010001', 2));
+}
+
+export function reset() {
+    log('Resetting');
+    ic2Bus.writeByteSync(ADDRESS, MODE1, parseInt('10000001', 2));
+}
+
+export function mapValue(current: number, inMin = 0, inMax = 1, outMin = 0, outMax = 1) {
+    const mapped = ((current - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
     return mapped;
 }
 
@@ -52,6 +67,7 @@ export async function wait(ms: number): Promise<void> {
 }
 
 export async function setDutyCycle(channel: number, dutyCycle: number) {
+    log('Setting duty cycle', channel, dutyCycle);
     const {
         on: [ON_L, ON_H],
         off: [OFF_L, OFF_H],
