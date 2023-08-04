@@ -8,7 +8,7 @@ export enum Location {
     BottomRight,
     Menu,
     Window,
-    Hidden
+    Hidden,
 }
 
 // export type Controller = (props: {
@@ -18,20 +18,14 @@ export enum Location {
 //     emit: (event: string, data: any) => void,
 // }) => JSX.Element | null;
 
+export type EmitFunction = (event: string, data?: any) => void;
 
-export type EmitFunction = (...args: [string, any] | [any]) => void
-
-type OnEventCallback = (data: any) => void
-export type OnFunction = (...args: [string, OnEventCallback] | [OnEventCallback]) => void
+type OnEventCallback = (data: any) => void;
+export type OnFunction = (event: string, callback: OnEventCallback) => void;
 
 export type Controller = {
     location?: Location;
-    (props: {
-        events: EventEmitter,
-        on: OnFunction,
-        emit: EmitFunction,
-        log: Debugger
-    }): JSX.Element | null;
+    (props: { events: EventEmitter; on: OnFunction; emit: EmitFunction; log: Debugger }): JSX.Element | null;
 };
 
 type ControllerArray = Array<Controller>;
@@ -52,10 +46,9 @@ export type LoadedControllers = { [key in Location]: Array<JSX.Element | null> }
 export type SocketPayload = {
     event: string;
     data: any;
-}
+};
 
 // Create a typescript type that is a function with a static parameter
-
 
 // export type Module = {
 //     controller?: Controller;

@@ -1,6 +1,20 @@
-const {spawn, exec} = require('child_process');
+function shortestRotationAngle(currentAngle, targetAngle) {
+    // Normalize the angles to be within the range [0, 360)
+    currentAngle = ((currentAngle % 360) + 360) % 360;
+    targetAngle = ((targetAngle % 360) + 360) % 360;
 
-const c = exec( {shell: '/bin/zsh', stdio: ['pipe', 'pipe', 'pipe']})
-c.stdout.on('data', (data) => console.log(data.toString()))
-c.stderr.on('data', (data) => console.log(data.toString()))
-setInterval(()=>c.stdin.write('echo "hello world"'), 1000)
+    // Calculate the absolute difference between the angles
+    let diff = targetAngle - currentAngle;
+
+    // Normalize the difference to be within the range [-180, 180)
+    if (diff < -180) {
+        diff += 360;
+    } else if (diff >= 180) {
+        diff -= 360;
+    }
+
+    return diff;
+}
+
+// Test cases
+console.log(shortestRotationAngle(180, 170)); // Output: -5
