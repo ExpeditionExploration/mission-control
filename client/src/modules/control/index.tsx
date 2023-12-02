@@ -134,8 +134,8 @@ export const Control: Module = ({ emit }) => {
 
     useEffect(() => {
         const rudders = {
-            left: round5(clamp(state.y + state.x * (state.x > 0 ? -1 : 1), -1, 1) * 90),
-            right: round5(clamp(state.y + state.x * (state.x > 0 ? 1 : -1), -1, 1) * 90),
+            left: clamp(state.y + state.x * (state.x > 0 ? -1 : 1), -1, 1),
+            right: clamp(state.y + state.x * (state.x > 0 ? 1 : -1), -1, 1),
         };
 
         emit('setRudders', rudders);
@@ -143,8 +143,8 @@ export const Control: Module = ({ emit }) => {
 
     useEffect(() => {
         emit('setMotors', {
-            left: Math.trunc(motors.speed * motors.left * 100),
-            right: Math.trunc(motors.speed * motors.right * 100),
+            left: clamp(motors.speed * motors.left, -1, 1),
+            right: clamp(motors.speed * motors.right, -1, 1),
         });
     }, [motors]);
 

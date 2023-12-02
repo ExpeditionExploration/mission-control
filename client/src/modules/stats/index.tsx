@@ -19,7 +19,7 @@ export const Stats: Module = ({ on, emit }) => {
     });
 
     useEffect(() => {
-        on('stat', (stats: Stats) =>
+        on('stats', (stats: Stats) =>
             setState({
                 cpu: stats.cpu || 0,
                 mem: stats.mem || 0,
