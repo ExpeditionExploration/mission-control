@@ -1,17 +1,5 @@
 import { Module } from '../../types';
-import { setDutyCycle, mapValue, sleep, wait } from '../../utils/PCA9685';
-// import { Gpio, waveAddGeneric, waveTxBusy, waveClear, waveTxStop, waveCreate, waveTxSend, WAVE_MODE_ONE_SHOT_SYNC } from 'pigpio';
-// import Stepper from './StepperWithWaves';
-import { PCA9685 } from 'openi2c/dist/PCA9685';
-
-// const pins = {
-//     motorLeftPwm: 21,
-//     motorLeftDir: 20,
-//     motorRightPwm: 16,
-//     motorRightDir: 12,
-//     turnLeftPin: 1,
-//     turnLeftDir: 7
-// }
+import { PCA9685, sleep, mapValue } from 'openi2c';
 
 const rudderChannels = {
     left: 0,
@@ -33,22 +21,52 @@ type Rudder = {
     right: number;
 };
 
-const DUTY_MIN = 0.05;
-const DUTY_MAX = 0.1;
-const MOTOR_MIN = -130;
-const MOTOR_MAX = 130;
+const DUTY_MIN = -1;
+const DUTY_MAX = 1;
+const ESC_MIN = 0.05; // 1ms at 50Hz
+const ESC_MAX = 0.1; // 2ms at 50Hz
+const ESC_ARM = 0.12; // Any value over 2ms
 
 export const Control: Module = async ({ log, on, emit }) => {
     const pwmDriver = new PCA9685();
     await pwmDriver.setFrequency(50);
 
+    await armAllEsc();
+
     on('setRudders', (rudder: Rudder) => {
-        pwmDriver.setDutyCycle(rudderChannels.left, mapValue(rudder.left, -1, 1, 0, 1));
-        pwmDriver.setDutyCycle(rudderChannels.right, mapValue(rudder.right, -1, 1, 0, 1));
+        setEsc(rudderChannels.left, rudder.left);
+        setEsc(rudderChannels.right, rudder.right);
     });
 
     on('setMotors', async (motor: Motor) => {
-        pwmDriver.setDutyCycle(motorChannels.left, mapValue(motor.left, -1, 1, 0, 1));
-        pwmDriver.setDutyCycle(motorChannels.right, mapValue(motor.right, -1, 1, 0, 1));
+        setEsc(motorChannels.left, motor.left);
+        setEsc(motorChannels.right, motor.right);
     });
+
+    async function setEsc(channel: number, value: number) {
+        log(`Setting ESC ${channel} to ${value}`);
+        // value is between -1 and 1
+        await pwmDriver.setDutyCycle(
+            channel,
+            mapValue(value, DUTY_MIN, DUTY_MAX, ESC_MIN, ESC_MAX) // Not sure if setting to 0 is nessesary.
+        );
+    }
+
+    async function armAllEsc() {
+        log('Arming ESCs');
+        await setAllEsc(ESC_ARM);
+        await sleep(5000);
+        await setAllEsc(0);
+        log('ESCs Armed');
+    }
+
+    async function setAllEsc(dutyCycle: number) {
+        log(`Setting all ESCs to ${dutyCycle}`);
+        await Promise.all([
+            pwmDriver.setDutyCycle(rudderChannels.left, dutyCycle),
+            pwmDriver.setDutyCycle(rudderChannels.right, dutyCycle),
+            pwmDriver.setDutyCycle(motorChannels.left, dutyCycle),
+            pwmDriver.setDutyCycle(motorChannels.right, dutyCycle),
+        ]);
+    }
 };

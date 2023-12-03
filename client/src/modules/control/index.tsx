@@ -7,9 +7,9 @@ function clamp(num: number, min: number, max: number) {
     return Math.min(Math.max(num, min), max);
 }
 
-function round5(x: number) {
-    return Math.ceil(x / 5) * 5;
-}
+// function round5(x: number) {
+//     return Math.ceil(x / 5) * 5;
+// }
 
 export const Control: Module = ({ emit }) => {
     const [canDrag, setCanDrag] = useState(false);

@@ -31,17 +31,17 @@ export const Stats: Module = ({ on, emit }) => {
     return (
         <>
             <div className="space-x-2 flex font-semibold items-center">
-                <div className={clsx(baseStyle, state.cpu > 80 && warningStyle)}>
+                <div className={clsx(baseStyle, state.cpu > 90 && warningStyle)}>
                     CPU
                     <br />
                     {state.cpu.toFixed(precision)}%
                 </div>
-                <div className={clsx(baseStyle, state.mem > 80 && warningStyle)}>
+                <div className={clsx(baseStyle, state.mem > 90 && warningStyle)}>
                     MEM
                     <br />
                     {state.mem.toFixed(precision)}%
                 </div>
-                <div className={clsx(baseStyle, state.temp > 80 && warningStyle)}>
+                <div className={clsx(baseStyle, state.temp > 90 && warningStyle)}>
                     TEMP
                     <br />
                     {state.temp.toFixed(precision)}°c
