@@ -5,7 +5,7 @@ const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const argv = yargs(hideBin(process.argv)).argv;
 
-const host = `root@nanopineo3.local`;
+const host = `root@NanoPi-NEO3.local`;
 const dir = `~/MissionControl`;
 
 function clean(done) {

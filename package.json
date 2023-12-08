@@ -19,5 +19,8 @@
         "minimist": "^1.2.7",
         "openi2c": "github:ExplorationSystems/openi2c",
         "yargs": "^17.6.2"
+    },
+    "devDependencies": {
+        "@types/node": "^20.10.3"
     }
 }

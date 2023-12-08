@@ -7,7 +7,7 @@ const debug = logger('MissionControl:Module:Media:CameraStream');
 
 
 const Pipe2Jpeg: {
-    new (): Transform;
+    new(): Transform;
 } = require('pipe2jpeg');
 
 const p2j = new Pipe2Jpeg();
@@ -21,14 +21,14 @@ sockets.on('connection', socket => {
     socket.onclose = () => {
         debug('Client disconnected. Clients:', sockets.clients.size);
     }
-    
+
     p2j.on('data', function (data: Buffer) {
         socket.send(data, { binary: true });
     });
 });
 
 function startStream() {
-    stream = spawn('v4l2-ctl -d3 --stream-mmap --stream-to -', { shell: true });
+    stream = spawn('v4l2-ctl -d0 --stream-mmap --stream-to -', { shell: true });
     stream.stdout.pipe(p2j);
 
     stream.on("exit", function (code) {
