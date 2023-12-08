@@ -1,58 +1,60 @@
 import { Module } from '../../types';
 import { PCA9685, sleep, mapValue } from 'openi2c';
 import { SmoothValue } from '../../utils/SmoothValue';
-import { } from 'opengpio';
 
-const rudderChannels = {
+const aileronChannels = {
     left: 0,
     right: 1,
 };
 
-const motorChannels = {
+const thrusterChannels = {
     left: 2,
     right: 3,
 };
 
-type Motor = {
+type ThrusterUpdate = {
     left: number;
     right: number;
 };
 
-type Rudder = {
+type AileronUpdate = {
     left: number;
     right: number;
 };
 
 const DUTY_MIN = -1;
 const DUTY_MAX = 1;
+const ESC_DRIVER_FREQUENCY = 50;
 const ESC_MIN = 0.05; // 1ms at 50Hz
 const ESC_MAX = 0.1; // 2ms at 50Hz
 const ESC_ARM = 0.12; // Any value over 2ms
-const SPEED_SMOOTHING = 0.1;
+const SPEED_SMOOTHING = 1;
 
 export const Control: Module = async ({ log, on, emit }) => {
-    const motor = {
-        left: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(motorChannels.left, value)),
-        right: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(motorChannels.right, value))
-    };
-    const rudder = {
-        left: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(rudderChannels.left, value)),
-        right: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(rudderChannels.right, value))
-    };
-
-    const pwmDriver = new PCA9685();
-    await pwmDriver.setFrequency(50);
-
+    const pwmDriver = new PCA9685(0, {
+        frequency: ESC_DRIVER_FREQUENCY,
+    });
+    await pwmDriver.init()
     await armAllEsc();
 
-    on('setRudders', (update: Rudder) => {
-        rudder.left.value = update.left;
-        rudder.right.value = update.right;
+    // const aileronValues = {
+    //     left: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(aileronChannels.left, value)),
+    //     right: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(aileronChannels.right, value))
+    // };
+
+    // const thrusterValues = {
+    //     left: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(thrusterChannels.left, value)),
+    //     right: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(thrusterChannels.right, value))
+    // };
+
+    on('setAilerons', (update: AileronUpdate) => {
+        // aileronValues.left.value = update.left;
+        // aileronValues.right.value = update.right;
     });
 
-    on('setMotors', async (update: Motor) => {
-        motor.left.value = update.left;
-        motor.right.value = update.right;
+    on('setThrusters', async (update: ThrusterUpdate) => {
+        // thrusterValues.left.value = update.left;
+        // thrusterValues.right.value = update.right;
     });
 
     async function setEsc(channel: number, value: number) {
@@ -66,6 +68,8 @@ export const Control: Module = async ({ log, on, emit }) => {
 
     async function armAllEsc() {
         log('Arming ESCs');
+        await setAllEsc(0);
+        await sleep(1000);
         await setAllEsc(ESC_ARM);
         await sleep(5000);
         await setAllEsc(0);
@@ -75,10 +79,10 @@ export const Control: Module = async ({ log, on, emit }) => {
     async function setAllEsc(dutyCycle: number) {
         log(`Setting all ESCs to ${dutyCycle}`);
         await Promise.all([
-            pwmDriver.setDutyCycle(rudderChannels.left, dutyCycle),
-            pwmDriver.setDutyCycle(rudderChannels.right, dutyCycle),
-            pwmDriver.setDutyCycle(motorChannels.left, dutyCycle),
-            pwmDriver.setDutyCycle(motorChannels.right, dutyCycle),
+            pwmDriver.setDutyCycle(aileronChannels.left, dutyCycle),
+            pwmDriver.setDutyCycle(aileronChannels.right, dutyCycle),
+            pwmDriver.setDutyCycle(thrusterChannels.left, dutyCycle),
+            pwmDriver.setDutyCycle(thrusterChannels.right, dutyCycle),
         ]);
     }
 };

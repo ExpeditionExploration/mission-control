@@ -15,14 +15,14 @@ export const Control: Module = ({ emit }) => {
     const [canDrag, setCanDrag] = useState(false);
     const [canSetMove, setCanSetMove] = useState(false);
     const controlRef = useRef<HTMLDivElement>(null);
-    const [motors, setMotors] = useState({
+    const [thrusters, setThrusters] = useState({
         speed: 1,
         left: 0,
         right: 0,
         // direction: 0,
     });
     // const [canSetMove, setCanSetMove] = useState(false);
-    // TODO Convert x and y into rotational coordinates for the motors
+    // TODO Convert x and y into rotational coordinates for the thrusters
     const [state, setState] = useState({
         x: 0,
         y: 0,
@@ -64,7 +64,7 @@ export const Control: Module = ({ emit }) => {
         setCanSetMove((canSetMove) => !canSetMove);
     }, []);
 
-    const motorsSpeedSlider = useCallback(
+    const thrustersSpeedSlider = useCallback(
         (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
             if (canSetMove) {
                 const target = evt.target as HTMLElement;
@@ -74,7 +74,7 @@ export const Control: Module = ({ emit }) => {
                 percent = clamp(percent, 0, 1);
                 percent = 1 - percent;
 
-                setMotors((state) => ({ ...state, speed: percent }));
+                setThrusters((state) => ({ ...state, speed: percent }));
             }
         },
         [canSetMove]
@@ -83,16 +83,16 @@ export const Control: Module = ({ emit }) => {
     const keydownListener = useCallback((event: KeyboardEvent) => {
         switch (event.code) {
             case 'KeyW':
-                setMotors((state) => ({ ...state, left: 1, right: 1 }));
+                setThrusters((state) => ({ ...state, left: 1, right: 1 }));
                 break;
             case 'KeyS':
-                setMotors((state) => ({ ...state, left: -1, right: -1 }));
+                setThrusters((state) => ({ ...state, left: -1, right: -1 }));
                 break;
             case 'KeyA':
-                setMotors((state) => ({ ...state, left: -1, right: 1 }));
+                setThrusters((state) => ({ ...state, left: -1, right: 1 }));
                 break;
             case 'KeyD':
-                setMotors((state) => ({ ...state, left: 1, right: -1 }));
+                setThrusters((state) => ({ ...state, left: 1, right: -1 }));
                 break;
         }
     }, []);
@@ -103,13 +103,13 @@ export const Control: Module = ({ emit }) => {
                 setCanDrag(false);
                 break;
             case 'ArrowDown':
-                setMotors((state) => ({
+                setThrusters((state) => ({
                     ...state,
                     speed: state.speed - 0.1 > 0 ? state.speed - 0.1 : 0,
                 }));
                 break;
             case 'ArrowUp':
-                setMotors((state) => ({
+                setThrusters((state) => ({
                     ...state,
                     speed: state.speed + 0.1 < 1 ? state.speed + 0.1 : 1,
                 }));
@@ -118,7 +118,7 @@ export const Control: Module = ({ emit }) => {
             case 'KeyS':
             case 'KeyA':
             case 'KeyD':
-                setMotors((state) => ({ ...state, left: 0, right: 0 }));
+                setThrusters((state) => ({ ...state, left: 0, right: 0 }));
                 break;
         }
     }, []);
@@ -133,20 +133,20 @@ export const Control: Module = ({ emit }) => {
     }, []);
 
     useEffect(() => {
-        const rudders = {
+        const ailerons = {
             left: clamp(state.y + state.x * (state.x > 0 ? -1 : 1), -1, 1),
             right: clamp(state.y + state.x * (state.x > 0 ? 1 : -1), -1, 1),
         };
 
-        emit('setRudders', rudders);
+        emit('setAilerons', ailerons);
     }, [state]);
 
     useEffect(() => {
-        emit('setMotors', {
-            left: clamp(motors.speed * motors.left, -1, 1),
-            right: clamp(motors.speed * motors.right, -1, 1),
+        emit('setThrusters', {
+            left: clamp(thrusters.speed * thrusters.left, -1, 1),
+            right: clamp(thrusters.speed * thrusters.right, -1, 1),
         });
-    }, [motors]);
+    }, [thrusters]);
 
     useEffect(() => {
         if (canDrag) {
@@ -162,7 +162,7 @@ export const Control: Module = ({ emit }) => {
     }, [canDrag]);
 
     // Sets the min gradient ramp start size to 25%
-    const speedRamp = (motors.speed * 0.9 + 0.1) * 100;
+    const speedRamp = (thrusters.speed * 0.9 + 0.1) * 100;
 
     return (
         <>
@@ -175,14 +175,14 @@ export const Control: Module = ({ emit }) => {
                 })}
             >
                 <div
-                    onMouseMove={(evt) => motorsSpeedSlider(evt)}
+                    onMouseMove={(evt) => thrustersSpeedSlider(evt)}
                     className="h-16 flex justify-center items-center cursor-move"
                 >
                     <div className="relative w-6 h-12 flex justify-center">
                         <div className="pointer-events-none h-full w-0 relative border-0 border-l-2 border-white"></div>
                         <div
                             style={{
-                                top: `${(1 - motors.speed) * 100}%`,
+                                top: `${(1 - thrusters.speed) * 100}%`,
                             }}
                             className="pointer-events-none absolute h-0 w-full border-t-2 border-white"
                         ></div>
@@ -200,20 +200,20 @@ export const Control: Module = ({ emit }) => {
                             background: clsx({
                                 // Stop
                                 [`radial-gradient(circle at center, #ffffff44 0, #ffffff00 ${speedRamp}%)`]:
-                                    motors.left == 0 && motors.right == 0,
+                                    thrusters.left == 0 && thrusters.right == 0,
                                 // Forwards
                                 [`radial-gradient(circle at center, #00aa00ff 0, #ffffff00 ${speedRamp}%)`]:
-                                    motors.left > 0 && motors.right > 0,
+                                    thrusters.left > 0 && thrusters.right > 0,
                                 // Backwards
                                 [`radial-gradient(circle at center, #ff0000ff 0, #ffffff00 ${speedRamp}%)`]:
-                                    motors.left < 0 && motors.right < 0,
+                                    thrusters.left < 0 && thrusters.right < 0,
                                 // Left
                                 [`radial-gradient(circle at center, #0077ffff 0, #ffffff00 ${speedRamp}%)`]:
-                                    motors.left < 0 && motors.right > 0,
+                                    thrusters.left < 0 && thrusters.right > 0,
                                 // Right
                                 [`radial-gradient(circle at center, #ff7700ff 0, #ffffff00 ${speedRamp}%)`]:
-                                    motors.left > 0 && motors.right < 0,
-                                // [`radial-gradient(circle at center, #ff0000ff 0, #ffffff00 ${speedRamp}%)`]: motors.direction < 0,
+                                    thrusters.left > 0 && thrusters.right < 0,
+                                // [`radial-gradient(circle at center, #ff0000ff 0, #ffffff00 ${speedRamp}%)`]: thrusters.direction < 0,
                             }),
                         }}
                         className={clsx(
