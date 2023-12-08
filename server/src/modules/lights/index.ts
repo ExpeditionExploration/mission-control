@@ -1,26 +1,24 @@
-import Module from '../Module';
-import { Gpio } from 'pigpio';
+import { PCA9685, mapValue } from 'openi2c';
+import { Module } from '../../types';
+import { SmoothValue } from '../../utils/SmoothValue';
+// import { Gpio } from 'pigpio';
 
-const pins = {
-    lights: 24,
-}
+const LIGHTS_CHANNEL = 4;
+export const Lights: Module = async ({
+    on,
+    log
+}) => {
+    const pwmDriver = new PCA9685();
+    await pwmDriver.init();
+    await pwmDriver.setFrequency(50);
 
-export const Lights: Module = {
-    controller: ({
-        send,
-        events,
-        debug
-    }) => {
-        const lightsPwm = new Gpio(pins.lights, { mode: Gpio.OUTPUT });
-        const pwmFrequency = 10000;
-        const pwmRange = 100;
+    const brightness = new SmoothValue().on('update', (value) => {
+        log('Setting brightness smoothed', value);
+        pwmDriver.setDutyCycle(LIGHTS_CHANNEL, mapValue(value, 0, 100, 0, 1))
+    });
 
-        lightsPwm.pwmFrequency(pwmFrequency);
-        lightsPwm.pwmRange(pwmRange);
-
-        events.on('Module:Lights:setBrightness', (brightness: number) => {
-            debug('Set brightness', brightness);
-            lightsPwm.pwmWrite(brightness);
-        });
-    }
+    on('setBrightness', (newValue: number) => {
+        log('Set brightness', newValue);
+        brightness.value = newValue;
+    });
 }

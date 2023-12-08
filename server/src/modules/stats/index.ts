@@ -1,24 +1,19 @@
-import Module from '../Module';
-import si from 'systeminformation';
 // https://systeminformation.io/cpu.html
+import si from 'systeminformation';
+import { Module } from '../../types';
 
-export const Stats: Module = {
-    controller: ({
-        send,
-        events
-    }) => {
-        setInterval(async () => {
-            const [cpu, mem, temp] = await Promise.all([
-                si.currentLoad(),
-                si.mem(),
-                si.cpuTemperature(),
-            ]);
+export const Stats: Module = ({ emit, log }) => {
+    setInterval(async () => {
+        const [cpu, mem, temp] = await Promise.all([si.currentLoad(), si.mem(), si.cpuTemperature()]);
 
-            send({
-                cpu: cpu.currentLoad,
-                mem: mem.used / mem.total * 100,
-                temp: temp.main
-            });
-        }, 1000)
-    }
-}
+        const data = {
+            cpu: cpu.currentLoad,
+            mem: (mem.available / mem.total) * 100,
+            temp: temp.main,
+        };
+
+        log('Stats', data);
+
+        emit('stats', data);
+    }, 1000);
+};

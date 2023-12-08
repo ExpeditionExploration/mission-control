@@ -21,3 +21,4 @@ Run `ssh-copy-id remote-user@server-ip`
 
 # Notes
 - Fixing waiting for server log. Run from command shift p window to remove remote ssh from remote. Then reconnect to reinstall.
+- Grant user admin rights: sudo usermod -aG sudo jupiter2

@@ -1,68 +1,84 @@
-import Module from '../Module';
-import { Gpio, waveAddGeneric, waveTxBusy, waveClear, waveTxStop, waveCreate, waveTxSend, WAVE_MODE_ONE_SHOT_SYNC } from 'pigpio';
-import Stepper from './StepperWithWaves';
+import { Module } from '../../types';
+import { PCA9685, sleep, mapValue } from 'openi2c';
+import { SmoothValue } from '../../utils/SmoothValue';
+import { } from 'opengpio';
 
-const pins = {
-    motorLeftPwm: 21,
-    motorLeftDir: 20,
-    motorRightPwm: 16,
-    motorRightDir: 12,
-    turnLeftPin: 1,
-    turnLeftDir: 7
-}
+const rudderChannels = {
+    left: 0,
+    right: 1,
+};
+
+const motorChannels = {
+    left: 2,
+    right: 3,
+};
 
 type Motor = {
     left: number;
     right: number;
-}
+};
 
 type Rudder = {
     left: number;
     right: number;
-}
+};
 
+const DUTY_MIN = -1;
+const DUTY_MAX = 1;
+const ESC_MIN = 0.05; // 1ms at 50Hz
+const ESC_MAX = 0.1; // 2ms at 50Hz
+const ESC_ARM = 0.12; // Any value over 2ms
+const SPEED_SMOOTHING = 0.1;
 
-export const Control: Module = {
-    controller: ({
-        send,
-        debug,
-        events
-    }) => {
-        const a1 = 21;
-        const a2 = 20;
-        const b1 = 16;
-        const b2 = 12;
-        const stepper = new Stepper({ a1, a2, b1, b2 });
+export const Control: Module = async ({ log, on, emit }) => {
+    const motor = {
+        left: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(motorChannels.left, value)),
+        right: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(motorChannels.right, value))
+    };
+    const rudder = {
+        left: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(rudderChannels.left, value)),
+        right: new SmoothValue({ speed: SPEED_SMOOTHING }).on('update', (value) => setEsc(rudderChannels.right, value))
+    };
 
-        // const stepper = new Stepper({ step: 21, dir: 20 });
-        // stepper.findZero();
+    const pwmDriver = new PCA9685();
+    await pwmDriver.setFrequency(50);
 
-        events.on('Module:Control:setRudders', (rudder: Rudder) => {
-            debug('setRudders', rudder);
-            /**
-             * Adds the next turn to the variable to be processed next 
-             * time the turn is updated. This is to prevent the turn
-             * from being updated while the turn is being processed.
-             * This will overwrite the previous turn.
-             */
+    await armAllEsc();
 
-            // if (Math.abs(rudder.left) == 90) stepper.goTo(rudder.left);
+    on('setRudders', (update: Rudder) => {
+        rudder.left.value = update.left;
+        rudder.right.value = update.right;
+    });
 
-            stepper.goTo(rudder.left);
-        });
+    on('setMotors', async (update: Motor) => {
+        motor.left.value = update.left;
+        motor.right.value = update.right;
+    });
 
-        // let dir = 1;
-
-        // function step() {
-        //     stepper.goTo(90 * dir);
-        //     dir = dir * -1;
-        //     setTimeout(step, 1500);
-        // }
-
-        // step();
+    async function setEsc(channel: number, value: number) {
+        log(`Setting ESC ${channel} to ${value}`);
+        // value is between -1 and 1
+        await pwmDriver.setDutyCycle(
+            channel,
+            mapValue(value, DUTY_MIN, DUTY_MAX, ESC_MIN, ESC_MAX) // Not sure if setting to 0 is nessesary.
+        );
     }
-}
 
-async function wait(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+    async function armAllEsc() {
+        log('Arming ESCs');
+        await setAllEsc(ESC_ARM);
+        await sleep(5000);
+        await setAllEsc(0);
+        log('ESCs Armed');
+    }
+
+    async function setAllEsc(dutyCycle: number) {
+        log(`Setting all ESCs to ${dutyCycle}`);
+        await Promise.all([
+            pwmDriver.setDutyCycle(rudderChannels.left, dutyCycle),
+            pwmDriver.setDutyCycle(rudderChannels.right, dutyCycle),
+            pwmDriver.setDutyCycle(motorChannels.left, dutyCycle),
+            pwmDriver.setDutyCycle(motorChannels.right, dutyCycle),
+        ]);
+    }
+};
