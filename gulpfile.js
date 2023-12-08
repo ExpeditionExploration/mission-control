@@ -6,7 +6,7 @@ const { hideBin } = require('yargs/helpers');
 const argv = yargs(hideBin(process.argv)).argv;
 
 const host = `root@NanoPi-NEO3.local`;
-const dir = `~/MissionControl`;
+const dir = `~/mission-control`;
 
 function clean(done) {
     spawnSync('rm', ['-rf', 'build'], { stdio: 'inherit' });
