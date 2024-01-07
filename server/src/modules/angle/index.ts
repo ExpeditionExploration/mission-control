@@ -1,28 +1,28 @@
-// import { Module } from '../../types';
-// import { HMC5883L } from '../../utils/HMC5883L';
-// // import { Gpio } from 'pigpio';
+import { Module } from '../../types';
+import { mpu9250, MPU9250 } from 'openi2c/dist/modules/MPU9250/MPU9250';
+// import { Gpio } from 'pigpio';
 
-// export const Angle: Module = ({ on, log, emit }) => {
-//     const compass = new HMC5883L();
-//     compass.init().then(getHeading);
+export const Angle: Module = async ({ on, log, emit }) => {
+    const mpu = new mpu9250({
+        DEBUG: true,
+        // scaleValues: true,
+        UpMagneto: true,
+        DLPF_CFG: MPU9250.DLPF_CFG_3600HZ,
+        // Set Accel DLPF Value
+        A_DLPF_CFG: MPU9250.A_DLPF_CFG_460HZ,
+        SAMPLE_RATE: 8000,
+    });
 
-//     on('recalibrateCompass', async () => {
-//         log('Recalibrating compass');
-//         await compass.calibrate();
-//         emit('compassCalibrated');
-//         log('Recalibrated compass');
-//     });
+    await mpu.initialize();
 
-//     async function getHeading() {
-//         if (!compass.calibration.busy) {
-//             const heading = await compass.getHeading();
-//             emit('compass', heading);
-//         }
-//         setTimeout(getHeading, 100);
-//     }
+    setInterval(async () => {
+        const motion = await mpu.getMotion9();
+        const roll = mpu.getRoll(motion);
+        const pitch = mpu.getPitch(motion);
 
-//     // on('setBrightness', (brightness: number) => {
-//     //     log('Set brightness', brightness);
-//     //     // lightsPwm.pwmWrite(brightness);
-//     // });
-// };
+        emit('angle', {
+            roll,
+            pitch,
+        });
+    }, 1000 / 10); // 10 times per second
+};
