@@ -20,7 +20,7 @@ export const Angle: Module = async ({ on, log, emit }) => {
         const roll = mpu.getRoll(motion);
         const pitch = mpu.getPitch(motion);
 
-        emit('angle', {
+        emit('orientation', {
             roll,
             pitch,
         });

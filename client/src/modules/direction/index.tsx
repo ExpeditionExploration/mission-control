@@ -55,7 +55,7 @@ export const Angle: Module = ({ on, emit }) => {
             });
         });
 
-        on('angle', (data: { roll: number; pitch: number }) => {
+        on('orientation', (data: { roll: number; pitch: number }) => {
             setAngle(data);
         });
     }, []);
