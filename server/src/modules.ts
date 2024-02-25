@@ -54,7 +54,7 @@ for (let modulePath of config.modules) {
 
             switch (path.extname(module.worker)) {
                 case '.py':
-                    moduleWorker = Worker.loadPythonWorker(workerPath, moduleLogger.extend('Worker'));
+                    moduleWorker = new Worker(workerPath, moduleLogger);
                     break;
                 default:
                     console.error('Unknown worker type', module.worker);
