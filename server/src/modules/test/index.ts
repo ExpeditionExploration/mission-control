@@ -12,7 +12,7 @@ const workerTest: ModuleWithWorker = ({ emit, log, worker }) => {
     setInterval(() => {
 
         worker.emit('calc', count);
-    }, 1);
+    }, 1000);
 };
 
 workerTest.id = 'WorkerTest';

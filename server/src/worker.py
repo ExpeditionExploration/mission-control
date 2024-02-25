@@ -1,12 +1,8 @@
 import sys
 import json
-# import threading
-import socket
 import importlib.util
 import asyncio
 import websockets
-
-print(f"{sys.argv[0]} {sys.argv[1]} {sys.argv[2]}")
 
 worker_path = sys.argv[1]
 websocket_port = int(sys.argv[2])
@@ -25,11 +21,10 @@ worker = {
 
 is_initialized = False
 async def start_websocket():
-    print('Starting WebSocket server')
-    uri = f"ws://localhost:{websocket_port}"  # Replace with the actual WebSocket server URI
+    uri = f"ws://localhost:{websocket_port}"
     async with websockets.connect(uri) as websocket:
-        print('Connected to WebSocket server')
         worker['websocket'] = websocket
+        # TODO Add reconnect logic
 
         # Only initialize the worker once when the WebSocket connection is established
         # We only want to initialize the worker once the websocket is connected
@@ -48,5 +43,4 @@ async def start_websocket():
 try:
     asyncio.run(start_websocket())
 except KeyboardInterrupt:
-    print('Worker stopped')
     sys.exit(0)
