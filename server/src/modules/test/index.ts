@@ -8,12 +8,11 @@ const workerTest: ModuleWithWorker = ({ emit, log, worker }) => {
         count = data;
         console.log(count);
     })
-    console.log('WorkerTest', worker);
 
     setInterval(() => {
 
         worker.emit('calc', count);
-    }, 10);
+    }, 100);
 };
 
 workerTest.id = 'WorkerTest';

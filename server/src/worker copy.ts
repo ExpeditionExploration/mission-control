@@ -4,7 +4,7 @@ import { EventEmitter } from 'stream';
 import fs from 'fs';
 import path from 'path';
 import config from './config';
-import WebSocket, { WebSocketServer } from 'ws';
+import WebSocket from 'ws';
 
 type WorkerPayload = {
     data: any;
@@ -12,6 +12,7 @@ type WorkerPayload = {
     event: string;
 }
 
+const PAYLOAD_IDENTIFIER = '__WORKER__:';
 export class Worker {
     private readonly events = new EventEmitter();
     private socket?: WebSocket;
@@ -20,62 +21,56 @@ export class Worker {
 
     constructor(
         private readonly worker: ChildProcess,
-        private readonly log: debug.Debugger,
-        private readonly socketPort: number) {
-
+        private readonly log: debug.Debugger) {
         // setTimeout(() => {
         //     this.connect();
         // }, 1000)
 
-        // worker.stdout?.on('data', (data: Buffer) => {
-        //     const message = data.toString();
-        //     try {
-        //         const [rawPrint, rawPayload] = message.split(PAYLOAD_IDENTIFIER);
-        //         if (rawPayload) {
-        //             const payload = JSON.parse(rawPayload) as WorkerPayload;
+        worker.stdout?.on('data', (data: Buffer) => {
+            const message = data.toString();
+            try {
+                const [rawPrint, rawPayload] = message.split(PAYLOAD_IDENTIFIER);
+                if (rawPayload) {
+                    const payload = JSON.parse(rawPayload) as WorkerPayload;
 
-        //             switch (payload.action) {
-        //                 case 'event':
-        //                     this.events.emit(payload.event, payload.data);
-        //                     break;
-        //                 case 'log':
-        //                     this.log(payload.data);
-        //                     break;
-        //                 default:
-        //                     this.log('Unknown payload action', payload);
-        //                     break;
-        //             }
-        //         } else {
-        //             // If the payload identifier is not found, just log the message to debug
-        //             console.log(rawPrint);
-        //         }
-        //     } catch (error) {
-        //         console.error('Worker error', error);
-        //     }
-        // });
+                    switch (payload.action) {
+                        case 'event':
+                            this.events.emit(payload.event, payload.data);
+                            break;
+                        case 'log':
+                            console.log(payload.data);
+                            // this.log(payload.data);
+                            break;
+                        default:
+                            this.log('Unknown payload action', payload);
+                            break;
+                    }
+                } else {
+                    // If the payload identifier is not found, just log the message to debug
+                    console.log(rawPrint);
+                }
+            } catch (error) {
+                console.error('Worker error', error);
+            }
+        });
     }
 
-    private connect() {
-        if (this.socket) {
-            this.socket.close();
-        }
+    // private connect() {
+    //     if (this.socket) {
+    //         this.socket.close();
+    //     }
 
-        try {
-            this.socket = new WebSocket(`ws://localhost:${this.socketPort}`, {
-                perMessageDeflate: false
-            });
+    //     try {
+    //         this.socket = new WebSocket(`ws://localhost:${this.socketPort}`, {
+    //             perMessageDeflate: false
+    //         });
+    //     } catch (error) {
+    //         process.nextTick(() => {
+    //             this.connect();
+    //         });
+    //     }
 
-            this.socket.on('close', () => {
-                this.log('Socket closed');
-                this.connect();
-            })
-        } catch (error) {
-            process.nextTick(() => {
-                this.connect();
-            });
-        }
-    }
-
+    // }
     on(event: string, callback: (data: any) => void) {
         this.events.on(event, callback);
     }
@@ -121,11 +116,11 @@ export class Worker {
     static loadPythonWorker(workerPath: string, log: debug.Debugger) {
         const socketPort = Worker.getNextSocketPort();
 
-        const worker = spawn(config.workers.python.cmd, ['-u', path.join(__dirname, 'worker.py'), workerPath, socketPort.toString()], {
-            stdio: 'inherit'
+        const worker = spawn(config.workers.python.cmd, ['-u', path.join(__dirname, 'worker.py'), workerPath, PAYLOAD_IDENTIFIER], {
+            stdio: ['pipe', 'pipe', 'inherit'],
         });
 
-        return new this(worker, log, socketPort);
+        return new this(worker, log);
     }
 }
 

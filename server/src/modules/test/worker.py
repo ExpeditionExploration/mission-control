@@ -1,4 +1,8 @@
 
-# print('worker.py loaded')
-def worker(on, emit, log):
-    on('calc', lambda num: emit('res', num + 1))
+print('worker.py loaded')
+def main(on, emit, log):
+    print('worker.py started')
+    on('calc', lambda num: (
+        log('Received calc event'), 
+        emit('res', num + 1)
+    ))
