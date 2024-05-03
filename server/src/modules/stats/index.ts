@@ -2,7 +2,7 @@
 import si from 'systeminformation';
 import { Module } from '../../types';
 
-export const Stats: Module = ({ emit, log }) => {
+const statsModule: Module = ({ emit, log }) => {
     setInterval(async () => {
         const [cpu, mem, temp] = await Promise.all([si.currentLoad(), si.mem(), si.cpuTemperature()]);
 
@@ -17,3 +17,6 @@ export const Stats: Module = ({ emit, log }) => {
         emit('stats', data);
     }, 1000);
 };
+
+statsModule.id = 'Stats';
+export default statsModule;

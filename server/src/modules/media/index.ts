@@ -5,9 +5,9 @@ import path from 'path';
 import { Module } from '../../types';
 
 const websocketPort = 16502;
-export const Media: Module = ({
+const mediaModule: Module = ({
     events,
-    on, 
+    on,
     emit
 }) => {
     const mediaStream = cp.fork(path.join(__dirname, './mediaStream'));
@@ -18,3 +18,6 @@ export const Media: Module = ({
     //     send('capture', data);
     // });
 }
+
+mediaModule.id = 'Media';
+export default mediaModule;

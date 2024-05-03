@@ -2,7 +2,7 @@ import { Module } from '../../types';
 import { mpu9250, MPU9250 } from 'openi2c/dist/modules/MPU9250/MPU9250';
 // import { Gpio } from 'pigpio';
 
-export const Angle: Module = async ({ on, log, emit }) => {
+const directionModule: Module = async ({ on, log, emit }) => {
     const mpu = new mpu9250({
         DEBUG: true,
         // scaleValues: true,
@@ -26,3 +26,6 @@ export const Angle: Module = async ({ on, log, emit }) => {
         });
     }, 1000 / 10); // 10 times per second
 };
+
+directionModule.id = 'Direction';
+export default directionModule;

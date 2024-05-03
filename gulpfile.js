@@ -1,4 +1,4 @@
-const { series, parallel } = require('gulp');
+const gulp = require('gulp');
 const { spawnSync } = require('child_process');
 const path = require('path');
 const yargs = require('yargs/yargs');
@@ -15,6 +15,8 @@ function clean(done) {
 }
 
 function server(done) {
+    gulp.src('server/src/**/*.py').pipe(gulp.dest('build'));
+    gulp.src('requirements.txt').pipe(gulp.dest('build'));
     spawnSync('rm', ['-rf', 'dist'], { stdio: 'inherit', cwd: path.join(__dirname, 'server') });
     spawnSync('npm', ['run', 'build'], { stdio: 'inherit', cwd: path.join(__dirname, 'server') });
     spawnSync('cp', ['-r', 'server/dist/', 'build'], { stdio: 'inherit' });
@@ -53,13 +55,13 @@ function deploy(done) {
     done();
 }
 
-exports.build = series(
+exports.build = gulp.series(
     clean,
     // server
-    parallel(server, client)
+    gulp.parallel(server, client)
 );
 exports.deploy = deploy;
-exports.updateServer = series(server, deploy);
+exports.updateServer = gulp.series(server, deploy);
 
 exports.start = function (done) {
     spawnSync('ssh', [host, '-t', `bash -i -c 'cd ${dir} && npm start'`], { stdio: 'inherit' });

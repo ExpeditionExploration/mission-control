@@ -2,6 +2,11 @@
     "name": "mission-control",
     "version": "0.0.1",
     "scripts": {
+        "pip-venv": "python3 -m venv .venv",
+        "pip-venv-activate": "source .venv/bin/activate",
+        "pip-venv-deactivate": "deactivate",
+        "pip-freeze": "python3 -m pip freeze > requirements.txt",
+        "pip-install": "python3 -m pip install -r requirements.txt",
         "build": "gulp build",
         "deploy": "npm run build && gulp deploy --install",
         "update": "npm run build && gulp deploy",

@@ -27,12 +27,12 @@ const DUTY_MAX = 1;
 const ESC_DRIVER_FREQUENCY = 50;
 const ESC_MIN = 0.05; // 1ms at 50Hz
 const ESC_MAX = 0.1; // 2ms at 50Hz
-const ESC_MID = (ESC_MIN+ESC_MAX)/2;
+const ESC_MID = (ESC_MIN + ESC_MAX) / 2;
 const ESC_STOP_RANGE = 0.001; // 0.2ms at 50Hz
 const ESC_ARM = 0.12; // Any value over 2ms
 const SPEED_SMOOTHING = 1;
 
-export const Control: Module = async ({ log, on, emit }) => {
+const controlModule: Module = async ({ log, on, emit }) => {
     const pwmDriver = new PCA9685(0, {
         frequency: ESC_DRIVER_FREQUENCY,
     });
@@ -79,7 +79,7 @@ export const Control: Module = async ({ log, on, emit }) => {
         // value is between -1 and 1
         let mappedValue = mapValue(value, DUTY_MIN, DUTY_MAX, ESC_MIN, ESC_MAX);
         log(`Mapped value ${mappedValue}`, value, DUTY_MIN, DUTY_MAX, ESC_MIN, ESC_MAX);
-        if((mappedValue > (ESC_MID - ESC_STOP_RANGE)) && (mappedValue < (ESC_MID + ESC_STOP_RANGE))) {
+        if ((mappedValue > (ESC_MID - ESC_STOP_RANGE)) && (mappedValue < (ESC_MID + ESC_STOP_RANGE))) {
             mappedValue = 1;
             // Setting this to 0 causes the ESC to rearm constantly.
             // Setting to 1 seemed to work as a stop value.
@@ -112,3 +112,6 @@ export const Control: Module = async ({ log, on, emit }) => {
         ]);
     }
 };
+
+controlModule.id = 'Control';
+export default controlModule;

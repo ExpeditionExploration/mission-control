@@ -4,7 +4,7 @@ import { SmoothValue } from '../../utils/SmoothValue';
 // import { Gpio } from 'pigpio';
 
 const LIGHTS_CHANNEL = 4;
-export const Lights: Module = async ({
+const lightsModule: Module = async ({
     on,
     log
 }) => {
@@ -26,3 +26,6 @@ export const Lights: Module = async ({
         // brightness.value = newValue;
     });
 }
+
+lightsModule.id = 'Lights';
+export default lightsModule;
