@@ -42,7 +42,7 @@ function App() {
         if (!appSocket.current || appSocket.current?.readyState == WebSocket.CLOSED) {
             log('Creating App socket');
 
-            const socket = new WebSocket(`ws://${hostname}:16501`);
+            const socket = new WebSocket(`ws://${hostname}:16500`);
             socket.onopen = (event) => {
                 log('App socket connected');
             };
