@@ -3,11 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ControlGateway } from './modules/control/control.gateway';
 import { GlobalModule } from './global.module';
-import { MediaGateway } from './modules/media/media.gateway';
+import { MediaModule } from './modules/media/media.module';
 
 @Module({
-    imports: [GlobalModule],
+    imports: [GlobalModule, MediaModule],
     controllers: [AppController],
-    providers: [AppService, ControlGateway, MediaGateway],
+    providers: [AppService, ControlGateway],
 })
 export class AppModule { }
