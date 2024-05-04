@@ -18,6 +18,8 @@
         "gulp": "^4.0.2",
         "minimist": "^1.2.7",
         "openi2c": "github:ExplorationSystems/openi2c",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
         "yargs": "^17.6.2"
     },
     "devDependencies": {
