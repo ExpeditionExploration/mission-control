@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ControlGateway } from './modules/control/control.gateway';
-import { GlobalModule } from './global.module';
-import { MediaModule } from './modules/media/media.module';
+import { ControlModule } from './control/control.module';
+import { MetadataScanner, Reflector } from '@nestjs/core';
+import { AppGateway } from './app.gateway';
+import { DiscoveryService } from '@golevelup/nestjs-discovery';
+import { ConnectionModule } from './connection/connection.module';
+// import { DiscoveryService } from './services/discovery.service';
 
 @Module({
-    imports: [GlobalModule, MediaModule],
-    controllers: [AppController],
-    providers: [AppService, ControlGateway],
+    imports: [ControlModule],
+    controllers: [],
+    providers: [AppService],
+    exports: []
 })
 export class AppModule { }
