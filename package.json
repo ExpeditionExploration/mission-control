@@ -1,6 +1,8 @@
 {
     "name": "mission-control",
     "version": "0.0.1",
+    "type": "module",
+    "main": "index.js",
     "scripts": {
         "build": "gulp build",
         "deploy": "npm run build && gulp deploy --install",
@@ -13,6 +15,7 @@
         "postinstall": "npm run install:server && npm run install:client"
     },
     "dependencies": {
+        "@rollup/plugin-typescript": "^11.1.6",
         "big.js": "^6.2.1",
         "events": "^3.3.0",
         "gulp": "^4.0.2",
@@ -20,9 +23,22 @@
         "openi2c": "github:ExplorationSystems/openi2c",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
+        "reflect-metadata": "^0.2.2",
+        "rollup": "^4.17.2",
+        "typedi": "^0.10.0",
+        "typescript": "^5.4.5",
         "yargs": "^17.6.2"
     },
     "devDependencies": {
-        "@types/node": "^20.10.3"
+        "@babel/core": "^7.24.5",
+        "@babel/plugin-proposal-decorators": "^7.24.1",
+        "@babel/plugin-transform-typescript": "^7.24.5",
+        "@babel/preset-env": "^7.24.5",
+        "@babel/preset-typescript": "^7.24.1",
+        "@rollup/plugin-babel": "^6.0.4",
+        "@rollup/plugin-node-resolve": "^15.2.3",
+        "@swc/core": "^1.5.3",
+        "@types/node": "^20.10.3",
+        "rollup-plugin-ts": "^3.4.5"
     }
 }
