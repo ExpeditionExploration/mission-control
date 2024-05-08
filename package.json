@@ -1,10 +1,9 @@
 {
     "name": "mission-control",
     "version": "0.0.1",
-    "type": "module",
     "main": "index.js",
     "scripts": {
-        "build": "gulp build",
+        "build": "rm -rf build && rollup -c rollup.config.js",
         "deploy": "npm run build && gulp deploy --install",
         "update": "npm run build && gulp deploy",
         "update:server": "gulp updateServer",
@@ -15,18 +14,25 @@
         "postinstall": "npm run install:server && npm run install:client"
     },
     "dependencies": {
+        "@babel/preset-react": "^7.24.1",
+        "@rollup/plugin-replace": "^5.0.5",
+        "@rollup/plugin-swc": "^0.3.0",
         "@rollup/plugin-typescript": "^11.1.6",
         "big.js": "^6.2.1",
         "events": "^3.3.0",
         "gulp": "^4.0.2",
+        "inversify": "^6.0.2",
         "minimist": "^1.2.7",
         "openi2c": "github:ExplorationSystems/openi2c",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "reflect-metadata": "^0.2.2",
         "rollup": "^4.17.2",
+        "rollup-plugin-node-resolve": "^5.2.0",
         "typedi": "^0.10.0",
         "typescript": "^5.4.5",
+        "vite": "^5.2.11",
+        "vite-plugin-babel": "^1.2.0",
         "yargs": "^17.6.2"
     },
     "devDependencies": {
@@ -37,8 +43,11 @@
         "@babel/preset-typescript": "^7.24.1",
         "@rollup/plugin-babel": "^6.0.4",
         "@rollup/plugin-node-resolve": "^15.2.3",
+        "@swc/cli": "^0.3.12",
         "@swc/core": "^1.5.3",
         "@types/node": "^20.10.3",
+        "@types/react": "^18.3.1",
+        "@types/react-dom": "^18.3.0",
         "rollup-plugin-ts": "^3.4.5"
     }
 }

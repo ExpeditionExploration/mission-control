@@ -1,11 +1,8 @@
 import 'reflect-metadata';
-import { injectable, inject, Container } from 'inversify';
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
+import { Module, Inject } from '@';
+import { Container } from 'inversify';
 
-@injectable()
+@Module()
 class Connection {
     connected = Math.random();
 
@@ -15,21 +12,21 @@ class Connection {
     }
 }
 
-@injectable()
+@Module()
 class EventBroadcaster {
     connected = Math.random();
 
-    constructor(@inject('context') public context: string) {}
+    constructor(@Inject('context') public context: string) {}
     log() {
         console.log('Broadcast', this.context);
     }
 }
 
-@injectable()
-class Module {
+@Module()
+class Mod {
     constructor(
-        @inject(Connection) public connection: Connection,
-        @inject(EventBroadcaster) public evb: EventBroadcaster
+        @Inject(Connection) public connection: Connection,
+        @Inject(EventBroadcaster) public evb: EventBroadcaster
     ) {}
     log() {
         this.connection.getConnection();
@@ -37,20 +34,15 @@ class Module {
     }
 }
 
-@injectable()
+@Module()
 class Application {
     constructor(
-        @inject(Connection) public connection: Connection,
-        @inject(EventBroadcaster) public evb: EventBroadcaster
+        @Inject(Connection) public connection: Connection,
+        @Inject(EventBroadcaster) public evb: EventBroadcaster
     ) {}
     log() {
         this.connection.getConnection();
         this.evb.log();
-        ReactDOM.createRoot(document.getElementById('root')!).render(
-            <React.StrictMode>
-                <App />
-            </React.StrictMode>
-        );
     }
 }
 
@@ -61,10 +53,10 @@ container.bind<EventBroadcaster>(EventBroadcaster).to(EventBroadcaster).inReques
 container.bind<Application>(Application).to(Application).inSingletonScope();
 container.bind<Connection>(Connection).to(Connection).inSingletonScope();
 module.bind<string>('context').toConstantValue('control');
-module.bind<Module>(Module).to(Module).inSingletonScope();
+module.bind<Mod>(Mod).to(Mod).inSingletonScope();
 
 const app = container.get<Application>(Application);
 app.log();
 
-const mod = module.get<Module>(Module);
+const mod = module.get<Mod>(Mod);
 mod.log();
