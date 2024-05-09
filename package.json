@@ -1,40 +1,44 @@
 {
-  "name": "app",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@babel/preset-react": "^7.24.1",
-    "@babel/preset-typescript": "^7.24.1",
-    "inversify": "^6.0.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "reflect-metadata": "^0.2.2",
-    "tsyringe": "^4.8.0",
-    "typedi": "^0.10.0",
-    "vite-tsconfig-paths": "^4.3.2"
-  },
-  "devDependencies": {
-    "@babel/plugin-proposal-decorators": "^7.24.1",
-    "@types/node": "^20.12.11",
-    "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
-    "@typescript-eslint/parser": "^7.2.0",
-    "@vitejs/plugin-react": "^4.2.1",
-    "@vitejs/plugin-react-swc": "^3.5.0",
-    "babel-plugin-transform-typescript-metadata": "^0.3.2",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.6",
-    "typescript": "^5.2.2",
-    "vite": "^5.2.0",
-    "vite-plugin-babel": "^1.2.0"
-  }
+    "name": "app",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "main": "dist/server.js",
+    "scripts": {
+        "start": "concurrently \"serve dist\" \"node dist/server.js\"",
+        "dev:client": "vite",
+        "dev:server": "concurrently \"npm run build:server -- --watch\" \"nodemon dist/server.js\"",
+        "build": "rm -rf dist && npm run build:client && npm run build:server",
+        "build:client": "vite build",
+        "build:server": "vite build --ssr src/server/server.ts",
+        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "inversify": "^6.0.2",
+        "inversify-inject-decorators": "^3.1.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "reflect-metadata": "^0.2.2",
+        "serve": "^14.2.3",
+        "ws": "^8.17.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.12.11",
+        "@types/react": "^18.2.66",
+        "@types/react-dom": "^18.2.22",
+        "@types/serve-handler": "^6.1.4",
+        "@types/ws": "^8.5.10",
+        "@typescript-eslint/eslint-plugin": "^7.2.0",
+        "@typescript-eslint/parser": "^7.2.0",
+        "@vitejs/plugin-react-swc": "^3.5.0",
+        "concurrently": "^8.2.2",
+        "eslint": "^8.57.0",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "eslint-plugin-react-refresh": "^0.4.6",
+        "nodemon": "^3.1.0",
+        "typescript": "^5.2.2",
+        "vite": "^5.2.0",
+        "vite-plugin-node-polyfills": "^0.21.0"
+    }
 }

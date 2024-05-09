@@ -23,7 +23,8 @@
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "paths": {
-            "@": ["./src/index.ts"],
+            "@module": ["./src/module.ts"],
+            "@events": ["./src/events.ts"],
             "src/*": ["./src/*"]
         }
     },

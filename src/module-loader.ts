@@ -1,39 +1,38 @@
-import { Injectable } from "@";
+import { Injectable, Module } from "@module";
 import { Container } from 'inversify';
-import path from 'path';
-
-export enum ModuleType {
-    Controller,
-    View
-}
-
-type ModuleKey = string;
-type ModulePaths = Map<ModuleKey, string>;
-type ModulesIndex = Record<ModuleKey, string>;
+type ModuleNamespace = string;
+type ModuleConstructor = new (...args: any[]) => Module;
+export type ModulesImport = Record<ModuleNamespace, ModuleConstructor>;
+type ModulesArray = [ModuleConstructor, Container][];
 
 @Injectable()
 export class ModuleLoader {
-    async initModules(container: Container, moduleType: ModuleType) {
-        const modulePaths = await this.getModulePaths(moduleType);
-        console.log(modulePaths, container)
+    async initModules(container: Container, modules: ModulesImport) {
+        // Create modules containers
+        const modulesArray = this.loadModulesIntoContainer(container, modules);
+        // Load modules
+        await this.loadModules(modulesArray);
     }
 
-    // async loadModules(moduleType: ModuleType) {
+    private reservedKeys = ['default', 'app', 'root'];
+    private loadModulesIntoContainer(container: Container, modules: ModulesImport): ModulesArray {
+        const modulesMap: ModulesArray = [];
+        for (const [namespace, Module] of Object.entries(modules)) {
+            if (namespace in this.reservedKeys) throw new Error(`Module namespace "${namespace}" is reserved`);
 
-    // }
+            const moduleContainer = container.createChild();
+            moduleContainer.bind<string>('namespace').toConstantValue(namespace);
+            moduleContainer.bind<Module>(Module).to(Module).inSingletonScope();
+            modulesMap.push([Module, moduleContainer]);
+        }
 
-    // async tryLoadModule(modulePath: string) {
+        return modulesMap;
+    }
 
-    // }
-
-    async getModulePaths(type: ModuleType): Promise<ModulePaths> {
-        const modulePaths = new Map();
-        await import('src/modules/index.json').then((modules: any) => {
-            for (const [key, modulePath] of Object.entries(modules as ModulesIndex)) {
-                modulePaths.set(key, path.join(__dirname, 'modules', modulePath, type === ModuleType.Controller ? 'controller.ts' : 'view.ts'));
-            }
-        });
-
-        return modulePaths;
+    async loadModules(modules: ModulesArray) {
+        await Promise.all(modules.map(async ([Module, container]) => {
+            const instance = container.get(Module);
+            await instance.onModuleInit();
+        }));
     }
 }
