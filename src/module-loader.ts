@@ -14,7 +14,7 @@ export class ModuleLoader {
         await this.loadModules(modulesArray);
     }
 
-    private reservedKeys = ['default', 'app', 'root'];
+    private reservedKeys = ['default', 'app', 'root', 'event'];
     private loadModulesIntoContainer(container: Container, modules: ModulesImport): ModulesArray {
         const modulesMap: ModulesArray = [];
         for (const [namespace, Module] of Object.entries(modules)) {

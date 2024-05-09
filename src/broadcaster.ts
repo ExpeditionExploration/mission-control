@@ -1,4 +1,4 @@
-import Connection, { type IConnection } from "src/connection";
+import Connection, { Payload, type IConnection } from "src/connection";
 import { Inject, Injectable } from "@module";
 import EventEmitter from "events";
 
@@ -10,20 +10,20 @@ import EventEmitter from "events";
 export class Broadcaster {
     private readonly emitter = new EventEmitter();
 
-    constructor(@Inject(Connection) private readonly connection: IConnection) { }
-
     on(event: string, listener: (...args: any[]) => void) {
         this.emitter.on(event, listener);
     }
     off(event: string, listener: (...args: any[]) => void) {
         this.emitter.off(event, listener);
     }
-    emit(event: string, ...args: any[]) {
-        this.connection.send({
+    emit(event: string, data: any, global = true) {
+        const payload: Payload = {
             event,
-            data: args
-        });
-        return this.emitter.emit(event, ...args);
+            data
+        };
+        // If the event is global, broadcast it on the emitter
+        if (global) this.emitter.emit('event', payload); // Broadcast the event on the emitter for catching all events
+        return this.emitter.emit(payload.event, payload);
     }
 }
 

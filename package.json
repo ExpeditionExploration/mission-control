@@ -5,7 +5,7 @@
     "type": "module",
     "main": "dist/server.js",
     "scripts": {
-        "start": "concurrently \"serve dist\" \"node dist/server.js\"",
+        "start": "node dist/server.js",
         "dev:client": "vite",
         "dev:server": "concurrently \"npm run build:server -- --watch\" \"nodemon dist/server.js\"",
         "build": "rm -rf dist && npm run build:client && npm run build:server",
