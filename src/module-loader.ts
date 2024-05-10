@@ -7,7 +7,7 @@ type ModulesArray = [ModuleConstructor, Container][];
 
 @Injectable()
 export class ModuleLoader {
-    async initModules(container: Container, modules: ModulesImport) {
+    async init(container: Container, modules: ModulesImport) {
         // Create modules containers
         const modulesArray = this.loadModulesIntoContainer(container, modules);
         // Load modules

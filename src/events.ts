@@ -12,14 +12,14 @@ export class Events {
     private getNamespacedEvent(event: string) {
         return `${this.namespace}:${event}`;
     }
-    on(event: string, listener: (...args: any[]) => void) {
+    on(event: string, listener: (data: any) => void) {
         this.broadcaster.on(this.getNamespacedEvent(event), listener);
     }
-    off(event: string, listener: (...args: any[]) => void) {
+    off(event: string, listener: (data: any) => void) {
         this.broadcaster.off(this.getNamespacedEvent(event), listener);
     }
-    emit(event: string, ...args: any[]) {
-        return this.broadcaster.emit(this.getNamespacedEvent(event), ...args);
+    emit(event: string, data: any) {
+        return this.broadcaster.emit(this.getNamespacedEvent(event), data);
     }
 }
 

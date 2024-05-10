@@ -4,7 +4,7 @@ import { IConnection, Payload } from "src/connection";
 import { WebSocketServer } from 'ws';
 import handler from 'serve-handler';
 import http, { Server } from 'http';
-import path, { resolve } from "path";
+import path from "path";
 import Broadcaster from "src/broadcaster";
 
 @Injectable()

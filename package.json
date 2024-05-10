@@ -21,6 +21,7 @@
         "react-dom": "^18.2.0",
         "reflect-metadata": "^0.2.2",
         "serve": "^14.2.3",
+        "tsyringe": "^4.8.0",
         "ws": "^8.17.0"
     },
     "devDependencies": {

@@ -1,16 +1,15 @@
 import "reflect-metadata";
 import Connection from "src/connection";
-import * as controllers from 'src/modules/controllers';
 import ServerConnection from "./server-connection";
 import { container } from "src/container";
 import { Application } from "src/application";
+import { ServerApplication } from "./server-application";
 
 // Bind environemnt specific injections
-container.bind(Connection).to(ServerConnection).inSingletonScope();
-
+// container.bind(Application).to(ServerApplication).inSingletonScope();
+// container.bind(Connection).to(ServerConnection).inSingletonScope();
 
 // start the application
-const application = container.get<Application>(Application);
-application.init(container, controllers);
-
+const application = container.resolve(Application) as ServerApplication;
+application.init();
 

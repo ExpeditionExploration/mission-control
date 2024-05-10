@@ -1,5 +1,5 @@
-import Connection, { Payload, type IConnection } from "src/connection";
-import { Inject, Injectable } from "@module";
+import { Payload } from "src/connection";
+import { Injectable } from "@module";
 import EventEmitter from "events";
 
 @Injectable()
@@ -10,10 +10,10 @@ import EventEmitter from "events";
 export class Broadcaster {
     private readonly emitter = new EventEmitter();
 
-    on(event: string, listener: (...args: any[]) => void) {
+    on(event: string, listener: (data: any) => void) {
         this.emitter.on(event, listener);
     }
-    off(event: string, listener: (...args: any[]) => void) {
+    off(event: string, listener: (data: any) => void) {
         this.emitter.off(event, listener);
     }
     emit(event: string, data: any, global = true) {
