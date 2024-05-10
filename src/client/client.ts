@@ -7,12 +7,18 @@ import ClientApplication from "./client-application";
 import UserInterface from "./user-interface";
 
 // Bind environemnt specific injections
-container.bind(Application).to(ClientApplication).inSingletonScope();
-container.bind(Connection).to(ClientConnection).inSingletonScope();
-container.bind(UserInterface).to(UserInterface).inSingletonScope();
+container.registerSingleton(Application, ClientApplication);
+container.registerSingleton(Connection, ClientConnection);
+container.registerSingleton(UserInterface, UserInterface);
+
+// container.register(UserInterface, {
+//     useToken: delay(() => UserInterface)
+// }, {
+//     lifecycle: Lifecycle.Singleton
+// });
 
 // start the application
-const application = container.get(Application) as ClientApplication;
-application.init(container);
+const application = container.resolve(Application) as ClientApplication;
+application.init();
 
 

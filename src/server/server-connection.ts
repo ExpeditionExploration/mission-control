@@ -11,6 +11,7 @@ import Broadcaster from "src/broadcaster";
 export class ServerConnection implements IConnection {
     private webSocketServer?: WebSocketServer;
     private server?: Server;
+
     constructor(@Inject(Config) private readonly config: Config, @Inject(Broadcaster) private readonly broadcaster: Broadcaster) { }
 
     async init() {

@@ -1,18 +1,22 @@
-import { Injectable } from "@module";
-import { Container } from "inversify";
-import { Application } from "src/application";
+import { Inject, Injectable } from "@module";
+import { IApplication } from "src/application";
+import Connection, { type IConnection } from "src/connection";
+import { ModuleLoader } from "src/module-loader";
 import * as views from 'src/modules/views';
 import UserInterface from "./user-interface";
 
 @Injectable()
-export class ClientApplication extends Application {
-    constructor(@Inject(UserInterface) userInterface: UserInterface) { }
-    async init(container: Container) {
-        await super.init(container, views);
-
+export class ClientApplication implements IApplication {
+    constructor(@Inject(Connection) private readonly connection: IConnection, @Inject(ModuleLoader) private readonly moduleLoader: ModuleLoader, @Inject(UserInterface) private readonly userInterface: UserInterface) { }
+    async init() {
         await Promise.all([
-            await this.userInterface.init()
+            this.moduleLoader.init(views),
+            this.connection.init(),
+            this.userInterface.init()
         ]);
+
+        // load modules last
+        await this.moduleLoader.loadModules();
     }
 }
 

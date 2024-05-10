@@ -6,7 +6,9 @@ import { Events } from '@events';
 export default class ControlController implements Module {
     constructor(@Inject(Events) private readonly events: Events) { }
     onModuleInit(): void | Promise<void> {
-        console.log('ControlController', this.events)
+        setTimeout(() => {
+            this.events.emit('random', Math.random());
+        })
         // throw new Error('Method not implemented.');
     }
 }

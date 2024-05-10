@@ -2,12 +2,12 @@ import "reflect-metadata";
 import Connection from "src/connection";
 import ServerConnection from "./server-connection";
 import { container } from "src/container";
-import { Application } from "src/application";
 import { ServerApplication } from "./server-application";
+import { Application } from "src/application";
 
 // Bind environemnt specific injections
-// container.bind(Application).to(ServerApplication).inSingletonScope();
-// container.bind(Connection).to(ServerConnection).inSingletonScope();
+container.registerSingleton(Application, ServerApplication);
+container.registerSingleton(Connection, ServerConnection);
 
 // start the application
 const application = container.resolve(Application) as ServerApplication;

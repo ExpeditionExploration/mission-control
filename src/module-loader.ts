@@ -1,37 +1,43 @@
 import { Injectable, Module } from "@module";
-import { Container } from 'inversify';
+import { container } from "src/container";
+import { delay, DependencyContainer, Lifecycle } from "tsyringe";
 type ModuleNamespace = string;
 type ModuleConstructor = new (...args: any[]) => Module;
 export type ModulesImport = Record<ModuleNamespace, ModuleConstructor>;
-type ModulesArray = [ModuleConstructor, Container][];
+type ModulesArray = [ModuleConstructor, DependencyContainer][];
 
 @Injectable()
 export class ModuleLoader {
-    async init(container: Container, modules: ModulesImport) {
+    modules: ModulesArray = [];
+    async init(modules: ModulesImport) {
         // Create modules containers
-        const modulesArray = this.loadModulesIntoContainer(container, modules);
-        // Load modules
-        await this.loadModules(modulesArray);
+        this.modules = this.loadModulesIntoContainer(container, modules);
     }
 
     private reservedKeys = ['default', 'app', 'root', 'event'];
-    private loadModulesIntoContainer(container: Container, modules: ModulesImport): ModulesArray {
+    private loadModulesIntoContainer(container: DependencyContainer, modules: ModulesImport): ModulesArray {
         const modulesMap: ModulesArray = [];
         for (const [namespace, Module] of Object.entries(modules)) {
             if (namespace in this.reservedKeys) throw new Error(`Module namespace "${namespace}" is reserved`);
 
-            const moduleContainer = container.createChild();
-            moduleContainer.bind<string>('namespace').toConstantValue(namespace);
-            moduleContainer.bind<Module>(Module).to(Module).inSingletonScope();
+            const moduleContainer = container.createChildContainer();
+            moduleContainer.register('namespace', {
+                useValue: namespace
+            })
+            moduleContainer.register(Module, {
+                useClass: Module
+            }, {
+                lifecycle: Lifecycle.ContainerScoped
+            });
             modulesMap.push([Module, moduleContainer]);
         }
 
         return modulesMap;
     }
 
-    async loadModules(modules: ModulesArray) {
-        await Promise.all(modules.map(async ([Module, container]) => {
-            const instance = container.get(Module);
+    async loadModules() {
+        await Promise.all(this.modules.map(async ([Module, container]) => {
+            const instance = container.resolve(Module);
             await instance.onModuleInit();
         }));
     }
