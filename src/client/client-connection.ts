@@ -12,10 +12,7 @@ export class ClientConnection implements IConnection {
     }
 
     private async connect() {
-        if (this.socket) {
-            this.socket.onclose = null;
-            this.socket.close();
-        }
+        this.destroy();
 
         await new Promise<void>((resolve) => {
             this.socket = new WebSocket(`ws://${location.hostname}:${this.config.port}`);
@@ -43,6 +40,13 @@ export class ClientConnection implements IConnection {
         });
 
         this.broadcaster.on('event', (event: Payload) => this.send(event));
+    }
+
+    destroy() {
+        if (this.socket) {
+            this.socket.onclose = null;
+            this.socket.close();
+        }
     }
 
     reconnect() {

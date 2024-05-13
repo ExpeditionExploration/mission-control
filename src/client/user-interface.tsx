@@ -1,47 +1,22 @@
-import { IConnection, Payload } from 'src/connection';
-import { Inject, Injectable } from '@module';
+import { Injectable } from '@module';
 
-import { Fragment, StrictMode, createContext, useState } from 'react';
-import ReactDOM from 'react-dom/client';
-import { App, ApplicationContextType } from './App';
+import { ApplicationContextType } from './root';
 import './index.css';
+
+export type SetContextFunction = React.Dispatch<
+    React.SetStateAction<ApplicationContextType>
+>;
 
 @Injectable()
 export class UserInterface {
-    constructor(
-        @Inject('Connection') private readonly connection: IConnection,
-    ) {}
-    private setContext?: React.Dispatch<
-        React.SetStateAction<ApplicationContextType>
-    >;
-    async init() {
-        this.setContext = await new Promise<
-            React.Dispatch<React.SetStateAction<ApplicationContextType>>
-        >((resolve) => {
-            ReactDOM.createRoot(
-                document.getElementById('root') as HTMLElement,
-            ).render(
-                <StrictMode>
-                    <App contextReady={(setContext) => resolve(setContext)} />
-                </StrictMode>,
-            );
-        });
+    private setContext!: SetContextFunction;
 
-        this.loadContext();
-    }
-
-    private loadContext() {
-        this.setContext?.((prev) => {
-            return {
-                ...prev,
-            };
-        });
+    async init(setContext: SetContextFunction) {
+        this.setContext = setContext;
     }
 
     addContextItem(item: JSX.Element) {
-        console.log('Add context item', item, this.setContext);
-        this.setContext?.((prev) => {
-            console.log('Add context item', item, prev);
+        this.setContext((prev) => {
             return {
                 contextItems: [...prev.contextItems, item],
             };

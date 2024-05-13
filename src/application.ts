@@ -5,6 +5,6 @@ import Events from '@events';
 import Connection, { type IConnection } from './connection';
 
 export interface IApplication {
-    init(): Promise<void>;
+
 }
 export const Application = Symbol('Application');

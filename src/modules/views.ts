@@ -1,1 +1,1 @@
-export { default as control } from './control/view';
+export { ControlView as control } from './control/view';

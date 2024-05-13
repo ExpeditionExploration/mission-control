@@ -6,6 +6,7 @@ export type Payload = {
 export interface IConnection {
     init(): Promise<void>;
     send(payload: Payload): void;
+    destroy(): void;
 }
 
 export const Connection = Symbol("Connection");
