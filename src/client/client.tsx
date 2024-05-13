@@ -1,12 +1,16 @@
 import 'reflect-metadata';
+import Connection from 'src/connection';
+import { container } from 'src/container';
+import { Application } from 'src/application';
+import ClientConnection from './client-connection';
+import ClientApplication from './client-application';
+import UserInterface from './user-interface';
 
-import './App.css';
-import { Fragment } from 'react';
-import ReactDOM from 'react-dom/client';
-import { Root } from './root';
+// Bind environemnt specific injections
+container.registerSingleton(Application, ClientApplication);
+container.registerSingleton(Connection, ClientConnection);
+container.registerSingleton(UserInterface, UserInterface);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-    <Fragment>
-        <Root />
-    </Fragment>,
-);
+// Start the application
+const application = container.resolve(Application) as ClientApplication;
+application.init();

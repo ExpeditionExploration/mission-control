@@ -1,19 +1,41 @@
-import { Injectable } from '@module';
+import { IConnection, Payload } from 'src/connection';
+import { Inject, Injectable } from '@module';
 
-import { ApplicationContextType } from './root';
+import { Fragment, StrictMode, createContext, useState } from 'react';
+import ReactDOM from 'react-dom/client';
+import { Application, ApplicationContextType } from './Application';
 import './index.css';
-
-export type SetContextFunction = React.Dispatch<
-    React.SetStateAction<ApplicationContextType>
->;
 
 @Injectable()
 export class UserInterface {
-    private setContext!: SetContextFunction;
+    private setContext!: React.Dispatch<
+        React.SetStateAction<ApplicationContextType>
+    >;
+    async init() {
+        this.setContext = await new Promise<
+            React.Dispatch<React.SetStateAction<ApplicationContextType>>
+        >((resolve) => {
+            ReactDOM.createRoot(
+                document.getElementById('root') as HTMLElement,
+            ).render(
+                <Fragment>
+                    <Application
+                        contextReady={(setContext) => resolve(setContext)}
+                    />
+                </Fragment>,
+            );
+        });
 
-    async init(setContext: SetContextFunction) {
-        this.setContext = setContext;
+        // this.loadContext();
     }
+
+    // private loadContext() {
+    //     this.setContext?.((prev) => {
+    //         return {
+    //             ...prev,
+    //         };
+    //     });
+    // }
 
     addContextItem(item: JSX.Element) {
         this.setContext((prev) => {

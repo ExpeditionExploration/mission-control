@@ -3,16 +3,16 @@ import { IApplication } from "src/application";
 import Connection, { type IConnection } from "src/connection";
 import { ModuleLoader } from "src/module-loader";
 import * as views from 'src/modules/views';
-import UserInterface, { SetContextFunction } from "./user-interface";
+import UserInterface from "./user-interface";
 
 @Injectable()
 export class ClientApplication implements IApplication {
     constructor(@Inject(Connection) private readonly connection: IConnection, @Inject(ModuleLoader) private readonly moduleLoader: ModuleLoader, @Inject(UserInterface) private readonly userInterface: UserInterface) { }
-    async init(setContext: SetContextFunction) {
+    async init() {
         await Promise.all([
             this.moduleLoader.init(views),
             this.connection.init(),
-            this.userInterface.init(setContext)
+            this.userInterface.init()
         ]);
 
         await this.moduleLoader.loadModules();
