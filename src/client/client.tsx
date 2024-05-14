@@ -4,12 +4,12 @@ import { container } from 'src/container';
 import { Application } from 'src/application';
 import ClientConnection from './client-connection';
 import ClientApplication from './client-application';
-import UserInterface from './user-interface';
+import UserInterface, { ViewLoader } from './view-loader';
 
 // Bind environemnt specific injections
 container.registerSingleton(Application, ClientApplication);
 container.registerSingleton(Connection, ClientConnection);
-container.registerSingleton(UserInterface, UserInterface);
+container.registerSingleton(ViewLoader, ViewLoader);
 
 // Start the application
 const application = container.resolve(Application) as ClientApplication;

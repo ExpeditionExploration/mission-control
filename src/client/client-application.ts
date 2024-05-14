@@ -3,7 +3,7 @@ import { IApplication } from "src/application";
 import Connection, { type IConnection } from "src/connection";
 import { ModuleLoader } from "src/module-loader";
 import * as views from 'src/modules/views';
-import UserInterface from "./user-interface";
+import UserInterface from "./view-loader";
 
 @Injectable()
 export class ClientApplication implements IApplication {
