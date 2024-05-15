@@ -1,10 +1,9 @@
-import { Inject, Injectable } from 'src/inject';
-import { Module, IModule } from 'src/module';
+import { Injectable } from 'src/inject';
+import { Module } from 'src/module';
 // import { Connection } from '@connection';
 
 @Injectable()
-export class ControlController implements IModule {
-    constructor(@Inject(Module) private readonly module: Module) { }
+export class ControlController extends Module {
     onModuleInit(): void | Promise<void> {
         // setTimeout(() => {
         //     this.events.emit('random', Math.random());

@@ -1,9 +1,8 @@
 import { Inject, Injectable } from 'src/inject';
-import { Module, IModule } from 'src/module';
+import { Module, ModuleSymbol } from 'src/module';
 import './index.css';
-import { ViewLoader } from './view-loader';
-import React from 'react';
 import { UserInterfaceLoader } from './user-interface-loader';
+import { LazyServiceIdentifer } from 'inversify';
 
 export enum Side {
     Left,
@@ -12,11 +11,10 @@ export enum Side {
 
 @Injectable()
 export class UserInterface {
-    constructor(
-        @Inject(UserInterfaceLoader)
-        private readonly userInterfaceLoader: UserInterfaceLoader,
-        @Inject(Module) private readonly module: Module,
-    ) {}
+    @Inject(UserInterfaceLoader)
+    private readonly userInterfaceLoader!: UserInterfaceLoader;
+    @Inject(new LazyServiceIdentifer(() => ModuleSymbol))
+    private readonly module!: Module;
 
     init() {
         console.log('View init', this.module);
