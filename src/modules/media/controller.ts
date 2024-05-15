@@ -3,13 +3,13 @@ import { Module, IModule } from 'src/module';
 // import { Connection } from '@connection';
 
 @Injectable()
-export class ControlController implements IModule {
+export class MediaController implements IModule {
     constructor(@Inject(Module) private readonly module: Module) { }
     onModuleInit(): void | Promise<void> {
         // setTimeout(() => {
         //     this.events.emit('random', Math.random());
         // })
-        console.log('ControlController');
+        console.log('MediaController');
         // throw new Error('Method not implemented.');
     }
 }

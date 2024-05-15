@@ -1,7 +1,6 @@
-import { IConnection, Payload } from 'src/connection';
-import { Inject, Injectable } from '@module';
+import { Injectable } from 'src/inject';
 
-import { Fragment, StrictMode, createContext, useState } from 'react';
+import { Fragment } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Application } from './Application';
 import { ApplicationContextType } from './ApplicationContext';
@@ -26,5 +25,3 @@ export class ViewLoader {
         });
     }
 }
-
-export default ViewLoader;

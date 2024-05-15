@@ -1,5 +1,5 @@
 import { Payload } from "src/connection";
-import { Injectable } from "@module";
+import { Injectable } from "src/inject";
 import EventEmitter from "events";
 
 @Injectable()
@@ -26,5 +26,3 @@ export class Broadcaster {
         return this.emitter.emit(payload.event, payload);
     }
 }
-
-export default Broadcaster;

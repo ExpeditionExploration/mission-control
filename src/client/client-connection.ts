@@ -1,7 +1,7 @@
 import { IConnection, Payload } from "src/connection";
-import { Inject, Injectable } from "@module";
+import { Inject, Injectable } from "src/inject";
 import { Config } from "src/config";
-import Broadcaster from "src/broadcaster";
+import { Broadcaster } from "src/broadcaster";
 
 @Injectable()
 export class ClientConnection implements IConnection {

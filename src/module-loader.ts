@@ -1,8 +1,9 @@
-import { Injectable, Module } from "@module";
+import { Injectable } from "@inject";
+import { IModule } from "src/m";
 import { container } from "src/container";
-import { delay, DependencyContainer, Lifecycle } from "tsyringe";
+import { DependencyContainer, Lifecycle } from "tsyringe";
 type ModuleNamespace = string;
-type ModuleConstructor = new (...args: any[]) => Module;
+type ModuleConstructor = new (...args: any[]) => IModule;
 export type ModulesImport = Record<ModuleNamespace, ModuleConstructor>;
 type ModulesArray = [ModuleConstructor, DependencyContainer][];
 

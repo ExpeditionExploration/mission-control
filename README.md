@@ -31,3 +31,7 @@ Run `ssh-copy-id remote-user@server-ip`
 -   16500: Device Port
 -   16501: Client Port
 -   16502: Media Stream
+
+# Where I left off:
+
+-   Im trying to figure out if I require all modules to extend a Module class and then use a common module token for injection. This will allow the user interface bootstrapping process to automatically pass the module into the jsx element as a parameter.

@@ -21,8 +21,8 @@ export default defineConfig({
     })],
     resolve: {
         alias: [
-            { find: '@module', replacement: fileURLToPath(new URL('./src/module.ts', import.meta.url)) },
-            { find: '@events', replacement: fileURLToPath(new URL('./src/events.ts', import.meta.url)) },
+            // { find: '@inject', replacement: fileURLToPath(new URL('./src/inject.ts', import.meta.url)) },
+            // { find: '@module', replacement: fileURLToPath(new URL('./src/module.ts', import.meta.url)) },
             { find: 'src', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
         ]
     }

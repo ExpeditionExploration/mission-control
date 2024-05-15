@@ -1,11 +1,11 @@
-import { Inject, Injectable } from "@module";
+import { Inject, Injectable } from "src/inject";
 import { Config } from "src/config";
 import { IConnection, Payload } from "src/connection";
 import { WebSocketServer } from 'ws';
 import handler from 'serve-handler';
 import http, { Server } from 'http';
 import path from "path";
-import Broadcaster from "src/broadcaster";
+import { Broadcaster } from "src/broadcaster";
 
 @Injectable()
 export class ServerConnection implements IConnection {
@@ -57,5 +57,3 @@ export class ServerConnection implements IConnection {
         });
     }
 }
-
-export default ServerConnection;

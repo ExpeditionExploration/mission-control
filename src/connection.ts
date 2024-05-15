@@ -10,4 +10,3 @@ export interface IConnection {
 }
 
 export const Connection = Symbol("Connection");
-export default Connection;

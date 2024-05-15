@@ -1,31 +1,25 @@
-import { useEffect, useState } from 'react';
 import './App.css';
-import {
-    ApplicationContext,
-    ApplicationContextType,
-    defaultApplicationContext,
-} from './ApplicationContext';
 
 export function Application({
-    contextReady,
+    contextItems,
+    headerLeftItems,
+    headerRightItems,
+    footerLeftItems,
+    footerRightItems,
 }: {
-    contextReady: (
-        setContext: React.Dispatch<
-            React.SetStateAction<ApplicationContextType>
-        >,
-    ) => void;
+    contextItems: JSX.Element[];
+    headerLeftItems: JSX.Element[];
+    headerRightItems: JSX.Element[];
+    footerLeftItems: JSX.Element[];
+    footerRightItems: JSX.Element[];
 }) {
-    const [context, setContext] = useState<ApplicationContextType>(
-        defaultApplicationContext,
-    );
-
-    useEffect(() => {
-        contextReady(setContext);
-    }, [setContext]);
-
     return (
-        <ApplicationContext.Provider value={context}>
-            <div>{...context.contextItems}</div>
-        </ApplicationContext.Provider>
+        <div>
+            <div>{contextItems}</div>
+            <div>{headerLeftItems}</div>
+            <div>{headerRightItems}</div>
+            <div>{footerLeftItems}</div>
+            <div>{footerRightItems}</div>
+        </div>
     );
 }
