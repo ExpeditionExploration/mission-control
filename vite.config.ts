@@ -16,9 +16,7 @@ export default defineConfig({
         //     }
         // }
     },
-    plugins: [react({
-        tsDecorators: true,
-    })],
+    plugins: [react()],
     resolve: {
         alias: [
             // { find: '@inject', replacement: fileURLToPath(new URL('./src/inject.ts', import.meta.url)) },

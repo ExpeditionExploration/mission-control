@@ -1,16 +1,20 @@
-import { Inject, Injectable } from "src/inject";
 import { Broadcaster } from "src/broadcaster";
+import { ModuleDependencies } from "./module-loader";
 
 export type NamespacedEventName = string;
 
-@Injectable()
 /**
  * The Module injectable class is used to handle auto namespacing of 
  * a module depending on the namespace which the class is injected into.
  */
 export abstract class Module {
-    @Inject('namespace') private readonly namespace!: string;
-    @Inject(Broadcaster) private readonly broadcaster!: Broadcaster;
+    private readonly namespace!: string;
+    private readonly broadcaster!: Broadcaster;
+
+    constructor(deps: ModuleDependencies) {
+        this.namespace = deps.namespace;
+        this.broadcaster = deps.broadcaster;
+    }
 
     getEvent(event: string): NamespacedEventName {
         return `${this.namespace}:${event}`;
@@ -27,8 +31,3 @@ export abstract class Module {
 
     abstract onModuleInit(): void | Promise<void>;
 }
-
-export const ModuleSymbol = Symbol.for('Module');
-// export interface IModule {
-//     onModuleInit(): void | Promise<void>;
-// }

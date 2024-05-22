@@ -1,33 +1,21 @@
-import { injectable, inject, Container } from "inversify";
-import "reflect-metadata";
+import { ServerConnection } from "./server-connection";
+import { ApplicationDependencies, container } from "src/container";
+import { ServerApplication } from "./server-application";
+import { asClass, AwilixContainer } from "awilix";
+import { ModuleDependencies } from "src/module-loader";
 
-@injectable()
-class InjectA {
-    r = Math.random();
-}
-
-@injectable()
-class InjectB {
-    r = Math.random();
-}
-
-@injectable()
-class ServiceB {
-    @inject(InjectB) private injectB!: InjectB;
-}
-
-@injectable()
-class ServiceA extends ServiceB {
-    @inject(InjectA) private injectA!: InjectA;
-}
+export type ServerApplicationDependencies = {} & ApplicationDependencies;
+export type ServerModuleDependencies = ModuleDependencies &
+    ServerApplicationDependencies;
 
 
-var container = new Container();
-container.bind<InjectA>(InjectA).to(InjectA).inSingletonScope();
-container.bind<InjectB>(InjectB).to(InjectB).inSingletonScope();
-container.bind<ServiceA>(ServiceA).to(ServiceA).inSingletonScope();
-container.bind<ServiceB>(ServiceB).to(ServiceB).inSingletonScope();
+// Bind environemnt specific injections
+(container as AwilixContainer<ServerApplicationDependencies>).register({
+    application: asClass(ServerApplication).singleton(),
+    connection: asClass(ServerConnection).singleton(),
+});
 
+// start the application
+const application = container.resolve('application');
+application.init();
 
-var service = container.get<ServiceA>(ServiceA);
-console.log(service);

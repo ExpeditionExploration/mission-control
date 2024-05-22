@@ -1,4 +1,3 @@
-export interface IApplication {
-
+export abstract class Application {
+    abstract init(): Promise<void>;
 }
-export const Application = Symbol('Application');

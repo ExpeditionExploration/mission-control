@@ -1,14 +1,18 @@
-import { Inject, Injectable } from 'src/inject';
 import { Module } from 'src/module';
+import { ControlSettings } from './ControlSettings';
 import { UserInterface } from 'src/client/user-interface';
-import { ControlSettings } from './control-settings';
+import { ClientModuleDependencies } from 'src/client/client';
 
-@Injectable()
-export class ControlView extends Module {
-    @Inject(UserInterface) private readonly userInterface!: UserInterface;
-
+export class ControlModule extends Module {
+    userInterface: UserInterface;
+    constructor(deps: ClientModuleDependencies) {
+        super(deps);
+        this.userInterface = deps.userInterface;
+    }
     onModuleInit(): void | Promise<void> {
         console.log('ControlView');
-        // this.userInterface.addContextItem(ControlSettings);
+        this.userInterface.addContextItem(ControlSettings);
+        this.userInterface.addHeaderItem(ControlSettings);
+        this.userInterface.addFooterItem(ControlSettings);
     }
 }

@@ -1,12 +1,8 @@
-import { Inject, Injectable } from 'src/inject';
-
 import { Fragment } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Application } from './Application';
 import './index.css';
-import { Module } from 'src/module';
 
-@Injectable()
 export class UserInterfaceLoader {
     contextItems: Set<JSX.Element> = new Set();
     headerLeftItems: Set<JSX.Element> = new Set();

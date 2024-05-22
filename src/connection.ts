@@ -3,10 +3,8 @@ export type Payload = {
     data: any[];
 }
 
-export interface IConnection {
-    init(): Promise<void>;
-    send(payload: Payload): void;
-    destroy(): void;
+export abstract class Connection {
+    abstract init(): Promise<void>;
+    abstract send(payload: Payload): void;
+    abstract destroy(): void;
 }
-
-export const Connection = Symbol("Connection");

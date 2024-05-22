@@ -1,13 +1,16 @@
-import { Injectable } from "src/inject";
-import { Module, ModuleSymbol } from "src/module";
-import { container } from "src/container";
-import { Container } from "inversify";
+import { Module } from "src/module";
+import { ApplicationDependencies, container, Container } from "src/container";
+import { asClass, asValue, AwilixContainer } from 'awilix';
+
 type ModuleNamespace = string;
 type ModuleConstructor = new (...args: any[]) => Module;
 export type ModulesImport = Record<ModuleNamespace, ModuleConstructor>;
-type ModuleContainers = Container[];
+export type ModuleDependencies = {
+    namespace: string;
+    module: Module;
+} & ApplicationDependencies;
+export type ModuleContainers = AwilixContainer<ModuleDependencies>[];
 
-@Injectable()
 export class ModuleLoader {
     modules: ModuleContainers = [];
     async init(modules: ModulesImport) {
@@ -21,9 +24,11 @@ export class ModuleLoader {
         for (const [namespace, SubClassedModule] of Object.entries(modules)) {
             if (namespace in this.reservedKeys) throw new Error(`Module namespace "${namespace}" is reserved`);
 
-            const moduleContainer = container.createChild();
-            moduleContainer.bind<string>('namespace').toConstantValue(namespace);
-            moduleContainer.bind(ModuleSymbol).to(SubClassedModule).inSingletonScope();
+            const moduleContainer = container.createScope<ModuleDependencies>();
+            moduleContainer.register({
+                'namespace': asValue(namespace),
+                'module': asClass(SubClassedModule).scoped(),
+            })
             modulesMap.push(moduleContainer);
         }
 
@@ -32,7 +37,7 @@ export class ModuleLoader {
 
     async loadModules() {
         await Promise.all(this.modules.map(async (container) => {
-            const instance = container.get<Module>(ModuleSymbol);
+            const instance = container.resolve('module');
             await instance.onModuleInit();
         }));
     }

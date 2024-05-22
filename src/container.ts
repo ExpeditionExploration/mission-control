@@ -1,18 +1,30 @@
-import 'reflect-metadata';
-import { Container } from 'inversify';
 import { ModuleLoader } from 'src/module-loader';
-import { Module } from 'src/module';
 import { Broadcaster } from 'src/broadcaster';
 import { Config } from './config';
-import * as awilix from 'awilix';
+import { createContainer, InjectionMode, asClass, AwilixContainer } from 'awilix';
+import { Connection } from './connection';
+import { Application } from './application';
 
-const container = awilix.createContainer({
-    injectionMode: awilix.InjectionMode.PROXY,
+export interface ApplicationDependencies {
+    namespace: string;
+    config: Config;
+    broadcaster: Broadcaster;
+    moduleLoader: ModuleLoader;
+    connection: Connection;
+    application: Application;
+    [key: string]: any;
+}
+export type Container = AwilixContainer<ApplicationDependencies>;
+
+const container = createContainer<ApplicationDependencies>({
+    injectionMode: InjectionMode.PROXY,
     strict: true,
 });
-// container.bind<string>('namspace').toConstantValue('application');
-// container.bind<Config>(Config).to(Config).inSingletonScope();
-// container.bind<Broadcaster>(Broadcaster).to(Broadcaster).inSingletonScope();
-// container.bind<ModuleLoader>(ModuleLoader).to(ModuleLoader).inSingletonScope();
+
+container.register({
+    'config': asClass(Config).singleton(),
+    'broadcaster': asClass(Broadcaster).singleton(),
+    'moduleLoader': asClass(ModuleLoader).singleton(),
+});
 
 export { container };

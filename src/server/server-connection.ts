@@ -1,18 +1,23 @@
-import { Inject, Injectable } from "src/inject";
 import { Config } from "src/config";
-import { IConnection, Payload } from "src/connection";
+import { Connection, Payload } from "src/connection";
 import { WebSocketServer } from 'ws';
 import handler from 'serve-handler';
 import http, { Server } from 'http';
 import path from "path";
 import { Broadcaster } from "src/broadcaster";
+import { ServerApplicationDependencies } from "./server";
 
-@Injectable()
-export class ServerConnection implements IConnection {
+export class ServerConnection extends Connection {
+    private readonly config!: Config;
+    private readonly broadcaster!: Broadcaster;
     private webSocketServer?: WebSocketServer;
     private server?: Server;
 
-    constructor(@Inject(Config) private readonly config: Config, @Inject(Broadcaster) private readonly broadcaster: Broadcaster) { }
+    constructor(deps: ServerApplicationDependencies) {
+        super();
+        this.config = deps.config;
+        this.broadcaster = deps.broadcaster;
+    }
 
     async init() {
         this.server = http.createServer((request, response) => {

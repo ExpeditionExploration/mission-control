@@ -1,45 +1,51 @@
-import { Inject, Injectable } from 'src/inject';
-import { Module, ModuleSymbol } from 'src/module';
+import { Module } from 'src/module';
 import './index.css';
 import { UserInterfaceLoader } from './user-interface-loader';
-import { LazyServiceIdentifer } from 'inversify';
+import { ModuleDependencies } from 'src/module-loader';
 
 export enum Side {
     Left,
     Right,
 }
 
-@Injectable()
 export class UserInterface {
-    @Inject(UserInterfaceLoader)
     private readonly userInterfaceLoader!: UserInterfaceLoader;
-    @Inject(new LazyServiceIdentifer(() => ModuleSymbol))
-    private readonly module!: Module;
+    private module!: Module;
+
+    constructor(deps: ModuleDependencies) {
+        this.userInterfaceLoader = deps.userInterfaceLoader;
+        setTimeout(() => {
+            // This needs to delay the injection to overcome circular dependency
+            this.module = deps.module;
+        });
+    }
 
     init() {
         console.log('View init', this.module);
+    }
+
+    private getItem(Item: JSX.ElementType) {
+        return <Item module={this.module} key={this.generateKey()} />;
     }
 
     generateKey() {
         return Math.random().toString(36).substring(7);
     }
     addContextItem(Item: JSX.ElementType) {
-        this.userInterfaceLoader.contextItems.add(
-            <Item key={this.generateKey()} />,
-        );
+        this.userInterfaceLoader.contextItems.add(this.getItem(Item));
     }
-    addHeaderItem(item: JSX.Element, side: Side) {
+    addHeaderItem(Item: JSX.ElementType, side: Side = Side.Left) {
         if (side === Side.Left) {
-            this.userInterfaceLoader.headerLeftItems.add(item);
+            this.userInterfaceLoader.headerLeftItems.add(this.getItem(Item));
         } else {
-            this.userInterfaceLoader.headerRightItems.add(item);
+            this.userInterfaceLoader.headerRightItems.add(this.getItem(Item));
         }
     }
-    addFooterItem(item: JSX.Element, side: Side) {
+    addFooterItem(Item: JSX.ElementType, side: Side = Side.Left) {
         if (side === Side.Left) {
-            this.userInterfaceLoader.footerLeftItems.add(item);
+            this.userInterfaceLoader.footerLeftItems.add(this.getItem(Item));
         } else {
-            this.userInterfaceLoader.footerRightItems.add(item);
+            this.userInterfaceLoader.footerRightItems.add(this.getItem(Item));
         }
     }
 }

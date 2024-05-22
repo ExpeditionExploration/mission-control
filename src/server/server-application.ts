@@ -1,12 +1,19 @@
-import { Inject, Injectable } from "src/inject";
-import { IApplication } from "src/application";
-import { Connection, type IConnection } from "src/connection";
+
+import { Application } from "src/application";
+import { Connection } from "src/connection";
 import { ModuleLoader } from "src/module-loader";
+import { ServerApplicationDependencies } from "./server";
 import * as controllers from 'src/modules/controllers';
 
-@Injectable()
-export class ServerApplication implements IApplication {
-    constructor(@Inject(Connection) private readonly connection: IConnection, @Inject(ModuleLoader) private readonly moduleLoader: ModuleLoader) { }
+export class ServerApplication extends Application {
+    private readonly connection!: Connection;
+    private readonly moduleLoader!: ModuleLoader;
+    constructor(deps: ServerApplicationDependencies) {
+        super();
+        this.connection = deps.connection;
+        this.moduleLoader = deps.moduleLoader;
+    }
+
     async init() {
         await Promise.all([
             this.moduleLoader.init(controllers),

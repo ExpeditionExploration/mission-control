@@ -19,9 +19,6 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
-
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
         "paths": {
             // "@inject": ["src/inject.ts"],
             // "@module": ["src/module.ts"],

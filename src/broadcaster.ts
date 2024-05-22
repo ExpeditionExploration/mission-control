@@ -1,8 +1,6 @@
 import { Payload } from "src/connection";
-import { Injectable } from "src/inject";
 import EventEmitter from "events";
 
-@Injectable()
 /**
  * The EventBroadcaster injectable class is used to handle broadcasting of events
  * on the event emitter and on the connection

@@ -1,12 +1,19 @@
-import { IConnection, Payload } from "src/connection";
-import { Inject, Injectable } from "src/inject";
+import { Connection, Payload } from "src/connection";
 import { Config } from "src/config";
 import { Broadcaster } from "src/broadcaster";
+import { ClientApplicationDependencies } from "./client";
 
-@Injectable()
-export class ClientConnection implements IConnection {
+export class ClientConnection extends Connection {
     private socket?: WebSocket;
-    constructor(@Inject(Config) private readonly config: Config, @Inject(Broadcaster) private readonly broadcaster: Broadcaster) { }
+    private readonly config!: Config;
+    private readonly broadcaster!: Broadcaster;
+
+    constructor(deps: ClientApplicationDependencies) {
+        super();
+        this.config = deps.config;
+        this.broadcaster = deps.broadcaster;
+    }
+
     async init() {
         await this.connect();
     }

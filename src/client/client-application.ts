@@ -1,13 +1,22 @@
-import { Inject, Injectable } from "src/inject";
-import { IApplication } from "src/application";
-import { Connection, type IConnection } from "src/connection";
+import { Application } from "src/application";
+import { Connection } from "src/connection";
 import { ModuleLoader } from "src/module-loader";
 import * as views from 'src/modules/views';
 import { UserInterfaceLoader } from "./user-interface-loader";
+import { ClientApplicationDependencies } from "./client";
 
-@Injectable()
-export class ClientApplication implements IApplication {
-    constructor(@Inject(Connection) private readonly connection: IConnection, @Inject(ModuleLoader) private readonly moduleLoader: ModuleLoader, @Inject(UserInterfaceLoader) private readonly userInterfaceLoader: UserInterfaceLoader) { }
+export class ClientApplication extends Application {
+    private readonly connection!: Connection;
+    private readonly moduleLoader!: ModuleLoader;
+    private readonly userInterfaceLoader!: UserInterfaceLoader;
+
+    constructor(deps: ClientApplicationDependencies) {
+        super();
+        this.connection = deps.connection;
+        this.moduleLoader = deps.moduleLoader;
+        this.userInterfaceLoader = deps.userInterfaceLoader;
+    }
+
     async init() {
         await Promise.all([
             this.moduleLoader.init(views),
@@ -15,7 +24,7 @@ export class ClientApplication implements IApplication {
         ]);
 
         await this.moduleLoader.loadModules();
-        this.userInterfaceLoader.init()
+        await this.userInterfaceLoader.init()
     }
 
     destroy() {
