@@ -24,7 +24,7 @@ export class ClientApplication extends Application {
         ]);
 
         await this.moduleLoader.loadModules();
-        await this.userInterfaceLoader.init()
+        await this.userInterfaceLoader.init();
     }
 
     destroy() {

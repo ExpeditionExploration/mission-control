@@ -38,7 +38,13 @@ export class ModuleLoader {
     async loadModules() {
         await Promise.all(this.modules.map(async (container) => {
             const instance = container.resolve('module');
-            await instance.onModuleInit();
+
+            // Delaying the user interface loader initialization to ensure delayed injections
+            // are resolved before the module is initialized
+            await new Promise<void>((resolve) => setTimeout(async () => {
+                await instance.onModuleInit();
+                resolve();
+            }, 0))
         }));
     }
 }

@@ -1,3 +1,3 @@
 // The controller should be exported as a namespaced object.
-export { ControlController as control } from './control/controller';
+export { StatsController as stats } from './stats/controller';
 // export { MediaController as media } from './media/controller';

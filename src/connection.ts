@@ -1,6 +1,6 @@
 export type Payload = {
     event: string;
-    data: any[];
+    data: any;
 }
 
 export abstract class Connection {

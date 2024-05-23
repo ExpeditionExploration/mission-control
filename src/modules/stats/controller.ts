@@ -1,7 +1,7 @@
 import { Module } from 'src/module';
 // import { Connection } from '@connection';
 
-export class ControlController extends Module {
+export class StatsController extends Module {
     onModuleInit(): void | Promise<void> {
         // setTimeout(() => {
         //     this.events.emit('random', Math.random());

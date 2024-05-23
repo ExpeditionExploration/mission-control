@@ -1,5 +1,6 @@
 import { Broadcaster } from "src/broadcaster";
 import { ModuleDependencies } from "./module-loader";
+import { Payload } from "./connection";
 
 export type NamespacedEventName = string;
 
@@ -19,14 +20,14 @@ export abstract class Module {
     getEvent(event: string): NamespacedEventName {
         return `${this.namespace}:${event}`;
     }
-    on(event: string, listener: (data: any) => void) {
-        this.broadcaster?.on(this.getEvent(event), listener);
+    on<T = any>(event: string, listener: (data: T) => void) {
+        this.broadcaster?.on(this.getEvent(event), (payload: Payload) => listener(payload.data));
     }
     off(event: string, listener: (data: any) => void) {
         this.broadcaster?.off(this.getEvent(event), listener);
     }
-    emit(event: string, data: any) {
-        return this.broadcaster?.emit(this.getEvent(event), data);
+    emit<T = any>(event: string, data: T, global = true) {
+        return this.broadcaster?.emit(this.getEvent(event), data, global);
     }
 
     abstract onModuleInit(): void | Promise<void>;

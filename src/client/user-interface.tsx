@@ -50,6 +50,10 @@ export class UserInterface {
     }
 }
 
+export interface ViewProps<T extends Module = Module>
+    extends React.HTMLProps<HTMLElement> {
+    module: T;
+}
 // export const ViewContext = React.createContext<Module | null>(null);
 
 // export function ViewFragment({

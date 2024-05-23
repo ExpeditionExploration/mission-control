@@ -1,4 +1,4 @@
-import { useEffect, useState, FunctionComponent, useRef } from 'react'
+import { useEffect, useState, FunctionComponent, useRef } from 'react';
 import logo from './assets/exs.svg';
 import {
     LightBulbIcon,
@@ -27,7 +27,7 @@ function App() {
         [Location.BottomRight]: [],
         [Location.Menu]: [],
         [Location.Window]: [],
-        [Location.Hidden]: []
+        [Location.Hidden]: [],
     } as LoadedControllers);
 
     function send(event: string = '', data: any) {
@@ -39,7 +39,10 @@ function App() {
 
     function connectSocket() {
         log('Connecting App socket');
-        if (!appSocket.current || appSocket.current?.readyState == WebSocket.CLOSED) {
+        if (
+            !appSocket.current ||
+            appSocket.current?.readyState == WebSocket.CLOSED
+        ) {
             log('Creating App socket');
 
             const socket = new WebSocket(`ws://${hostname}:16500`);
@@ -60,11 +63,10 @@ function App() {
         }
     }
 
-
     useEffect(() => {
         log('Setup app');
         connectSocket();
-        setLoadedControllers(loadModules({ events, send }))
+        setLoadedControllers(loadModules({ events, send }));
 
         return () => {
             log('Cleanup app');
@@ -75,44 +77,43 @@ function App() {
                 appSocket.current.close();
                 appSocket.current = undefined;
             }
-        }
+        };
     }, []);
     console.log(loadedControllers);
     return (
         <>
-            <div className='!hidden absolute -z-10'>
+            <div className="!hidden absolute -z-10">
                 {loadedControllers[Location.Hidden]}
             </div>
-            <div className='absolute inset-0 z-0 flex items-center justify-center w-full h-full'>
+            <div className="absolute inset-0 z-0 flex items-center justify-center w-full h-full">
                 {loadedControllers[Location.Window]}
             </div>
-            <div className='z-10 absolute inset-0'>
-                <div className='bg-gradient-to-b space-x-8 p-8 pt-4 from-black/50 to-transparent absolute top-0 flex items-center justify-between w-full'>
-                    <div className='w-full text-left flex items-center space-x-8'>
+            <div className="z-10 absolute inset-0">
+                <div className="bg-gradient-to-b space-x-8 p-8 pt-4 from-black/50 to-transparent absolute top-0 flex items-center justify-between w-full">
+                    <div className="w-full text-left flex items-center space-x-8">
                         {/* {loadModules('header')} */}
                         {loadedControllers[Location.Header]}
                     </div>
                     <div>
-                        <Bars3Icon className='h-8 cursor-pointer' />
+                        <Bars3Icon className="h-8 cursor-pointer" />
                     </div>
                 </div>
-                <div className='absolute bottom-0 w-full px-12 pb-4 pt-8  bg-gradient-to-t from-black/50 to-transparent'>
-                    <div className='h-24 flex justify-between items-bottom '>
-                        <div className='flex items-center space-x-8 w-full'>
-                            <img src={logo} className='h-12' />
+                <div className="absolute bottom-0 w-full px-12 pb-4 pt-8  bg-gradient-to-t from-black/50 to-transparent">
+                    <div className="h-24 flex justify-between items-bottom ">
+                        <div className="flex items-center space-x-8 w-full">
+                            <img src={logo} className="h-12" />
                             {/* {loadModules('left')} */}
                             {loadedControllers[Location.BottomLeft]}
                         </div>
-                        <div className='flex items-center  space-x-8'>
+                        <div className="flex items-center  space-x-8">
                             {/* {loadModules('right')} */}
                             {loadedControllers[Location.BottomRight]}
                         </div>
                     </div>
-
                 </div>
             </div>
         </>
-    )
+    );
 }
 
-export default App
+export default App;
