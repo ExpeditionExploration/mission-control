@@ -17,8 +17,10 @@ export class ServerApplication extends Application {
     async init() {
         await Promise.all([
             this.moduleLoader.init(controllers),
-            this.connection.init()
+            this.connection.init(),
         ]);
+
+        await this.moduleLoader.loadModules();
     }
 }
 
