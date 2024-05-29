@@ -1,68 +1,72 @@
 import { Module } from 'src/module';
-import { execSync, spawn } from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
 import { WebSocketServer } from 'ws';
-import fs from 'fs';
-import { createServer, IncomingMessage, ServerResponse } from 'http';
-
-const FIFO_PATH = '/tmp/video_fifo_asdasas';
-function createFIFO(fifoPath: string) {
-    if (fs.existsSync(fifoPath)) {
-        fs.unlinkSync(FIFO_PATH);
-    }
-
-    execSync(`mkfifo ${fifoPath}`);
-}
-
+import { Writable } from 'stream';
 
 export class MediaModule extends Module {
     private wss!: WebSocketServer;
+    private stream!: ChildProcess;
+    private streamPipe: Writable = new Writable();
+
     createMediaServer(): void {
-        createServer((req, res) => {
-            this.startMediaStream(req, res);
-        }).listen(16600, () => {
-            console.log('Media server is running on http://localhost:16600');
-        });
+        this.wss = new WebSocketServer({ port: 16600 });
+        this.streamPipe._write = (chunk, encoding, callback) => {
+            this.wss.clients.forEach((client) => {
+                if (client.readyState === 1) {
+                    client.send(chunk);
+                }
+            });
+            callback();
+        };
+        // this.streamPipe.on('data', (chunk) => {
+        //     this.wss.clients.forEach((client) => {
+        //         if (client.readyState === 1) {
+        //             client.send(chunk);
+        //         }
+        //     });
+        // });
+
+        // createServer((req, res) => {
+        //     // this.streamFile = fs.createReadStream(STREAM_FILE_PATH);
+        //     console.log('Media server request');
+        //     res.writeHead(200, {
+        //         'Content-Type': 'video/mp4',
+        //     });
+        //     // res.setHeader('Transfer-Encoding', 'chunked');
+        //     // res.setHeader('Connection', 'keep-alive');
+        //     // fifoStream.pipe(res);
+        //     this.streamFile.pipe(res);
+        // }).listen(16600, () => {
+        //     console.log('Media server is running on http://localhost:16600');
+        // });
     }
-    startMediaStream(req: IncomingMessage, res: ServerResponse<IncomingMessage>): void {
+    startMediaStream(): void {
         console.log('Starting media stream')
-        // fs.unlinkSync(FIFO_PATH);
-        // createFIFO(FIFO_PATH);
+        // try {
+        //     fs.unlinkSync(STREAM_FILE_PATH);
+        // } catch (e) { }
 
-        const stream = spawn('ffmpeg', [
+        this.stream = spawn('ffmpeg', [
             '-f', 'avfoundation',
-            '-framerate', '30',
+            '-r', '30',
             '-i', '0', // Replace '0' with your webcam device index if different
-            '-c:v', 'libvpx-vp9',      // Encode using H.264
-            // 'c:a', 'na',           // Encode using AAC
-            '-b:v', '1M',           // Set video bitrate
-            '-keyint_min', '30',    // Set minimum interval between keyframes
-            '-g', '30',             // Set GOP size (keyframe interval)
-            '-deadline', 'realtime',// Set deadline for real-time encoding
-            // '-preset', 'ultrafast', // Set encoding speed/quality
-            // '-tune', 'zerolatency', // Tune for low-latency streaming
-            '-f', 'webm', // Output format
-            '-'         // Output to stdout
+            '-c:v', 'libx265',      // Encode using H.264
+            '-an',
+            '-preset', 'ultrafast', // Set encoding speed/quality
+            '-tune', 'zerolatency', // Tune for low-latency streaming
+            '-f', 'mpegts', // Output format
+            // Output to stdout
+            '-'
         ], {
-            stdio: ['ignore', 'pipe', 'inherit']
+            stdio: ['inherit', 'pipe', 'inherit']
         });
 
-        // const fifoStream = fs.createReadStream(FIFO_PATH);
-        res.setHeader('Content-Type', 'video/mp4');
-        res.setHeader('Transfer-Encoding', 'chunked');
-        res.setHeader('Connection', 'keep-alive');
-        // fifoStream.pipe(res);
-        stream.stdout.pipe(res);
-        // req.on('close', () => {
-        //     stream.kill();
-        //     fs.unlinkSync(FIFO_PATH);
-        // });
-        // stream.stderr.on('data', (data) => {
-        //     console.error(`ffmpeg error: ${data}`);
-        // });
+        this.stream.stdout?.pipe(this.streamPipe);
     }
 
     async onModuleInit() {
         console.log('MediaModule')
+        this.startMediaStream();
         this.createMediaServer();
         // this.startMjpegStream();
     }
