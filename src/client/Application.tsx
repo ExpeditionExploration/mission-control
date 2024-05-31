@@ -37,7 +37,7 @@ export function Application({
 
     return (
         <div className="w-screen h-screen bg-gray-900 bg-gradient-to-t from-gray-950 text-white relative">
-            <UtilityBar className="top-0">
+            <UtilityBar position="top" className="top-0">
                 <UtilityBarItems className="items-start">
                     <Menu
                         className="cursor-pointer"
@@ -63,7 +63,7 @@ export function Application({
             <div className="absolute flex justify-center items-center w-full h-full z-0">
                 {...contextItems}
             </div>
-            <UtilityBar className="bottom-0">
+            <UtilityBar position="bottom">
                 <UtilityBarItems className="items-end">
                     <div className="mr-8">
                         <img src={logo} alt="logo" className="h-12" />

@@ -44,9 +44,11 @@ export class MediaModule extends Module {
         console.log('Starting media stream')
         // try {
         //     fs.unlinkSync(STREAM_FILE_PATH);
+
         // } catch (e) { }
 
         this.stream = spawn('ffmpeg', [
+            '-loglevel', 'error', '-nostats',
             '-f', 'avfoundation',
             '-r', '30',
             '-i', '0', // Replace '0' with your webcam device index if different

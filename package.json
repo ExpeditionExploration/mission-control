@@ -7,7 +7,7 @@
     "scripts": {
         "start": "node dist/server.js",
         "dev:client": "vite",
-        "dev:server": "concurrently \"npm run build:server\" \"nodemon dist/server.js\"",
+        "dev:server": "concurrently \"npm run build:server -- --watch\" \"nodemon dist/server.js\"",
         "build": "rm -rf dist && npm run build:client && npm run build:server",
         "build:client": "vite build",
         "build:server": "vite build --ssr src/server/server.ts",
