@@ -21,7 +21,8 @@ export class ModuleLoader {
     private reservedKeys = ['default', 'app', 'root', 'event'];
     private loadModulesIntoContainer(container: Container, modules: ModulesImport): ModuleContainers {
         const modulesMap: ModuleContainers = [];
-        for (const [namespace, SubClassedModule] of Object.entries(modules)) {
+        // Load modules in reverse order to ensure correct display order
+        for (const [namespace, SubClassedModule] of Object.entries(modules).reverse()) {
             if (namespace in this.reservedKeys) throw new Error(`Module namespace "${namespace}" is reserved`);
 
             const moduleContainer = container.createScope<ModuleDependencies>();

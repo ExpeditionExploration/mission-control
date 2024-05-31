@@ -20,11 +20,12 @@ export class ClientApplication extends Application {
     async init() {
         await Promise.all([
             this.moduleLoader.init(views),
-            this.connection.init(),
         ]);
 
         await this.moduleLoader.loadModules();
         await this.userInterfaceLoader.init();
+
+        this.connection.init();
     }
 
     destroy() {

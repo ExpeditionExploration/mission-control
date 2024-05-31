@@ -3,7 +3,7 @@ import { ChildProcess, spawn } from 'child_process';
 import { WebSocketServer } from 'ws';
 import { Writable } from 'stream';
 
-export class MediaModule extends Module {
+export class MediaModuleController extends Module {
     private wss!: WebSocketServer;
     private stream!: ChildProcess;
     private streamPipe: Writable = new Writable();

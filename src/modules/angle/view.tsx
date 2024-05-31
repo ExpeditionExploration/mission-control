@@ -1,9 +1,10 @@
 import { Module } from 'src/module';
-import { StatsHeaderItem } from './components/StatsHeaderItem';
+import { RollFooterItem } from './components/RollFooterItem';
 import { UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
+import { PitchFooterItem } from './components/PitchFooterItem';
 
-export class StatsModuleView extends Module {
+export class AngleModuleView extends Module {
     userInterface: UserInterface;
 
     constructor(deps: ClientModuleDependencies) {
@@ -12,6 +13,7 @@ export class StatsModuleView extends Module {
     }
 
     onModuleInit(): void | Promise<void> {
-        this.userInterface.addHeaderItem(StatsHeaderItem);
+        this.userInterface.addFooterItem(RollFooterItem);
+        this.userInterface.addFooterItem(PitchFooterItem);
     }
 }

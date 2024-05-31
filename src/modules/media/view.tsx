@@ -1,10 +1,11 @@
 import { Module } from 'src/module';
-import { UserInterface } from 'src/client/user-interface';
+import { Side, UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
 import { MediaContextItem } from './components/MediaContextItem';
-import mpegts from 'mpegts.js';
+import { TakePictureButton } from './components/TakePictureButton';
+import { RecordButton } from './components/RecordButton';
 
-export class MediaModule extends Module {
+export class MediaModuleView extends Module {
     userInterface: UserInterface;
 
     constructor(deps: ClientModuleDependencies) {
@@ -47,8 +48,10 @@ export class MediaModule extends Module {
 
     onModuleInit(): void | Promise<void> {
         this.userInterface.addContextItem(MediaContextItem);
-        setTimeout(() => {
-            this.listenToMediaStream();
-        }, 1000);
+        this.userInterface.addFooterItem(TakePictureButton, Side.Right);
+        this.userInterface.addFooterItem(RecordButton, Side.Right);
+        // setTimeout(() => {
+        //     this.listenToMediaStream();
+        // }, 1000);
     }
 }

@@ -1,9 +1,9 @@
 import { Module } from 'src/module';
-import { StatsHeaderItem } from './components/StatsHeaderItem';
+import { CompassFooterItem } from './components/CompassFooterItem';
 import { UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
 
-export class StatsModuleView extends Module {
+export class CompassModuleView extends Module {
     userInterface: UserInterface;
 
     constructor(deps: ClientModuleDependencies) {
@@ -12,6 +12,6 @@ export class StatsModuleView extends Module {
     }
 
     onModuleInit(): void | Promise<void> {
-        this.userInterface.addHeaderItem(StatsHeaderItem);
+        this.userInterface.addFooterItem(CompassFooterItem);
     }
 }

@@ -1,12 +1,12 @@
 // import { useEvents } from 'src/client/hooks';
 import { ViewProps } from 'src/client/user-interface';
-import { type StatsModule } from '../view';
+import { type StatsModuleView } from '../view';
 import { useEffect, useState } from 'react';
 import { Stats } from '../types';
 import { Cpu, HardDrive, MemoryStick, Thermometer } from 'lucide-react';
 import { cn } from 'src/client/utility';
 
-export const StatsHeaderItem: React.FC<ViewProps<StatsModule>> = ({
+export const StatsHeaderItem: React.FC<ViewProps<StatsModuleView>> = ({
     module,
 }) => {
     const [stats, setStats] = useState<Stats>({
@@ -23,33 +23,33 @@ export const StatsHeaderItem: React.FC<ViewProps<StatsModule>> = ({
     }, []);
     return (
         <div>
-            <div className="grid grid-rows-2 grid-cols-2 gap-2">
-                <StatItem
-                    title="Temperature"
-                    icon={<Thermometer />}
-                    warnAt={10}
-                    value={stats.temperature * 100}
-                    symbol="°"
-                ></StatItem>
+            <div className="grid grid-rows-2 grid-cols-2 gap-1">
                 <StatItem
                     title="CPU"
-                    icon={<Cpu />}
-                    warnAt={10}
-                    value={stats.cpu * 100}
+                    icon={Cpu}
+                    warnAt={90}
+                    value={stats.cpu}
                     symbol="%"
                 ></StatItem>
                 <StatItem
                     title="Memory"
-                    icon={<MemoryStick />}
-                    warnAt={10}
-                    value={stats.memory * 100}
+                    icon={MemoryStick}
+                    warnAt={90}
+                    value={stats.memory}
                     symbol="%"
                 ></StatItem>
                 <StatItem
+                    title="Temperature"
+                    icon={Thermometer}
+                    warnAt={80}
+                    value={stats.temperature}
+                    symbol="°"
+                ></StatItem>
+                <StatItem
                     title="Storage"
-                    icon={<HardDrive />}
-                    warnAt={10}
-                    value={stats.storage * 100}
+                    icon={HardDrive}
+                    warnAt={90}
+                    value={stats.storage}
                     symbol="%"
                 ></StatItem>
             </div>
@@ -62,10 +62,10 @@ interface StatValueProps {
     value: number;
     symbol?: string;
     title?: string;
-    icon?: JSX.Element;
+    icon?: any;
 }
 const StatItem: React.FC<StatValueProps> = ({
-    icon,
+    icon: Icon,
     symbol,
     value,
     warnAt = 0,
@@ -74,16 +74,16 @@ const StatItem: React.FC<StatValueProps> = ({
     <div
         title={title}
         className={cn(
-            'flex space-x-2 items-center duration-500 transition-colors',
+            'flex space-x-2 px-1 w-16 rounded-full justify-center items-center duration-500 transition-colors',
             {
-                'text-red-500': value && value > warnAt,
+                'bg-red-500': value && value > warnAt,
             },
         )}
     >
-        {icon}
-        <div className="w-10">
-            <span className="font-bold">{value.toFixed(0)}</span>
-            {symbol}
+        <Icon className="w-4" />
+        <div className="text-xs font-bold font-mono">
+            <span>{value.toFixed(0)}</span>
+            <span>{symbol}</span>
         </div>
     </div>
 );
