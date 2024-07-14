@@ -43,12 +43,12 @@ export function Application({
                         className="cursor-pointer"
                         onClick={() => {
                             console.log('Menu clicked');
-                            // setFullScreen(!isFullScreen);
                         }}
                     />
                     {headerLeftItems}
                 </UtilityBarItems>
                 <UtilityBarItems>
+                    {headerRightItems}
                     <div
                         className="cursor-pointer"
                         onClick={() => {
@@ -57,7 +57,6 @@ export function Application({
                     >
                         {isFullScreen ? <Shrink /> : <Expand />}
                     </div>
-                    {headerRightItems}
                 </UtilityBarItems>
             </UtilityBar>
             <div className="absolute flex justify-center items-center w-full h-full z-0">
