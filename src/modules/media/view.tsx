@@ -48,8 +48,12 @@ export class MediaModuleView extends Module {
 
     onModuleInit(): void | Promise<void> {
         this.userInterface.addContextItem(MediaContextItem);
-        this.userInterface.addFooterItem(TakePictureButton, Side.Right);
-        this.userInterface.addFooterItem(RecordButton, Side.Right);
+        this.userInterface.addFooterItem(TakePictureButton, {
+            side: Side.Right,
+        });
+        this.userInterface.addFooterItem(RecordButton, {
+            side: Side.Right,
+        });
         // setTimeout(() => {
         //     this.listenToMediaStream();
         // }, 1000);

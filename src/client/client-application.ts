@@ -1,7 +1,7 @@
 import { Application } from "src/application";
 import { Connection } from "src/connection";
 import { ModuleLoader } from "src/module-loader";
-import * as views from 'src/modules/views';
+import { views } from 'src/modules/views';
 import { UserInterfaceLoader } from "./user-interface-loader";
 import { ClientApplicationDependencies } from "./client";
 

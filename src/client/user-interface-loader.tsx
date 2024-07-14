@@ -3,24 +3,44 @@ import ReactDOM from 'react-dom/client';
 import { Application } from './Application';
 import './index.css';
 
+type UserInterfaceItem = {
+    element: JSX.Element;
+    order: number;
+};
+
 export class UserInterfaceLoader {
-    contextItems: Set<JSX.Element> = new Set();
-    headerLeftItems: Set<JSX.Element> = new Set();
-    headerRightItems: Set<JSX.Element> = new Set();
-    footerLeftItems: Set<JSX.Element> = new Set();
-    footerRightItems: Set<JSX.Element> = new Set();
+    contextItems: Set<UserInterfaceItem> = new Set();
+    headerLeftItems: Set<UserInterfaceItem> = new Set();
+    headerRightItems: Set<UserInterfaceItem> = new Set();
+    footerLeftItems: Set<UserInterfaceItem> = new Set();
+    footerRightItems: Set<UserInterfaceItem> = new Set();
 
     async init() {
+        console.log(
+            Array.from(this.footerLeftItems)
+                .sort((a, b) => a.order - b.order)
+                .map((item) => item.element),
+        );
         ReactDOM.createRoot(
             document.getElementById('root') as HTMLElement,
         ).render(
             <Fragment>
                 <Application
-                    contextItems={Array.from(this.contextItems)}
-                    headerLeftItems={Array.from(this.headerLeftItems)}
-                    headerRightItems={Array.from(this.headerRightItems)}
-                    footerLeftItems={Array.from(this.footerLeftItems)}
-                    footerRightItems={Array.from(this.footerRightItems)}
+                    contextItems={Array.from(this.contextItems)
+                        // .sort((a, b) => a.order - b.order)
+                        .map((item) => item.element)}
+                    headerLeftItems={Array.from(this.headerLeftItems)
+                        // .sort((a, b) => a.order - b.order)
+                        .map((item) => item.element)}
+                    headerRightItems={Array.from(this.headerRightItems)
+                        // .sort((a, b) => a.order - b.order)
+                        .map((item) => item.element)}
+                    footerLeftItems={Array.from(this.footerLeftItems)
+                        // .sort((a, b) => b.order - a.order)
+                        .map((item) => item.element)}
+                    footerRightItems={Array.from(this.footerRightItems)
+                        // .sort((a, b) => a.order - b.order)
+                        .map((item) => item.element)}
                 />
             </Fragment>,
         );

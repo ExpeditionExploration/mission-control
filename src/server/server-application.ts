@@ -3,7 +3,7 @@ import { Application } from "src/application";
 import { Connection } from "src/connection";
 import { ModuleLoader } from "src/module-loader";
 import { ServerApplicationDependencies } from "./server";
-import * as controllers from 'src/modules/controllers';
+import { controllers } from 'src/modules/controllers';
 
 export class ServerApplication extends Application {
     private readonly connection!: Connection;

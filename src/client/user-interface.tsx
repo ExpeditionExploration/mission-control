@@ -31,21 +31,61 @@ export class UserInterface {
     generateKey() {
         return Math.random().toString(36).substring(7);
     }
-    addContextItem(Item: JSX.ElementType) {
-        this.userInterfaceLoader.contextItems.add(this.getItem(Item));
+    addContextItem(
+        Item: JSX.ElementType,
+        {
+            order = 0,
+        }: {
+            order?: number | null;
+        } = {},
+    ) {
+        this.userInterfaceLoader.contextItems.add({
+            element: this.getItem(Item),
+            order: order ?? this.userInterfaceLoader.contextItems.size,
+        });
     }
-    addHeaderItem(Item: JSX.ElementType, side: Side = Side.Left) {
+    addHeaderItem(
+        Item: JSX.ElementType,
+        {
+            order = 0,
+            side = Side.Left,
+        }: {
+            order?: number | null;
+            side?: Side;
+        } = {},
+    ) {
         if (side === Side.Left) {
-            this.userInterfaceLoader.headerLeftItems.add(this.getItem(Item));
+            this.userInterfaceLoader.headerLeftItems.add({
+                element: this.getItem(Item),
+                order: order ?? this.userInterfaceLoader.headerLeftItems.size,
+            });
         } else {
-            this.userInterfaceLoader.headerRightItems.add(this.getItem(Item));
+            this.userInterfaceLoader.headerRightItems.add({
+                element: this.getItem(Item),
+                order: order ?? this.userInterfaceLoader.headerRightItems.size,
+            });
         }
     }
-    addFooterItem(Item: JSX.ElementType, side: Side = Side.Left) {
+    addFooterItem(
+        Item: JSX.ElementType,
+        {
+            order = null,
+            side = Side.Left,
+        }: {
+            order?: number | null;
+            side?: Side;
+        } = {},
+    ) {
         if (side === Side.Left) {
-            this.userInterfaceLoader.footerLeftItems.add(this.getItem(Item));
+            this.userInterfaceLoader.footerLeftItems.add({
+                element: this.getItem(Item),
+                order: order ?? this.userInterfaceLoader.footerLeftItems.size,
+            });
         } else {
-            this.userInterfaceLoader.footerRightItems.add(this.getItem(Item));
+            this.userInterfaceLoader.footerRightItems.add({
+                element: this.getItem(Item),
+                order: order ?? this.userInterfaceLoader.footerRightItems.size,
+            });
         }
     }
 }

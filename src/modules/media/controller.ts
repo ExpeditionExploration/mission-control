@@ -68,7 +68,7 @@ export class MediaModuleController extends Module {
 
     async onModuleInit() {
         console.log('MediaModule')
-        this.startMediaStream();
+        // this.startMediaStream();
         this.createMediaServer();
         // this.startMjpegStream();
     }

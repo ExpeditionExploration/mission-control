@@ -1,6 +1,0 @@
-#! /bin/bash
-# Start the server forever, will only work once built
-if [ ! -d node_modules ]; then
-  npm install --only=dev
-fi
-npx forever start forever.json

@@ -4,7 +4,7 @@ import { asClass, asValue, AwilixContainer } from 'awilix';
 
 type ModuleNamespace = string;
 type ModuleConstructor = new (...args: any[]) => Module;
-export type ModulesImport = Record<ModuleNamespace, ModuleConstructor>;
+export type ModulesImport = Map<ModuleNamespace, ModuleConstructor>;
 export type ModuleDependencies = {
     namespace: string;
     module: Module;
@@ -22,13 +22,13 @@ export class ModuleLoader {
     private loadModulesIntoContainer(container: Container, modules: ModulesImport): ModuleContainers {
         const modulesMap: ModuleContainers = [];
         // Load modules in reverse order to ensure correct display order
-        for (const [namespace, SubClassedModule] of Object.entries(modules).reverse()) {
+        for (const [namespace, SubClassedModule] of Array.from(modules.entries())) {
             if (namespace in this.reservedKeys) throw new Error(`Module namespace "${namespace}" is reserved`);
 
             const moduleContainer = container.createScope<ModuleDependencies>();
             moduleContainer.register({
                 'namespace': asValue(namespace),
-                'module': asClass(SubClassedModule).scoped(),
+                'module': asClass<Module>(SubClassedModule).scoped(),
             })
             modulesMap.push(moduleContainer);
         }

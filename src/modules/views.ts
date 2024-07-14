@@ -1,5 +1,15 @@
 // The controller should be exported as a namespaced object.
-export { StatsModuleView as stats } from './stats/view';
-export { MediaModuleView as media } from './media/view';
-export { CompassModuleView as compass } from './compass/view';
-export { AngleModuleView as angle } from './angle/view';
+import { StatsModuleView } from './stats/view';
+import { MediaModuleView } from './media/view';
+import { CompassModuleView } from './compass/view';
+import { AngleModuleView } from './angle/view';
+import { LightsModuleView } from './lights/view';
+
+
+export const views = new Map([
+    ['stats', StatsModuleView],
+    ['media', MediaModuleView],
+    ['compass', CompassModuleView],
+    ['angle', AngleModuleView],
+    ['lights', LightsModuleView],
+])
