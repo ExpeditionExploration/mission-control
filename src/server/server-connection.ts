@@ -22,7 +22,7 @@ export class ServerConnection extends Connection {
     async init() {
         this.server = http.createServer((request, response) => {
             return handler(request, response, {
-                public: path.join(process.cwd(), 'dist')
+                public: process.cwd() // In final deployment, this should be the path to the build directory
             });
         });
 

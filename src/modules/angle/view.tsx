@@ -3,6 +3,7 @@ import { RollFooterItem } from './components/RollFooterItem';
 import { UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
 import { PitchFooterItem } from './components/PitchFooterItem';
+import { CompassFooterItem } from './components/CompassFooterItem';
 
 export class AngleModuleView extends Module {
     userInterface: UserInterface;
@@ -13,6 +14,7 @@ export class AngleModuleView extends Module {
     }
 
     onModuleInit(): void | Promise<void> {
+        this.userInterface.addFooterItem(CompassFooterItem);
         this.userInterface.addFooterItem(RollFooterItem);
         this.userInterface.addFooterItem(PitchFooterItem);
     }

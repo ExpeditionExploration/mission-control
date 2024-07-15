@@ -1,6 +1,5 @@
 import { series, parallel } from 'gulp';
 import { spawnSync } from 'child_process';
-import path from 'path';
 import yargs from 'yargs/yargs';
 
 import { hideBin } from 'yargs/helpers';
@@ -24,7 +23,14 @@ export function buildClient(done) {
     done();
 }
 
-export function deploy(done) {
+export function copyAdditionalFiles(done) {
+    spawnSync('cp', ['package.json', 'dist/package.json'], {
+        stdio: 'inherit',
+    });
+    done();
+}
+
+export function uploadToDevice(done) {
     const install = argv.install;
     const clean = argv.clean;
 
@@ -34,7 +40,10 @@ export function deploy(done) {
     }
 
     console.log(`Copying files to ${host}`);
-    spawnSync('ssh', [host, `mkdir -p ${dir}`], { stdio: 'inherit' }); // Ensure directory exists
+    spawnSync('ssh', [host, `mkdir -p ${dir}`], {
+        stdio: 'inherit',
+    }); // Ensure directory exists
+    console.log(`Please wait while files are copied...`);
     spawnSync('rsync', ['-r', 'dist/', `${host}:${dir}`], {
         stdio: 'inherit',
     });
@@ -58,5 +67,9 @@ export function start(done) {
     done();
 }
 
-export const build = series(clean, parallel(buildClient, buildServer));
-export const update = series(build, deploy);
+export const build = series(
+    clean,
+    parallel(buildClient, buildServer),
+    copyAdditionalFiles,
+);
+export const deploy = series(build, uploadToDevice);

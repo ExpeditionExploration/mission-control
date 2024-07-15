@@ -8,10 +8,10 @@ export const LightingGridController: React.FC<ViewProps<LightsModuleView>> = ({
 }) => {
     return (
         <div className="relative grid gap-1 grid-cols-2 grid-rows-2 justify-center items-end">
-            <LightItem color={LightColor.Yellow} />
-            <LightItem color={LightColor.Yellow} />
-            <LightItem color={LightColor.Red} />
-            <LightItem color={LightColor.Blue} />
+            <LightItem color={LightColor.Yellow} name="Flood" />
+            <LightItem color={LightColor.Yellow} name="Spot" />
+            <LightItem color={LightColor.Red} name="IR" />
+            <LightItem color={LightColor.Blue} name="UV" />
         </div>
     );
 };

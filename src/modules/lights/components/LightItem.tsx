@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SunIcon } from 'lucide-react';
 import { cn } from 'src/client/utility';
 import { Switch } from '@headlessui/react';
@@ -13,8 +13,10 @@ export enum LightColor {
 export const LightItem: React.FC<{
     color?: LightColor;
     brightness?: number;
-}> = ({ color = LightColor.Yellow, brightness = 1 }) => {
+    name?: string;
+}> = ({ color = LightColor.Yellow, brightness = 1, name = '' }) => {
     const [enabled, setEnabled] = useState(false);
+
     return (
         // <LightbulbIcon
         //     size={20}
@@ -33,27 +35,32 @@ export const LightItem: React.FC<{
         <Switch
             checked={enabled}
             onChange={setEnabled}
-            style={
-                {
-                    // boxShadow: `0 0 ${enabled ? brightness * 10 : 0}px`,
-                }
-            }
             className={cn(
                 {
                     'data-[checked]:bg-blue-600 !border-blue-300':
                         enabled && color === LightColor.Blue,
-                    'data-[checked]:bg-yellow-400 !border-yellow-100':
+                    'data-[checked]:bg-yellow-600 !border-yellow-300':
                         enabled && color === LightColor.Yellow,
                     'data-[checked]:bg-red-600 !border-red-300':
                         enabled && color === LightColor.Red,
                     'bg-gray-200': !enabled,
                 },
-                'group flex h-6 relative border-2 border-white w-11 bg-transparent items-center rounded-full transition',
+                'group flex h-6 relative border-2 border-white w-14 bg-transparent items-center rounded-full transition',
             )}
         >
-            <span className="size-4 relative space-x-1 flex items-center translate-x-1 text-xs transition group-data-[checked]:translate-x-6">
-                <SunIcon size={14} className="shrink-0" />
-                <span className="">IR</span>
+            <span className="w-full relative flex items-center px-0 text-[0.6rem]">
+                <div className="absolute flex items-center space-x-1 left-1 opacity-100">
+                    <SunIcon
+                        size={13}
+                        className="shrink-0 transition group-data-[checked]:translate-x-8"
+                    />{' '}
+                    <span className="group-data-[checked]:opacity-0">
+                        {name}
+                    </span>
+                </div>
+                <div className="absolute left-1 opacity-0 font-bold transition group-data-[checked]:opacity-100">
+                    {(brightness * 100).toFixed(0)}%
+                </div>
             </span>
 
             {/* <span className="absolute right-1 text-xs">IR</span> */}
