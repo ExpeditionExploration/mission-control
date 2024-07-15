@@ -27,19 +27,19 @@ export class UserInterfaceLoader {
             <Fragment>
                 <Application
                     contextItems={Array.from(this.contextItems)
-                        // .sort((a, b) => a.order - b.order)
+                        .sort((a, b) => a.order - b.order)
                         .map((item) => item.element)}
                     headerLeftItems={Array.from(this.headerLeftItems)
-                        // .sort((a, b) => a.order - b.order)
+                        .sort((a, b) => a.order - b.order)
                         .map((item) => item.element)}
                     headerRightItems={Array.from(this.headerRightItems)
-                        // .sort((a, b) => a.order - b.order)
+                        .sort((a, b) => a.order - b.order)
                         .map((item) => item.element)}
                     footerLeftItems={Array.from(this.footerLeftItems)
-                        // .sort((a, b) => b.order - a.order)
+                        .sort((a, b) => b.order - a.order)
                         .map((item) => item.element)}
                     footerRightItems={Array.from(this.footerRightItems)
-                        // .sort((a, b) => a.order - b.order)
+                        .sort((a, b) => a.order - b.order)
                         .map((item) => item.element)}
                 />
             </Fragment>,

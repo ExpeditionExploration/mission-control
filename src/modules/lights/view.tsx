@@ -12,8 +12,9 @@ export class LightsModuleView extends Module {
     }
 
     onModuleInit(): void | Promise<void> {
-        this.userInterface.addHeaderItem(LightingGridController, {
+        this.userInterface.addFooterItem(LightingGridController, {
             side: Side.Right,
+            order: -10,
         });
     }
 }

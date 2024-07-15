@@ -69,7 +69,7 @@ export class UserInterface {
     addFooterItem(
         Item: JSX.ElementType,
         {
-            order = null,
+            order = 0,
             side = Side.Left,
         }: {
             order?: number | null;

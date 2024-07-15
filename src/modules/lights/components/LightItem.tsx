@@ -47,6 +47,7 @@ export const LightItem: React.FC<{
                 },
                 'group flex h-6 relative border-2 border-white w-14 bg-transparent items-center rounded-full transition',
             )}
+            title={`Toggle ${name}`}
         >
             <span className="w-full relative flex items-center px-0 text-[0.6rem]">
                 <div className="absolute flex items-center space-x-1 left-1 opacity-100">

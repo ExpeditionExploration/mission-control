@@ -39,12 +39,6 @@ export function Application({
         <div className="w-screen h-screen bg-gray-900 bg-gradient-to-t from-gray-950 text-white relative">
             <UtilityBar position="top" className="top-0">
                 <UtilityBarItems className="items-start">
-                    <Menu
-                        className="cursor-pointer"
-                        onClick={() => {
-                            console.log('Menu clicked');
-                        }}
-                    />
                     {headerLeftItems}
                 </UtilityBarItems>
                 <UtilityBarItems>
@@ -57,6 +51,13 @@ export function Application({
                     >
                         {isFullScreen ? <Shrink /> : <Expand />}
                     </div>
+                    <Menu
+                        size={30}
+                        className="cursor-pointer"
+                        onClick={() => {
+                            console.log('Menu clicked');
+                        }}
+                    />
                 </UtilityBarItems>
             </UtilityBar>
             <div className="absolute flex justify-center items-center w-full h-full z-0">
