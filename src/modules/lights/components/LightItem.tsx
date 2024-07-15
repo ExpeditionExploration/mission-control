@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LightbulbIcon } from 'lucide-react';
+import { SunIcon } from 'lucide-react';
 import { cn } from 'src/client/utility';
 import { Switch } from '@headlessui/react';
 
@@ -40,18 +40,23 @@ export const LightItem: React.FC<{
             }
             className={cn(
                 {
-                    'data-[checked]:bg-blue-600 shadow-blue-600 !border-blue-500':
+                    'data-[checked]:bg-blue-600 !border-blue-300':
                         enabled && color === LightColor.Blue,
-                    'data-[checked]:bg-yellow-400 shadow-yellow-400 !border-yellow-300':
+                    'data-[checked]:bg-yellow-400 !border-yellow-100':
                         enabled && color === LightColor.Yellow,
-                    'data-[checked]:bg-red-500 shadow-red-500 !border-red-400':
+                    'data-[checked]:bg-red-600 !border-red-300':
                         enabled && color === LightColor.Red,
                     'bg-gray-200': !enabled,
                 },
-                'group inline-flex h-6 border-2 border-white w-11 bg-transparent items-center rounded-full transition',
+                'group flex h-6 relative border-2 border-white w-11 bg-transparent items-center rounded-full transition',
             )}
         >
-            <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
+            <span className="size-4 relative space-x-1 flex items-center translate-x-1 text-xs transition group-data-[checked]:translate-x-6">
+                <SunIcon size={14} className="shrink-0" />
+                <span className="">IR</span>
+            </span>
+
+            {/* <span className="absolute right-1 text-xs">IR</span> */}
         </Switch>
 
         // <div
