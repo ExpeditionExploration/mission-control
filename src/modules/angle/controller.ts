@@ -1,10 +1,17 @@
 import { Module } from 'src/module';
-import { Heading } from './types';
+import {Angle, Heading} from './types';
+import { BNO08X } from 'openi2c';
 
 export class AngleModuleController extends Module {
     onModuleInit(): void | Promise<void> {
-        // setInterval(async () => {
-        //     this.emit<Heading>('heading', (Math.random() - 0.5) * 360);
-        // }, 1000);
-    }
+        const bno = new BNO08X();
+
+        setInterval(async () => {
+            const heading = await bno.heading();
+            const angle = await bno.euler();
+
+            this.emit<Heading>('heading', heading);
+            this.emit<Angle>('angle', angle);
+        }, 1000);
+    } 
 }
