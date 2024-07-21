@@ -23,14 +23,16 @@ export class ControlModuleController extends Module {
             left: 0,
             right: 0,
         }
-        const { x, y } = axis;
 
-        output.left = this.mapValue(y, -1, 1, 90, -90);
-        output.right = this.mapValue(y, -1, 1, -90, 90);
+        output.left = this.clamp(axis.y + axis.x * (axis.x > 0 ? -1 : 1), -1, 1)
+        // output.right = this.mapValue(y, -1, 1, -90, 90);
 
         return output;
     }
 
+    clamp(value: number, min: number, max: number) {
+        return Math.min(Math.max(value, min), max);
+    }
     mapValue(value: number, inMin: number, inMax: number, outMin: number, outMax: number) {
         return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
     }
