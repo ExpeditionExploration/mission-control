@@ -17,7 +17,7 @@ export const StatsHeaderItem: React.FC<ViewProps<StatsModuleView>> = ({
     });
     useEffect(() => {
         module.on<Stats>('stats', (data) => {
-            console.log('Stats', data);
+            // console.log('Stats', data);
             setStats(data);
         });
     }, []);
