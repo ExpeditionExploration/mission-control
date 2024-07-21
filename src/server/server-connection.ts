@@ -3,7 +3,6 @@ import { Connection, Payload } from "src/connection";
 import { WebSocketServer } from 'ws';
 import handler from 'serve-handler';
 import http, { Server } from 'http';
-import path from "path";
 import { Broadcaster } from "src/broadcaster";
 import { ServerApplicationDependencies } from "./server";
 
@@ -31,7 +30,7 @@ export class ServerConnection extends Connection {
         });
         ws.on('connection', (socket) => {
             socket.on('message', (message) => {
-                console.log('Received message', message.toString());
+                // console.log('Received message', message.toString());
                 try {
                     const payload = JSON.parse(message.toString()) as Payload;
                     this.broadcaster.emit(payload.event, payload.data, false);

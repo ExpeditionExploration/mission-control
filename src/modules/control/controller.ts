@@ -1,11 +1,56 @@
 import { Module } from 'src/module';
 import { Axis } from './types';
+import { NanoPi_NEO3, Pin } from 'opengpio';
+import { StepperState } from './class/StepperState';
+
+type Stepper = {
+    state: StepperState;
+    step: Pin;
+    direction: Pin;
+}
 
 export class ControlModuleController extends Module {
+    aileron!: {
+        left: Stepper;
+        right: Stepper;
+    }
+
     async onModuleInit() {
+        this.setupAileron();
+    }
+
+    setupAileron() {
+        this.aileron = {
+            left: {
+                state: new StepperState(),
+                step: NanoPi_NEO3.output(NanoPi_NEO3.bcm.GPIO2_B7),
+                direction: NanoPi_NEO3.output(NanoPi_NEO3.bcm.GPIO2_A2),
+            },
+            right: {
+                state: new StepperState(),
+                step: NanoPi_NEO3.output(NanoPi_NEO3.bcm.GPIO2_C2),
+                direction: NanoPi_NEO3.output(NanoPi_NEO3.bcm.GPIO2_C1),
+            }
+        }
+
+        this.aileron.left.state.on('step', (step: number) => this.stepAileron(this.aileron.left, step));
+        this.aileron.right.state.on('step', (step: number) => this.stepAileron(this.aileron.right, step));
+
         this.on<Axis>('aileron', (data) => {
-            console.log('Aileron', data);
+            const aileronTargets = this.mapAxisToAileron(data);
+            this.aileron.left.state.moveTo(aileronTargets.left);
+            this.aileron.right.state.moveTo(aileronTargets.right);
         });
+    }
+
+    stepAileron(stepper: Stepper, step: number) {
+        if (step > 0) {
+            stepper.direction.value = true;
+        } else {
+            stepper.direction.value = false;
+        }
+        stepper.step.value = true;
+        stepper.step.value = false;
     }
 
     /**
@@ -24,8 +69,15 @@ export class ControlModuleController extends Module {
             right: 0,
         }
 
-        output.left = this.clamp(axis.y + axis.x * (axis.x > 0 ? -1 : 1), -1, 1)
+
+        const left = this.clamp(axis.y + axis.x * (axis.x > 0 ? -1 : 1), -1, 1);
+        const right = this.clamp(axis.y + axis.x * (axis.x > 0 ? 1 : -1), -1, 1);
+
+        const outputMaxSteps = 75; // 90 / 1.2 degrees per step
+        output.left = Math.round(left * outputMaxSteps); // 
+        output.right = Math.round(right * outputMaxSteps);
         // output.right = this.mapValue(y, -1, 1, -90, 90);
+        // console.log('Aileron', output);
 
         return output;
     }

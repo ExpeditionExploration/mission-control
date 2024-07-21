@@ -44,6 +44,7 @@ export class ControlModuleView extends Module {
     processThrusterInput(axis: [number, number]) {}
     processAileronInput(axis: [number, number]) {
         const [x, y] = this.cleanAxisInput(axis);
+
         this.emit<Axis>('aileron', { x, y });
     }
 }
