@@ -64,7 +64,7 @@ export class ClientConnection extends Connection {
     }
 
     send(payload: Payload): void {
-        console.log('Sending payload', payload)
+        // console.log('Sending payload', payload)
         this.socket?.send(JSON.stringify(payload));
     }
 
