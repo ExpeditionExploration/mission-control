@@ -1,6 +1,7 @@
 import { Module } from 'src/module';
 import { UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
+import { Axis } from './types';
 
 export class ControlModuleView extends Module {
     userInterface: UserInterface;
@@ -31,19 +32,18 @@ export class ControlModuleView extends Module {
         setInterval(() => {
             const [gamepad] = navigator.getGamepads();
             if (gamepad) {
-                // const axes = gamepad.axes.map((axis) => axis.toFixed(2));
-
-                // const buttons = gamepad.buttons.map((button) => button.pressed);
-                // console.log('Gamepad', gamepad.axes);
-                this.processMotorInput([gamepad.axes[0], gamepad.axes[1]]);
-                this.processRudderInput([gamepad.axes[2], gamepad.axes[3]]);
+                this.processThrusterInput([gamepad.axes[0], gamepad.axes[1]]);
+                this.processAileronInput([gamepad.axes[2], gamepad.axes[3]]);
             }
         }, 100);
     }
 
-    processMotorInput(axis: [number, number]) {}
-    processRudderInput(axis: [number, number]) {
-        const [x, y] = axis;
-        this.emit('rudder', { x, y });
+    cleanAxisInput(axis: [number, number]) {
+        return [parseFloat(axis[0].toFixed(2)), parseFloat(axis[1].toFixed(2))];
+    }
+    processThrusterInput(axis: [number, number]) {}
+    processAileronInput(axis: [number, number]) {
+        const [x, y] = this.cleanAxisInput(axis);
+        this.emit<Axis>('aileron', { x, y });
     }
 }

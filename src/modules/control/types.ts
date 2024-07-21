@@ -1,2 +1,4 @@
-export type Heading = number;
-export type Angle = [number, number, number];
+export type Axis = {
+    x: number;
+    y: number;
+}
