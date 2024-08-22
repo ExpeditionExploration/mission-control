@@ -7,6 +7,10 @@ export default defineConfig({
     ssr: {
         external: true
     },
+    build: {
+        emptyOutDir: false,
+        sourcemap: true,
+    },
     plugins: [react()],
     resolve: {
         alias: [

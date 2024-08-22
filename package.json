@@ -5,10 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build:client": "tsc -b && vite build",
+    "build:server": "tsc -b && vite build --ssr src/server/server.ts",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "jest"
+    "test": "jest",
+    "start": "node dist/server.js",
+    "dev:client": "vite",
+    "dev:server": "concurrently \"npm run build:server -- --watch\" \"nodemon dist/server.js\"",
+    "build": "rm -rf dist && concurrently \"npm run build:client\" \"npm run build:server\"",
+    "deploy": "npm run build && ./deploy.sh root@exs-j2.local"
   },
   "dependencies": {
     "@headlessui/react": "^2.1.2",
@@ -38,6 +44,7 @@
     "@types/ws": "^8.5.12",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^8.2.2",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
