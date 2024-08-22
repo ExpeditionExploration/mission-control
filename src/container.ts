@@ -12,7 +12,7 @@ export interface ApplicationDependencies {
     moduleLoader: ModuleLoader;
     connection: Connection;
     application: Application;
-    [key: string]: any;
+    // [key: string]: any;
 }
 export type Container = AwilixContainer<ApplicationDependencies>;
 

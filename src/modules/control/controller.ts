@@ -56,14 +56,7 @@ export class ControlModuleController extends Module {
     /**
      * Maps the axis to the aileron left and right rotation target
      */
-    mapAxisToAileron(axis: Axis) {
-        /**
-         * x = 0 y = 1 -> down -> -90 degrees (left), -90 degrees (right)
-         * x = 0, y = -1 -> up -> 90 degrees (left), 90 degrees (right)
-         * x = 1, y = 0 -> right -> -90 degrees (left), 90 degrees (right)
-         * x = -1, y = 0 -> left -> 90 degrees (left), -90 degrees (right)
-         */
-
+    mapAxisToAileron({ x, y }: Axis): { left: number, right: number } {
         /**
          * { x: 0, y: 1 } -> { left: -90, right: -90 }
          * { x: 1, y: 1 } -> { left: -90, right: 0 }
@@ -75,22 +68,24 @@ export class ControlModuleController extends Module {
          * { x: -1, y: 1 } -> { left: 0, right: -90 }
          */
 
-        const output = {
-            left: 0,
-            right: 0,
+        x = this.clamp(x, -1, 1);
+        y = this.clamp(y, -1, 1);
+
+        // Map y to the range [-90, 90] for both left and right
+        const left = y * 90;
+        const right = y * 90;
+
+        // Adjust left and right based on x
+        if (x > 0) {
+            // x is positive, reduce left and increase right
+            return { left: left - x * 90, right: right + x * 90 };
+        } else if (x < 0) {
+            // x is negative, increase left and reduce right
+            return { left: left - x * 90, right: right + x * 90 };
+        } else {
+            // x is zero, no adjustment needed
+            return { left, right };
         }
-
-
-        const left = this.clamp(axis.y + axis.x * (axis.x > 0 ? -1 : 1), -1, 1);
-        const right = this.clamp(axis.y + axis.x * (axis.x > 0 ? 1 : -1), -1, 1);
-
-        const outputMaxSteps = 75; // 90 / 1.2 degrees per step
-        output.left = Math.round(left * outputMaxSteps); // 
-        output.right = Math.round(right * outputMaxSteps);
-        // output.right = this.mapValue(y, -1, 1, -90, 90);
-        // console.log('Aileron', output);
-
-        return output;
     }
 
     clamp(value: number, min: number, max: number) {

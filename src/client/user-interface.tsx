@@ -2,6 +2,7 @@ import { Module } from 'src/module';
 import './index.css';
 import { UserInterfaceLoader } from './user-interface-loader';
 import { ModuleDependencies } from 'src/module-loader';
+import { type ClientModuleDependencies } from './client';
 
 export enum Side {
     Left,
@@ -12,7 +13,7 @@ export class UserInterface {
     private readonly userInterfaceLoader!: UserInterfaceLoader;
     private module!: Module;
 
-    constructor(deps: ModuleDependencies) {
+    constructor(deps: ClientModuleDependencies) {
         this.userInterfaceLoader = deps.userInterfaceLoader;
         setTimeout(() => {
             // This needs to delay the injection to overcome circular dependency

@@ -1,64 +1,60 @@
 // Jest test file
 
-import { Controller } from './controller';
-import { MockedLogger } from '../../logger/logger.mock';
+import { MockedModuleDependencies, mockModuleDependencies } from 'src/mocks';
+import { ControlModuleController } from './controller';
 
-describe('Controller', () => {
-  let controller: Controller;
+describe('ControlModuleController', () => {
+    let controller!: ControlModuleController;
+    let deps!: MockedModuleDependencies;
 
-  beforeEach(() => {
-    controller = new Controller(new MockedLogger());
-  });
+    beforeEach(() => {
+        deps = mockModuleDependencies();
+        controller = new ControlModuleController(deps);
+    });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+    it('should be defined', () => {
+        expect(controller).toBeDefined();
+    });
 
-  it('should have a method to start the controller', () => {
-    expect(controller.start).toBeDefined();
-  });
+    it('should map axis values to aileron rotation targets', () => {
+        // Test case 1
+        const input1 = { x: 0, y: 1 };
+        const expected1 = { left: -90, right: -90 };
+        expect(controller.mapAxisToAileron(input1)).toEqual(expected1);
 
-  it('should have a method to stop the controller', () => {
-    expect(controller.stop).toBeDefined();
-  });
+        // Test case 2
+        const input2 = { x: 1, y: 1 };
+        const expected2 = { left: -90, right: 0 };
+        expect(controller.mapAxisToAileron(input2)).toEqual(expected2);
 
-  it('should have a method to set the target', () => {
-    expect(controller.setTarget).toBeDefined();
-  });
+        // Test case 3
+        const input3 = { x: 1, y: 0 };
+        const expected3 = { left: -90, right: 90 };
+        expect(controller.mapAxisToAileron(input3)).toEqual(expected3);
 
-  it('should have a method to get the target', () => {
-    expect(controller.getTarget).toBeDefined();
-  });
+        // Test case 4
+        const input4 = { x: 1, y: -1 };
+        const expected4 = { left: 0, right: 90 };
+        expect(controller.mapAxisToAileron(input4)).toEqual(expected4);
 
-  it('should have a method to set the state', () => {
-    expect(controller.setState).toBeDefined();
-  });
+        // Test case 5
+        const input5 = { x: 0, y: -1 };
+        const expected5 = { left: 90, right: 90 };
+        expect(controller.mapAxisToAileron(input5)).toEqual(expected5);
 
-  it('should have a method to get the state', () => {
-    expect(controller.getState).toBeDefined();
-  });
+        // Test case 6
+        const input6 = { x: -1, y: -1 };
+        const expected6 = { left: 90, right: 0 };
+        expect(controller.mapAxisToAileron(input6)).toEqual(expected6);
 
-  it('should have a method to set the logger', () => {
-    expect(controller.setLogger).toBeDefined();
-  });
+        // Test case 7
+        const input7 = { x: -1, y: 0 };
+        const expected7 = { left: 90, right: -90 };
+        expect(controller.mapAxisToAileron(input7)).toEqual(expected7);
 
-  it('should have a method to get the logger', () => {
-    expect(controller.getLogger).toBeDefined();
-  });
-
-  it('should have a method to set the simulation', () => {
-    expect(controller.setSimulation).toBeDefined();
-  });
-
-  it('should have a method to get the simulation', () => {
-    expect(controller.getSimulation).toBeDefined();
-  });
-
-  it('should have a method to set the controller', () => {
-    expect(controller.setController).toBeDefined();
-  });
-
-  it('should have a method to get the controller', () => {
-    expect(controller.getController).toBeDefined();
-  });
+        // Test case 8
+        const input8 = { x: -1, y: 1 };
+        const expected8 = { left: 0, right: -90 };
+        expect(controller.mapAxisToAileron(input8)).toEqual(expected8);
+    });
 });

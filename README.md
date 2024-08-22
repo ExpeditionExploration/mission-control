@@ -1,37 +1,50 @@
-# Prerequisites
+# React + TypeScript + Vite
 
--   pigpiod
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+
+- Configure the top-level `parserOptions` property like this:
+
+```js
+export default tseslint.config({
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
 ```
-sudo apt-get update
-sudo apt-get install pigpio
+
+- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
+- Optionally add `...tseslint.configs.stylisticTypeChecked`
+- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+
+```js
+// eslint.config.js
+import react from 'eslint-plugin-react'
+
+export default tseslint.config({
+  // Set the react version
+  settings: { react: { version: '18.3' } },
+  plugins: {
+    // Add the react plugin
+    react,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended rules
+    ...react.configs.recommended.rules,
+    ...react.configs['jsx-runtime'].rules,
+  },
+})
 ```
-
--   Node js, install via apt not nvm because it causes issues with run as sudo
-    https://pimylifeup.com/raspberry-pi-nodejs/
-
-# Deploy
-
-Add your computer ssh key to your raspberry pi if you want to avoid inserting a password all the time.
-Computer's public key from `~/.ssh/id_rsa.pub` into the `~/.ssh/authorized_keys` folder on your raspberry pi.
-OR
-Run `ssh-copy-id remote-user@server-ip`
-
-# Starting
-
--   sudo DEBUG="MissionControl:\*" node index.js
-
-# Notes
-
--   Fixing waiting for server log. Run from command shift p window to remove remote ssh from remote. Then reconnect to reinstall.
--   Grant user admin rights: sudo usermod -aG sudo jupiter2
-
-# Ports (Reserved)
-
--   16500: Device Port
--   16501: Media Stream
-
-# Where I left off:
-
--   Managed to get something potentially better working with inversify, but I am in a situation where I need a delayed injection on module in user interface but it doesn't want to work.
--   Im trying to figure out if I require all modules to extend a Module class and then use a common module token for injection. This will allow the user interface bootstrapping process to automatically pass the module into the jsx element as a parameter.
