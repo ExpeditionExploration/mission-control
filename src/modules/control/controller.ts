@@ -64,6 +64,17 @@ export class ControlModuleController extends Module {
          * x = -1, y = 0 -> left -> 90 degrees (left), -90 degrees (right)
          */
 
+        /**
+         * { x: 0, y: 1 } -> { left: -90, right: -90 }
+         * { x: 1, y: 1 } -> { left: -90, right: 0 }
+         * { x: 1, y: 0 } -> { left: -90, right: 90 }
+         * { x: 1, y: -1 } -> { left: 0, right: 90 }
+         * { x: 0, y: -1 } -> { left: 90, right: 90 }
+         * { x: -1, y: -1 } -> { left: 90, right: 0 }
+         * { x: -1, y: 0 } -> { left: 90, right: -90 }
+         * { x: -1, y: 1 } -> { left: 0, right: -90 }
+         */
+
         const output = {
             left: 0,
             right: 0,
