@@ -1,4 +1,5 @@
 import EventEmitter from "events";
+import { Logger } from "src/logger";
 
 export enum Direction {
     Forward,
@@ -8,12 +9,26 @@ export enum Direction {
 export class StepperState extends EventEmitter {
     current: number = 0;
     target: number = 0;
-
+    logger: Logger;
+    name: string;
     timer: NodeJS.Timeout | null = null;
+    reverse: boolean = false;
+
     constructor({
-        delay = 1,
-    } = {}) {
+        logger,
+        delay = 5,
+        name,
+        reverse = false,
+    }: {
+        name?: string,
+        logger: Logger,
+        delay?: number,
+        reverse?: boolean, // Reverse the direction of the stepper, useful if the stepper is mounted on the opposite side
+    }) {
         super();
+        this.logger = logger;
+        this.name = name || '';
+        this.reverse = reverse;
 
         this.timer = setInterval(() => {
             if (this.current < this.target) {
@@ -25,16 +40,13 @@ export class StepperState extends EventEmitter {
     }
 
     moveTo(target: number) {
-        // if (this.target === target) console.log('Move to', target);
-        this.target = target;
+        this.target = Math.round(target); // Round to nearest whole number
     }
 
     step(direction: Direction) {
         const stepDirection = direction === Direction.Forward ? +1 : -1;
         this.current += stepDirection;
-        if (this.current !== this.target) console.log('Current', this.current, 'Target', this.target);
-        // console.log('Current', this.current, 'Target', this.target);
-        // console.log('Step', direction);
+        this.logger.debug(this.name, 'Current!:', this.current);
 
         this.emit('step', stepDirection);
     }

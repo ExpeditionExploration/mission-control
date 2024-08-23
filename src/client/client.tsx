@@ -1,4 +1,4 @@
-import { ApplicationDependencies, container } from 'src/container';
+import { ApplicationDependencies, createContainer } from 'src/container';
 import ClientApplication from './client-application';
 import { UserInterfaceLoader } from './user-interface-loader';
 import { UserInterface } from './user-interface';
@@ -14,6 +14,7 @@ export type ClientApplicationDependencies = {
 export type ClientModuleDependencies = ModuleDependencies &
     ClientApplicationDependencies;
 
+const container = createContainer();
 (container as AwilixContainer<ClientApplicationDependencies>).register({
     application: asClass(ClientApplication).singleton(),
     connection: asClass(ClientConnection).singleton(),
@@ -22,4 +23,4 @@ export type ClientModuleDependencies = ModuleDependencies &
 });
 
 const application = container.resolve('application');
-application.init();
+application.init(container);

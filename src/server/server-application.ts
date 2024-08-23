@@ -3,7 +3,8 @@ import { Application } from "src/application";
 import { Connection } from "src/connection";
 import { ModuleLoader } from "src/module-loader";
 import { ServerApplicationDependencies } from "./server";
-import { controllers } from 'src/modules/controllers';
+import { modules } from 'src/modules/server';
+import { Container } from "src/container";
 
 export class ServerApplication extends Application {
     private readonly connection!: Connection;
@@ -14,9 +15,9 @@ export class ServerApplication extends Application {
         this.moduleLoader = deps.moduleLoader;
     }
 
-    async init() {
+    async init(container: Container) {
         await Promise.all([
-            this.moduleLoader.init(controllers),
+            this.moduleLoader.init(modules, container),
             this.connection.init(),
         ]);
 

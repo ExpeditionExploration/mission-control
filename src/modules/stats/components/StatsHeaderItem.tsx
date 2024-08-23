@@ -1,12 +1,12 @@
 // import { useEvents } from 'src/client/hooks';
 import { ViewProps } from 'src/client/user-interface';
-import { type StatsModuleView } from '../view';
+import { type StatsModuleClient } from '../client';
 import { useEffect, useState } from 'react';
 import { Stats } from '../types';
 import { Cpu, HardDrive, MemoryStick, Thermometer } from 'lucide-react';
 import { cn } from 'src/client/utility';
 
-export const StatsHeaderItem: React.FC<ViewProps<StatsModuleView>> = ({
+export const StatsHeaderItem: React.FC<ViewProps<StatsModuleClient>> = ({
     module,
 }) => {
     const [stats, setStats] = useState<Stats>({

@@ -3,7 +3,7 @@ import { LightingGridController } from './components/LightingGridController';
 import { Side, UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
 
-export class LightsModuleView extends Module {
+export class LightsModuleClient extends Module {
     userInterface: UserInterface;
 
     constructor(deps: ClientModuleDependencies) {

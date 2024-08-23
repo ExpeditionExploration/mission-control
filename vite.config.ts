@@ -10,17 +10,15 @@ export default defineConfig({
     build: {
         emptyOutDir: false,
         sourcemap: true,
-        // rollupOptions: {
-        //     output: {
-        //         entryFileNames: 'client.js',
-        //     }
+        // minify: true,
+        // terserOptions: {
+        //     mangle: true,
+        //     compress: true,
         // }
     },
     plugins: [react()],
     resolve: {
         alias: [
-            // { find: '@inject', replacement: fileURLToPath(new URL('./src/inject.ts', import.meta.url)) },
-            // { find: '@module', replacement: fileURLToPath(new URL('./src/module.ts', import.meta.url)) },
             { find: 'src', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
         ]
     }

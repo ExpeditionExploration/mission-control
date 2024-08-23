@@ -2,8 +2,9 @@ import { Module } from 'src/module';
 import { ChildProcess, spawn } from 'child_process';
 import { WebSocketServer } from 'ws';
 import { Writable } from 'stream';
+import { ModuleDependencies } from 'src/module-loader';
 
-export class MediaModuleController extends Module {
+export class MediaModuleServer extends Module {
     private wss!: WebSocketServer;
     private stream!: ChildProcess;
     private streamPipe: Writable = new Writable();
@@ -67,7 +68,7 @@ export class MediaModuleController extends Module {
     }
 
     async onModuleInit() {
-        console.log('MediaModule')
+        this.logger.info('Starting media server');
         // this.startMediaStream();
         this.createMediaServer();
         // this.startMjpegStream();

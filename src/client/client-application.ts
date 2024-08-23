@@ -1,9 +1,10 @@
 import { Application } from "src/application";
 import { Connection } from "src/connection";
 import { ModuleLoader } from "src/module-loader";
-import { views } from 'src/modules/views';
+import { modules } from 'src/modules/client';
 import { UserInterfaceLoader } from "./user-interface-loader";
 import { ClientApplicationDependencies } from "./client";
+import { Container } from "src/container";
 
 export class ClientApplication extends Application {
     private readonly connection!: Connection;
@@ -17,9 +18,9 @@ export class ClientApplication extends Application {
         this.userInterfaceLoader = deps.userInterfaceLoader;
     }
 
-    async init() {
+    async init(container: Container) {
         await Promise.all([
-            this.moduleLoader.init(views),
+            this.moduleLoader.init(modules, container),
         ]);
 
         await this.moduleLoader.loadModules();

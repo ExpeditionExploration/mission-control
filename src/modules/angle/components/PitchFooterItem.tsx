@@ -1,10 +1,10 @@
 // import { useEvents } from 'src/client/hooks';
 import { ViewProps } from 'src/client/user-interface';
-import { type AngleModuleView } from '../view';
+import { type AngleModuleClient } from '../client';
 import { useEffect, useState } from 'react';
 import { Angle, Heading } from '../types';
 
-export const PitchFooterItem: React.FC<ViewProps<AngleModuleView>> = ({
+export const PitchFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
     module,
 }) => {
     const [pitch, setPitch] = useState<Heading>(0);

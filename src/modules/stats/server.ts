@@ -3,7 +3,7 @@ import si from 'systeminformation';
 import checkDiskSpace from 'check-disk-space'
 import { Stats } from './types';
 
-export class StatsModuleController extends Module {
+export class StatsModuleServer extends Module {
     onModuleInit(): void | Promise<void> {
         setInterval(async () => {
             const [cpu, mem, temp, disk] = await Promise.all([si.currentLoad(), si.mem(), si.cpuTemperature(), checkDiskSpace(process.cwd())]);

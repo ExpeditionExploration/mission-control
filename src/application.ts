@@ -1,3 +1,5 @@
+import { Container } from "./container";
+
 export abstract class Application {
-    abstract init(): Promise<void>;
+    abstract init(container: Container): Promise<void>;
 }
