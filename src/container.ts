@@ -1,9 +1,10 @@
 import { ModuleLoader } from 'src/module-loader';
 import { Broadcaster } from 'src/broadcaster';
 import { Config } from './config';
-import { createContainer, InjectionMode, asClass, AwilixContainer } from 'awilix';
+import { createContainer as createAwilixContainer, InjectionMode, asClass, AwilixContainer } from 'awilix';
 import { Connection } from './connection';
 import { Application } from './application';
+import { Logger } from './logger';
 
 export interface ApplicationDependencies {
     namespace: string;
@@ -12,19 +13,24 @@ export interface ApplicationDependencies {
     moduleLoader: ModuleLoader;
     connection: Connection;
     application: Application;
-    // [key: string]: any;
+    logger: Logger;
 }
 export type Container = AwilixContainer<ApplicationDependencies>;
 
-const container = createContainer<ApplicationDependencies>({
-    injectionMode: InjectionMode.PROXY,
-    strict: true,
-});
+function createContainer() {
+    const container = createAwilixContainer<ApplicationDependencies>({
+        injectionMode: InjectionMode.PROXY,
+        strict: true,
+    });
 
-container.register({
-    'config': asClass(Config).singleton(),
-    'broadcaster': asClass(Broadcaster).singleton(),
-    'moduleLoader': asClass(ModuleLoader).singleton(),
-});
+    container.register({
+        'config': asClass(Config).singleton(),
+        'broadcaster': asClass(Broadcaster).singleton(),
+        'moduleLoader': asClass(ModuleLoader).singleton(),
+        'logger': asClass(Logger).scoped(),
+    });
 
-export { container };
+    return container;
+}
+
+export { createContainer };

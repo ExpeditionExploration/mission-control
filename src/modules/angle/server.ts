@@ -2,7 +2,7 @@ import { Module } from 'src/module';
 import { Angle, Heading } from './types';
 import { BNO08X, BNO_REPORT_ACCELEROMETER, BNO_REPORT_MAGNETOMETER } from 'openi2c/dist/modules/BNO08X';
 
-export class AngleModuleController extends Module {
+export class AngleModuleServer extends Module {
     async onModuleInit() {
         const bno = new BNO08X();
         await bno.init();

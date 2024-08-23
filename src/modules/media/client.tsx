@@ -5,7 +5,7 @@ import { MediaContextItem } from './components/MediaContextItem';
 import { TakePictureButton } from './components/TakePictureButton';
 import { RecordButton } from './components/RecordButton';
 
-export class MediaModuleView extends Module {
+export class MediaModuleClient extends Module {
     userInterface: UserInterface;
 
     constructor(deps: ClientModuleDependencies) {

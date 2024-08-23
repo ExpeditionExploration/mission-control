@@ -1,5 +1,5 @@
 import { Module } from "src/module";
-import { ApplicationDependencies, container, Container } from "src/container";
+import { ApplicationDependencies, Container } from "src/container";
 import { asClass, asValue, AwilixContainer } from 'awilix';
 
 type ModuleNamespace = string;
@@ -13,7 +13,7 @@ export type ModuleContainers = AwilixContainer<ModuleDependencies>[];
 
 export class ModuleLoader {
     modules: ModuleContainers = [];
-    async init(modules: ModulesImport) {
+    async init(modules: ModulesImport, container: Container) {
         // Create modules containers
         this.modules = this.loadModulesIntoContainer(container, modules);
     }

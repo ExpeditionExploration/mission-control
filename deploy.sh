@@ -30,7 +30,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 REMOTE_HOST=$1
-LOCAL_FILE="dist"
+BUILD_FOLDER="dist/"
 REMOTE_DIR="~/mission-control"
 
 # Clean the remote directory if the -c flag is set
@@ -43,13 +43,13 @@ fi
 # ssh "$REMOTE_HOST" "mkdir -p $REMOTE_DIR"
 
 # Rsync the local file to the remote host
-rsync -avz "$LOCAL_FILE" "package.json" "$REMOTE_HOST:$REMOTE_DIR"
+rsync -avz "$BUILD_FOLDER" "package.json" "$REMOTE_HOST:$REMOTE_DIR"
 
 # Check if rsync was successful
 if [ $? -eq 0 ]; then
-    echo "File '$LOCAL_FILE' successfully copied to '$REMOTE_HOST:$REMOTE_DIR'"
+    echo "File '$BUILD_FOLDER' successfully copied to '$REMOTE_HOST:$REMOTE_DIR'"
 else
-    echo "Error: Failed to copy file '$LOCAL_FILE' to '$REMOTE_HOST:$REMOTE_DIR'"
+    echo "Error: Failed to copy file '$BUILD_FOLDER' to '$REMOTE_HOST:$REMOTE_DIR'"
     exit 1
 fi
 

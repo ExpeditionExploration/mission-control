@@ -1,6 +1,7 @@
 import { Broadcaster } from "src/broadcaster";
 import { ModuleDependencies } from "./module-loader";
 import { Payload } from "./connection";
+import { Logger } from "./logger";
 
 export type NamespacedEventName = string;
 
@@ -11,10 +12,12 @@ export type NamespacedEventName = string;
 export abstract class Module {
     private readonly namespace!: string;
     private readonly broadcaster!: Broadcaster;
+    protected readonly logger!: Logger;
 
     constructor(deps: ModuleDependencies) {
         this.namespace = deps.namespace;
         this.broadcaster = deps.broadcaster;
+        this.logger = deps.logger;
     }
 
     getEvent(event: string): NamespacedEventName {

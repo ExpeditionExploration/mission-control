@@ -1,10 +1,10 @@
 // import { useEvents } from 'src/client/hooks';
 import { ViewProps } from 'src/client/user-interface';
-import { type MediaModuleView } from '../view';
+import { type MediaModuleClient } from '../client';
 import { useEffect, useRef } from 'react';
 import mpegts from 'mpegts.js';
 
-export const MediaContextItem: React.FC<ViewProps<MediaModuleView>> = () => {
+export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = () => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const playerRef = useRef<mpegts.Player | null>(null);
     useEffect(() => {

@@ -5,7 +5,7 @@ import { ClientModuleDependencies } from 'src/client/client';
 import { PitchFooterItem } from './components/PitchFooterItem';
 import { CompassFooterItem } from './components/CompassFooterItem';
 
-export class AngleModuleView extends Module {
+export class AngleModuleClient extends Module {
     userInterface: UserInterface;
 
     constructor(deps: ClientModuleDependencies) {

@@ -3,7 +3,7 @@ import { StatsHeaderItem } from './components/StatsHeaderItem';
 import { UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
 
-export class StatsModuleView extends Module {
+export class StatsModuleClient extends Module {
     userInterface: UserInterface;
 
     constructor(deps: ClientModuleDependencies) {
