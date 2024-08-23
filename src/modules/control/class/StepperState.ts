@@ -16,7 +16,7 @@ export class StepperState extends EventEmitter {
 
     constructor({
         logger,
-        delay = 5,
+        delay = 5, // Delay in ms between each step
         name,
         reverse = false,
     }: {
@@ -46,7 +46,6 @@ export class StepperState extends EventEmitter {
     step(direction: Direction) {
         const stepDirection = direction === Direction.Forward ? +1 : -1;
         this.current += stepDirection;
-        this.logger.debug(this.name, 'Current!:', this.current);
 
         this.emit('step', stepDirection);
     }
