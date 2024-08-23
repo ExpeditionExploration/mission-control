@@ -27,12 +27,12 @@ export class ControlModuleClient extends Module {
     lastThrusterInput: Axis = { x: 0, y: 0 };
     processThrusterInput(axis: [number, number]) {
         const [x, y] = this.cleanAxisInput(axis);
-        if (x === this.lastAileronInput.x && y === this.lastAileronInput.y) {
+        if (x === this.lastThrusterInput.x && y === this.lastThrusterInput.y) {
             return;
         }
-        this.lastAileronInput = { x, y };
+        this.lastThrusterInput = { x, y };
 
-        this.emit<Axis>('thruster', { x, y });
+        this.emit<Axis>('thrusters', { x, y });
     }
 
     lastAileronInput: Axis = { x: 0, y: 0 };
@@ -43,6 +43,6 @@ export class ControlModuleClient extends Module {
         }
         this.lastAileronInput = { x, y };
 
-        this.emit<Axis>('aileron', { x, y });
+        this.emit<Axis>('ailerons', { x, y });
     }
 }

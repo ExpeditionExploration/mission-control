@@ -10,6 +10,11 @@ export default defineConfig({
     build: {
         emptyOutDir: false,
         sourcemap: true,
+        // minify: true,
+        // terserOptions: {
+        //     mangle: true,
+        //     compress: true,
+        // }
     },
     plugins: [react()],
     resolve: {

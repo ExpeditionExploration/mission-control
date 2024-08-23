@@ -1,5 +1,6 @@
 import { ApplicationDependencies } from "./container";
 import { ModuleDependencies } from "./module-loader";
+
 export enum LogLevel {
     Info = 'info',
     Warn = 'warn',
@@ -23,7 +24,7 @@ export class Logger {
         if (this.logLevels.includes(LogLevel.Info)) console.info(this.getLogPrefix(LogLevel.Info), ...args);
     }
     warn(...args: any) {
-        if (this.logLevels.includes(LogLevel.Warn)) console.warn(this.getLogPrefix(LogLevel.Warn), this.namespace, ...args);
+        if (this.logLevels.includes(LogLevel.Warn)) console.warn(this.getLogPrefix(LogLevel.Warn), ...args);
     }
     error(...args: any) {
         if (this.logLevels.includes(LogLevel.Error)) console.error(this.getLogPrefix(LogLevel.Error), ...args);

@@ -24,21 +24,21 @@ export class ControlModuleServer extends Module {
     setupAileron() {
         this.aileron = {
             left: {
-                state: new StepperState(),
+                state: new StepperState({ logger: this.logger, name: 'Aileron Left' }),
                 step: isProd ? NanoPi_NEO3.output(NanoPi_NEO3.bcm.GPIO3_B0) : { value: true } as any,
                 direction: isProd ? NanoPi_NEO3.output(NanoPi_NEO3.bcm.GPIO0_D3) : { value: true } as any,
             },
             right: {
-                state: new StepperState(),
+                state: new StepperState({ logger: this.logger, name: 'Aileron Right' }),
                 step: isProd ? NanoPi_NEO3.output(NanoPi_NEO3.bcm.GPIO3_A7) : { value: true } as any,
                 direction: isProd ? NanoPi_NEO3.output(NanoPi_NEO3.bcm.GPIO2_C7) : { value: true } as any,
             }
         }
 
         this.aileron.left.state.on('step', (step: number) => this.stepAileron(this.aileron.left, step));
-        this.aileron.right.state.on('step', (step: number) => this.stepAileron(this.aileron.right, step));
+        this.aileron.right.state.on('step', (step: number) => this.stepAileron(this.aileron.right, step * -1)); // Reverse the step direction of the right aileron because it's mounted on the opposite side
 
-        this.on<Axis>('aileron', (data) => {
+        this.on<Axis>('ailerons', (data) => {
             this.logger.debug('Aileron input', data);
             const aileronTargets = this.mapAxisToAileron(data);
             this.aileron.left.state.moveTo(aileronTargets.left);
