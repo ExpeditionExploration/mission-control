@@ -11,12 +11,29 @@ type Stepper = {
     direction: Pin;
 }
 
+type Motor = {
+    channel: number;
+}
+
 const isProd = process.env.NODE_ENV === 'production';
 
 export class ControlModuleServer extends Module {
+    DUTY_MIN = -1;
+    DUTY_MAX = 1;
+    ESC_DRIVER_FREQUENCY = 50;
+    ESC_MIN = 0.05; // 1ms at 50Hz
+    ESC_MAX = 0.1; // 2ms at 50Hz
+    ESC_MID = (this.ESC_MIN + this.ESC_MAX) / 2;
+    ESC_STOP_RANGE = 0.0001; // 0.2ms at 50Hz
+    ESC_ARM = 0.1; // Any value over 2ms
+
     aileron!: {
         left: Stepper;
         right: Stepper;
+    }
+    thrusters!: {
+        left: Motor;
+        right: Motor;
     }
     pwmDriver!: PCA9685;
 
@@ -55,13 +72,14 @@ export class ControlModuleServer extends Module {
         });
     }
 
-    stepAileron(stepper: Stepper, step: number) {
+    async stepAileron(stepper: Stepper, step: number) {
         if (step > 0) {
             stepper.direction.value = true;
         } else {
             stepper.direction.value = false;
         }
         stepper.step.value = true;
+        await sleep(1);
         stepper.step.value = false;
     }
 
@@ -149,6 +167,15 @@ export class ControlModuleServer extends Module {
     }
 
     async setupThrusters() {
+        this.thrusters = {
+            left: {
+                channel: 0,
+            },
+            right: {
+                channel: 1,
+            }
+        }
+
         this.logger.debug('Setting up thrusters', this.pwmDriver);
         try {
             await this.pwmDriver.init();
@@ -157,32 +184,60 @@ export class ControlModuleServer extends Module {
             this.pwmDriver = { setDutyCycle: async () => { } } as any;
         }
 
-        // await this.pwmDriver.setDutyCycle(0, 0);
-        // await this.pwmDriver.setDutyCycle(1, 0);
-        // await sleep(3000);
-        // await this.pwmDriver.setDutyCycle(0, 1);
-        // await this.pwmDriver.setDutyCycle(1, 1);
+        this.armAllEsc();
 
         this.on<Axis>('thrusters', async (data) => {
             this.logger.debug('Thruster input', data);
-            const { left, right } = this.mapAxisToThrusters(data);
-            this.logger.debug('Mapped thruster input', { left, right });
-
-            await this.pwmDriver.setDutyCycle(0, left);
-            await this.pwmDriver.setDutyCycle(1, right);
+            this.setEsc(this.thrusters.left.channel, data.y);
+            this.setEsc(this.thrusters.right.channel, data.y);
         });
     }
 
-    mapAxisToThrusters({ x, y }: Axis): { left: number, right: number } {
-        x = this.clamp(x, -1, 1);
-        y = this.clamp(y, -1, 1);
-
-        let left = this.mapValue(y, -1, 1, 0.1, 0.9);
-        let right = this.mapValue(y, -1, 1, 0.1, 0.9);
-
-        return {
-            left,
-            right
+    async setEsc(channel: number, value: number) {
+        /**
+         * TODO!
+         * In one direction to zero, eg going from -1 to 0 duty cycle, 
+         * the ESC will stop immediately vs the other direction where 
+         * it will slowly decrease. I think because in one case the
+         * ESC is receiving a signal that thinks it's changing direction
+         * and in the other it on the same direction going to zero.
+         * 
+         * To address this I need to set find a range in which I classify 
+         * the ESC as stopped and set the duty cycle to a stop number that 
+         * the ESC will recognize as stopped, perhaps 0.
+         */
+        // value is between -1 and 1
+        value = this.clamp(value, -1, 1);
+        let mappedValue = this.mapValue(value, this.DUTY_MIN, this.DUTY_MAX, this.ESC_MIN, this.ESC_MAX);
+        this.logger.debug(`Mapped value ${mappedValue}`, value, this.DUTY_MIN, this.DUTY_MAX, this.ESC_MIN, this.ESC_MAX);
+        if ((mappedValue > (this.ESC_MID - this.ESC_STOP_RANGE)) && (mappedValue < (this.ESC_MID + this.ESC_STOP_RANGE))) {
+            mappedValue = 1;
+            // Setting this to 0 causes the ESC to rearm constantly.
+            // Setting to 1 seemed to work as a stop value.
         }
+
+        this.logger.debug(`Setting ESC ${channel} to ${mappedValue}`, this.ESC_MID, this.ESC_MID - this.ESC_STOP_RANGE, this.ESC_MID + this.ESC_STOP_RANGE);
+        await this.pwmDriver.setDutyCycle(
+            channel,
+            mappedValue,
+        );
+    }
+
+    async armAllEsc() {
+        this.logger.debug('Arming ESCs');
+        await this.setAllEsc(0);
+        await sleep(1000);
+        await this.setAllEsc(this.ESC_ARM);
+        await sleep(5000);
+        await this.setAllEsc(0);
+        this.logger.debug('ESCs Armed');
+    }
+
+    async setAllEsc(dutyCycle: number) {
+        this.logger.debug(`Setting all ESCs to ${dutyCycle}`);
+        await Promise.all([
+            this.setEsc(this.thrusters.left.channel, dutyCycle),
+            this.setEsc(this.thrusters.right.channel, dutyCycle),
+        ]);
     }
 }
