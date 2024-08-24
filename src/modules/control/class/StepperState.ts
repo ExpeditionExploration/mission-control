@@ -16,7 +16,7 @@ export class StepperState extends EventEmitter {
 
     constructor({
         logger,
-        delay = 5, // Delay in ms between each step
+        delay = 2, // Delay in ms between each step
         name,
         reverse = false,
     }: {

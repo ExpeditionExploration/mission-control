@@ -31,6 +31,7 @@ export class ControlModuleClient extends Module {
             return;
         }
         this.lastThrusterInput = { x, y };
+        this.logger.debug('Setting thrusters', { x, y });
 
         this.emit<Axis>('thrusters', { x, y });
     }
@@ -42,6 +43,7 @@ export class ControlModuleClient extends Module {
             return;
         }
         this.lastAileronInput = { x, y };
+        this.logger.debug('Setting ailerons', { x, y });
 
         this.emit<Axis>('ailerons', { x, y });
     }

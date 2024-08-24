@@ -2,6 +2,7 @@ import { Module } from 'src/module';
 import { Axis } from './types';
 import { NanoPi_NEO3, Pin } from 'opengpio';
 import { StepperState } from './class/StepperState';
+import { PCA9685 } from 'openi2c';
 
 type Stepper = {
     state: StepperState;
@@ -18,10 +19,11 @@ export class ControlModuleServer extends Module {
     }
 
     async onModuleInit() {
-        this.setupAileron();
+        await this.setupAileron();
+        await this.setupThrusters();
     }
 
-    setupAileron() {
+    async setupAileron() {
         this.aileron = {
             left: {
                 state: new StepperState({ logger: this.logger, name: 'Aileron Left' }),
@@ -137,5 +139,36 @@ export class ControlModuleServer extends Module {
     }
     mapValue(value: number, inMin: number, inMax: number, outMin: number, outMax: number) {
         return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+    }
+
+    async setupThrusters() {
+        let pwmDriver: PCA9685;
+        try {
+            pwmDriver = new PCA9685();
+            await pwmDriver.setFrequency(50);
+        } catch (err) {
+            this.logger.error('Error setting up PWM driver', err);
+            pwmDriver = { setDutyCycle: async () => { } } as any;
+        }
+
+        this.on<Axis>('thrusters', async (data) => {
+            this.logger.debug('Thruster input', data);
+            const { left, right } = this.mapAxisToThrusters(data);
+
+            await pwmDriver.setDutyCycle(0, left);
+            await pwmDriver.setDutyCycle(1, right);
+        });
+    }
+    mapAxisToThrusters({ x, y }: Axis): { left: number, right: number } {
+        x = this.clamp(x, -1, 1);
+        y = this.clamp(y, -1, 1);
+
+        let left = this.mapValue(y, -1, 1, 0.05, 0.95);
+        let right = this.mapValue(y, -1, 1, 0.05, 0.95);
+
+        return {
+            left,
+            right
+        }
     }
 }
