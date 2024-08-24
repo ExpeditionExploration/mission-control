@@ -2,7 +2,8 @@ import { Module } from 'src/module';
 import { Axis } from './types';
 import { NanoPi_NEO3, Pin } from 'opengpio';
 import { StepperState } from './class/StepperState';
-import { PCA9685 } from 'openi2c';
+import { PCA9685, sleep } from 'openi2c';
+import { ServerModuleDependencies } from 'src/server/server';
 
 type Stepper = {
     state: StepperState;
@@ -16,6 +17,12 @@ export class ControlModuleServer extends Module {
     aileron!: {
         left: Stepper;
         right: Stepper;
+    }
+    pwmDriver!: PCA9685;
+
+    constructor(deps: ServerModuleDependencies) {
+        super(deps);
+        this.pwmDriver = new PCA9685();
     }
 
     async onModuleInit() {
@@ -142,29 +149,36 @@ export class ControlModuleServer extends Module {
     }
 
     async setupThrusters() {
-        let pwmDriver: PCA9685;
+        this.logger.debug('Setting up thrusters', this.pwmDriver);
         try {
-            pwmDriver = new PCA9685();
-            await pwmDriver.setFrequency(50);
+            await this.pwmDriver.init();
         } catch (err) {
             this.logger.error('Error setting up PWM driver', err);
-            pwmDriver = { setDutyCycle: async () => { } } as any;
+            this.pwmDriver = { setDutyCycle: async () => { } } as any;
         }
+
+        // await this.pwmDriver.setDutyCycle(0, 0);
+        // await this.pwmDriver.setDutyCycle(1, 0);
+        // await sleep(3000);
+        // await this.pwmDriver.setDutyCycle(0, 1);
+        // await this.pwmDriver.setDutyCycle(1, 1);
 
         this.on<Axis>('thrusters', async (data) => {
             this.logger.debug('Thruster input', data);
             const { left, right } = this.mapAxisToThrusters(data);
+            this.logger.debug('Mapped thruster input', { left, right });
 
-            await pwmDriver.setDutyCycle(0, left);
-            await pwmDriver.setDutyCycle(1, right);
+            await this.pwmDriver.setDutyCycle(0, left);
+            await this.pwmDriver.setDutyCycle(1, right);
         });
     }
+
     mapAxisToThrusters({ x, y }: Axis): { left: number, right: number } {
         x = this.clamp(x, -1, 1);
         y = this.clamp(y, -1, 1);
 
-        let left = this.mapValue(y, -1, 1, 0.05, 0.95);
-        let right = this.mapValue(y, -1, 1, 0.05, 0.95);
+        let left = this.mapValue(y, -1, 1, 0.1, 0.9);
+        let right = this.mapValue(y, -1, 1, 0.1, 0.9);
 
         return {
             left,
