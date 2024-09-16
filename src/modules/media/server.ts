@@ -42,35 +42,64 @@ export class MediaModuleServer extends Module {
         // });
     }
     startMediaStream(): void {
-        console.log('Starting media stream')
+        console.log('Starting media stream');
         // try {
         //     fs.unlinkSync(STREAM_FILE_PATH);
 
         // } catch (e) { }
 
-        this.stream = spawn('ffmpeg', [
-            '-loglevel', 'error', '-nostats',
-            '-f', 'avfoundation',
-            '-r', '30',
-            '-i', '0', // Replace '0' with your webcam device index if different
-            '-c:v', 'libx265',      // Encode using H.264
-            '-an',
-            '-preset', 'ultrafast', // Set encoding speed/quality
-            '-tune', 'zerolatency', // Tune for low-latency streaming
-            '-f', 'mpegts', // Output format
-            // Output to stdout
-            '-'
-        ], {
-            stdio: ['inherit', 'pipe', 'inherit']
-        });
+        this.stream = spawn(
+            'ffmpeg',
+            [
+                '-loglevel',
+                'error',
+                '-nostats',
+                '-f',
+                'avfoundation',
+                '-r',
+                '30',
+                '-i',
+                '0', // Replace '0' with your webcam device index if different
+                '-c:v',
+                'libx265', // Encode using H.264
+                '-an',
+                '-preset',
+                'ultrafast', // Set encoding speed/quality
+                '-tune',
+                'zerolatency', // Tune for low-latency streaming
+                '-f',
+                'mpegts', // Output format
+                // Output to stdout
+                '-',
+            ],
+            {
+                stdio: ['inherit', 'pipe', 'inherit'],
+            },
+        );
 
         this.stream.stdout?.pipe(this.streamPipe);
+    }
+
+    async startMjpegStream() {
+        this.stream = spawn(
+            'v4l2-ctl',
+            [
+                '-d0',
+                '--stream-mmap',
+                '--stream-to',
+                // Output to stdout
+                '-',
+            ],
+            {
+                stdio: ['inherit', 'pipe', 'inherit'],
+            },
+        );
     }
 
     async onModuleInit() {
         this.logger.info('Starting media server');
         // this.startMediaStream();
         this.createMediaServer();
-        // this.startMjpegStream();
+        this.startMjpegStream();
     }
 }
