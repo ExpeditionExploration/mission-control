@@ -16,7 +16,7 @@
         "start": "NODE_ENV=production forever start server.js",
         "start:dev": "NODE_ENV=production tsx watch server.js",
         "stop": "forever stop server.js",
-        "deploy": "npm run build && ./deploy.sh root@192.168.1.101"
+        "deploy": "npm run build && ./deploy.sh root@192.168.1.105"
     },
     "dependencies": {
         "@headlessui/react": "^2.1.2",

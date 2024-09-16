@@ -10,7 +10,7 @@ export const PitchFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
     const [pitch, setPitch] = useState<Heading>(0);
     useEffect(() => {
         module.on<Angle>('angle', (angle) => {
-            setPitch(angle[1]);
+            setPitch(-angle[1]);
         });
     }, []);
 

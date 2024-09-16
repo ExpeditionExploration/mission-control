@@ -14,7 +14,9 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = () => {
             !videoSteamSocket.current ||
             videoSteamSocket.current?.readyState == WebSocket.CLOSED
         ) {
-            const socket = new WebSocket(`ws://localhost:16600`);
+            const socket = new WebSocket(
+                `ws://${window.location.hostname}:16600`,
+            );
 
             const canvas = canvasRef.current as HTMLCanvasElement;
             const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -95,7 +97,7 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = () => {
             <canvas
                 ref={canvasRef}
                 id="canvas"
-                className="relative z-10 object-cover object-center w-full h-full"
+                className="relative z-10 rotate-180 object-cover object-center w-full h-full"
             ></canvas>
         </div>
     );

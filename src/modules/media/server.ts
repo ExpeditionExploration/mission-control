@@ -19,7 +19,7 @@ export class MediaModuleServer extends Module {
     createMediaServer(): void {
         this.wss = new WebSocketServer({ port: 16600 });
         this.stream = spawn(
-            'v4l2-ctl -d0 --set-fmt-video=width=3840,height=2160 --stream-mmap --stream-to -',
+            'v4l2-ctl -d0 --set-fmt-video=width=1280,height=720 --stream-mmap --stream-to -',
             {
                 shell: true,
             },
