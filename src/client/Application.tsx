@@ -1,4 +1,4 @@
-import logo from '../assets/exs.svg';
+import logo from '../assets/expeditionx.svg';
 import { Menu, Expand, Shrink } from 'lucide-react';
 import { UtilityBar, UtilityBarItems } from './components/UtilityBar';
 import { useEffect, useState } from 'react';
@@ -65,8 +65,8 @@ export function Application({
             </div>
             <UtilityBar position="bottom">
                 <UtilityBarItems className="items-end">
-                    <div className="mr-8">
-                        <img src={logo} alt="logo" className="h-12" />
+                    <div className="mr-2">
+                        <img src={logo} alt="logo" className="h-14" />
                     </div>
                     {footerLeftItems}
                 </UtilityBarItems>
