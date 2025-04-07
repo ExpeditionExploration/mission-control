@@ -1,4 +1,4 @@
-import logo from '../assets/exs.svg';
+import logo from '../assets/logo.svg';
 import { Menu, Expand, Shrink } from 'lucide-react';
 import { UtilityBar, UtilityBarItems } from './components/UtilityBar';
 import { useEffect, useState } from 'react';
