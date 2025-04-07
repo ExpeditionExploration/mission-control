@@ -1,5 +1,6 @@
 import { ApplicationDependencies } from "./container";
 import { ModuleDependencies } from "./module-loader";
+import 'colors';
 
 export enum LogLevel {
     Info = 'info',
@@ -17,9 +18,24 @@ export class Logger {
         this.logLevels = typeof deps.config.logger === 'boolean' ? [LogLevel.Info, LogLevel.Warn, LogLevel.Error, LogLevel.Debug] : deps.config.logger;
     }
 
+    lastLogTime: number = new Date().getTime();
     private getLogPrefix(logLevel: LogLevel) {
-        return `[${this.namespace}] (${logLevel}) ${new Date().toJSON()} -`;
+        const logDate = new Date();
+        const lastLogTime = logDate.getTime();
+        const timeDiff = lastLogTime - this.lastLogTime;
+        this.lastLogTime = lastLogTime;
+
+        const logTimeFormatted = `${logDate.getHours().toString().padStart(2, '0')}:${logDate.getMinutes().toString().padStart(2, '0')}:${logDate.getSeconds().toString().padStart(2, '0')}:${logDate.getMilliseconds().toString().padStart(3, '0')}`.dim;
+        let logLevelFormatted = `${logLevel}`.padStart(5, ' ');
+        if (logLevel === LogLevel.Info) logLevelFormatted = logLevelFormatted.cyan;
+        if (logLevel === LogLevel.Warn) logLevelFormatted = logLevelFormatted.yellow;
+        if (logLevel === LogLevel.Error) logLevelFormatted = logLevelFormatted.red;
+        if (logLevel === LogLevel.Debug) logLevelFormatted = logLevelFormatted.magenta;
+        const namespaceFormatted = `${this.namespace}\t`.green;
+
+        return `${logTimeFormatted} ${logLevelFormatted} ${namespaceFormatted}`;
     }
+
     info(...args: any) {
         if (this.logLevels.includes(LogLevel.Info)) console.info(this.getLogPrefix(LogLevel.Info), ...args);
     }
