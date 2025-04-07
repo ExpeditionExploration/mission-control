@@ -1,14 +1,14 @@
 import { Module } from 'src/module';
 import { Axis } from './types';
-import { NanoPi_NEO3, Pin, Pwm } from 'opengpio';
+import { NanoPi_NEO3, Output, Pwm } from 'opengpio';
 import { StepperState } from './class/StepperState';
-import { PCA9685, sleep } from 'openi2c';
+// import { PCA9685, sleep } from 'openi2c';
 import { ServerModuleDependencies } from 'src/server/server';
 
 type Stepper = {
     state: StepperState;
-    step: Pin;
-    direction: Pin;
+    step: Output;
+    direction: Output;
 };
 
 type Motor = {
@@ -35,11 +35,9 @@ export class ControlModuleServer extends Module {
         left: Motor;
         right: Motor;
     };
-    pwmDriver!: PCA9685;
 
     constructor(deps: ServerModuleDependencies) {
         super(deps);
-        this.pwmDriver = new PCA9685();
     }
 
     async onModuleInit() {
@@ -97,7 +95,7 @@ export class ControlModuleServer extends Module {
             stepper.direction.value = false;
         }
         stepper.step.value = true;
-        await sleep(10);
+        // await sleep(10);
         stepper.step.value = false;
     }
 
@@ -205,12 +203,12 @@ export class ControlModuleServer extends Module {
             },
         };
 
-        this.logger.debug('Setting up thrusters', this.pwmDriver);
+        // this.logger.debug('Setting up thrusters', this.pwmDriver);
         try {
-            await this.pwmDriver.init();
+            // await this.pwmDriver.init();
         } catch (err) {
             this.logger.error('Error setting up PWM driver', err);
-            this.pwmDriver = { setDutyCycle: async () => {} } as any;
+            // this.pwmDriver = { setDutyCycle: async () => { } } as any;
         }
 
         this.armAllEsc();
@@ -267,15 +265,15 @@ export class ControlModuleServer extends Module {
             this.ESC_MID - this.ESC_STOP_RANGE,
             this.ESC_MID + this.ESC_STOP_RANGE,
         );
-        await this.pwmDriver.setDutyCycle(channel, mappedValue);
+        // await this.pwmDriver.setDutyCycle(channel, mappedValue);
     }
 
     async armAllEsc() {
         this.logger.debug('Arming ESCs');
         await this.setAllEsc(0);
-        await sleep(1000);
+        // await sleep(1000);
         await this.setAllEsc(this.ESC_ARM);
-        await sleep(5000);
+        // await sleep(5000);
         await this.setAllEsc(0);
         this.logger.debug('ESCs Armed');
     }

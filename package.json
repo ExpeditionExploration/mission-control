@@ -14,7 +14,7 @@
         "lint": "eslint .",
         "preview": "vite preview",
         "test": "jest",
-        "start": "NODE_ENV=production forever start server.js",
+        "start": "NODE_ENV=production node dist/server.js",
         "start:dev": "NODE_ENV=production tsx watch server.js",
         "stop": "forever stop server.js",
         "deploy": "npm run build && ./deploy.sh root@192.168.1.105"
@@ -27,7 +27,7 @@
         "forever": "^4.0.3",
         "lucide-react": "^0.429.0",
         "mpegts.js": "^1.7.3",
-        "opengpio": "^1.0.15",
+        "opengpio": "github:ExplorationSystems/opengpio#ts_compilation",
         "openi2c": "^1.0.9",
         "pipe2jpeg": "^0.5.0",
         "react": "^18.3.1",
