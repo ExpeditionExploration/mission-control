@@ -41,8 +41,8 @@ export class ControlModuleServer extends Module {
     }
 
     async onModuleInit() {
-        await this.setupAileron();
-        await this.setupThrusters();
+        // await this.setupAileron();
+        // await this.setupThrusters();
     }
 
     async setupAileron() {

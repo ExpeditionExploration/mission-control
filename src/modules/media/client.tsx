@@ -13,39 +13,6 @@ export class MediaModuleClient extends Module {
         this.userInterface = deps.userInterface;
     }
 
-    listenToMediaStream() {
-        // const mediaSource = new MediaSource();
-        // video.src = URL.createObjectURL(mediaSource);
-        // video!.addEventListener('error', (e) => {
-        //     console.error('Video Error:', e);
-        // });
-        // mediaSource.addEventListener('error', (e) => {
-        //     console.error('MediaSource Error:', e);
-        // });
-        // let sourceBuffer: any;
-        // function appendBuffer(data: any) {
-        //     if (sourceBuffer && mediaSource.readyState === 'open') {
-        //         sourceBuffer.appendBuffer(new Uint8Array(data));
-        //     }
-        // }
-        // mediaSource.addEventListener('sourceopen', () => {
-        //     console.log('Media source is open');
-        //     sourceBuffer = mediaSource.addSourceBuffer(
-        //         'video/webm; codecs="vp09.00.10.08"',
-        //     );
-        //     const ws = new WebSocket('ws://localhost:16600');
-        //     ws.binaryType = 'arraybuffer';
-        //     ws.onopen = () => {
-        //         console.log('Connected to media stream');
-        //     };
-        //     ws.onmessage = (event) => {
-        //         if (sourceBuffer && !sourceBuffer.updating) {
-        //             appendBuffer(event.data);
-        //         }
-        //     };
-        // });
-    }
-
     onModuleInit(): void | Promise<void> {
         this.userInterface.addContextItem(MediaContextItem);
         this.userInterface.addFooterItem(TakePictureButton, {
@@ -54,8 +21,5 @@ export class MediaModuleClient extends Module {
         this.userInterface.addFooterItem(RecordButton, {
             side: Side.Right,
         });
-        // setTimeout(() => {
-        //     this.listenToMediaStream();
-        // }, 1000);
     }
 }

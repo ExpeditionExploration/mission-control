@@ -2,87 +2,77 @@
 import { ViewProps } from 'src/client/user-interface';
 import { type MediaModuleClient } from '../client';
 import { useEffect, useRef } from 'react';
-// import mpegts from 'mpegts.js';
+import GstWebRTCAPI, { type Producer } from 'gstwebrtc-api';
 
-export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = () => {
-    const videoSteamSocket = useRef<WebSocket>();
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = ({
+    module,
+}) => {
+    console.log('MediaContextItem rendered');
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const webrtcStreamInitialised = useRef<boolean>(false);
 
     function connectVideoStream() {
-        console.log('Connecting video stream');
-        if (
-            !videoSteamSocket.current ||
-            videoSteamSocket.current?.readyState == WebSocket.CLOSED
-        ) {
-            const socket = new WebSocket(
-                `ws://${window.location.hostname}:16600`,
-            );
+        if (webrtcStreamInitialised.current) return; // Already connected
+        webrtcStreamInitialised.current = true;
 
-            const canvas = canvasRef.current as HTMLCanvasElement;
-            const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-            const img = new Image();
-            img.onload = function () {
-                let width = img.width;
-                let height = img.height;
+        const signalingProtocol = window.location.protocol.startsWith('https')
+            ? 'wss'
+            : 'ws';
+        const gstWebRTCConfig = {
+            meta: { name: `Client-${Date.now()}` },
+            signalingServerUrl: `${signalingProtocol}://${window.location.hostname}:8443`,
+            reconnectionTimeout: 5000,
+            webrtcConfig: {},
+        };
+        const api = new GstWebRTCAPI(gstWebRTCConfig);
 
-                canvas.width = width;
-                canvas.height = height;
+        const listener = {
+            producerAdded: function (producer: Producer) {
+                const session = api.createConsumerSession(producer.id);
+                session.mungeStereoHack = true; // Copied from the original code, not sure what it does
 
-                // get the scale
-                // it is the min of the 2 ratios
-                let scale_factor = Math.min(
-                    canvas.width / img.width,
-                    canvas.height / img.height,
-                );
+                session.addEventListener('error', (event) => {
+                    module.logger.error('Consumer session error:', event);
+                });
 
-                // Lets get the new width and height based on the scale factor
-                let newWidth = img.width * scale_factor;
-                let newHeight = img.height * scale_factor;
+                session.addEventListener('closed', () => {
+                    module.logger.info('Consumer session closed');
 
-                // get the top left position of the image
-                // in order to center the image within the canvas
-                let x = canvas.width / 2 - newWidth / 2;
-                let y = canvas.height / 2 - newHeight / 2;
+                    videoRef.current!.pause();
+                    videoRef.current!.srcObject = null;
+                });
 
-                // When drawing the image, we have to scale down the image
-                // width and height in order to fit within the canvas
-                ctx.drawImage(img, x, y, newWidth, newHeight);
-            };
+                session.addEventListener('streamsChanged', () => {
+                    const streams = session.streams;
+                    if (streams.length > 0) {
+                        videoRef.current!.srcObject = streams[0];
+                        // videoRef.current!.play();
+                    }
+                });
 
-            socket.binaryType = 'arraybuffer';
-            socket.onmessage = (event) => {
-                var blob = new Blob([event.data], { type: 'image/jpeg' });
-                img.src = URL.createObjectURL(blob);
-            };
-
-            socket.onopen = (event) => {
-                console.debug('Media stream connected');
-            };
-
-            socket.onclose = (event) => {
-                console.debug('Media stream closed, retrying in 1s');
-                setTimeout(() => connectVideoStream(), 1000);
-            };
-
-            console.debug('Setting stream socket', socket);
-            videoSteamSocket.current = socket;
+                session.connect();
+            },
+            producerRemoved: function (producer: Producer) {
+                console.log('Producer removed:', producer);
+            },
+        };
+        api.registerProducersListener(listener);
+        for (const producer of api.getAvailableProducers()) {
+            listener.producerAdded(producer);
         }
     }
 
     useEffect(() => {
+        console.log('MediaContextItem useEffect called');
         // const canvas = document.getElementById('canvas') as HTMLCanvasElement;
         connectVideoStream();
-        return () => {
-            console.debug('Cleaning up');
-            if (videoSteamSocket.current) {
-                console.debug('Cleaning up socket', videoSteamSocket.current);
-                videoSteamSocket.current.onclose = null;
-                videoSteamSocket.current.onopen = null;
-                videoSteamSocket.current.onmessage = null;
-                videoSteamSocket.current.close();
-                videoSteamSocket.current = undefined;
-            }
-        };
+        // return () => {
+        //     console.log('Cleaning up');
+        //     if (videoRef.current) {
+        //         console.debug('Cleaning up video element', videoRef.current);
+        //         videoRef.current.srcObject = null;
+        //     }
+        // };
     }, []);
 
     return (
@@ -94,11 +84,12 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = () => {
                     </div>
                 </div>
             </div>
-            <canvas
-                ref={canvasRef}
-                id="canvas"
-                className="relative z-10 rotate-180 object-cover object-center w-full h-full"
-            ></canvas>
+            <video
+                autoPlay
+                muted
+                ref={videoRef}
+                className="relative z-10 object-cover object-center w-full h-full"
+            ></video>
         </div>
     );
 };

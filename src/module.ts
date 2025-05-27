@@ -12,7 +12,7 @@ export type NamespacedEventName = string;
 export abstract class Module {
     private readonly namespace!: string;
     private readonly broadcaster!: Broadcaster;
-    protected readonly logger!: Logger;
+    public readonly logger!: Logger;
 
     constructor(deps: ModuleDependencies) {
         this.namespace = deps.namespace;
