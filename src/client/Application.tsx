@@ -1,7 +1,7 @@
 import logo from '../assets/logo.svg';
 import { Menu, Expand, Shrink } from 'lucide-react';
 import { UtilityBar, UtilityBarItems } from './components/UtilityBar';
-import { useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 
 export function Application({
     contextItems,

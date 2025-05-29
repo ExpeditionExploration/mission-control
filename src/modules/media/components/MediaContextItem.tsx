@@ -63,16 +63,7 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = ({
     }
 
     useEffect(() => {
-        console.log('MediaContextItem useEffect called');
-        // const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-        connectVideoStream();
-        // return () => {
-        //     console.log('Cleaning up');
-        //     if (videoRef.current) {
-        //         console.debug('Cleaning up video element', videoRef.current);
-        //         videoRef.current.srcObject = null;
-        //     }
-        // };
+        // connectVideoStream();
     }, []);
 
     return (

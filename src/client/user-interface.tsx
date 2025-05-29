@@ -3,6 +3,7 @@ import './index.css';
 import { UserInterfaceLoader } from './user-interface-loader';
 import { ModuleDependencies } from 'src/module-loader';
 import { type ClientModuleDependencies } from './client';
+import { JSX } from 'react';
 
 export enum Side {
     Left,
