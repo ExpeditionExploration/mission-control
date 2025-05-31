@@ -39,14 +39,14 @@ export class ClientConnection extends Connection {
             this.socket.onmessage = (message) => {
                 try {
                     const payload = JSON.parse(message.data) as Payload;
-                    this.broadcaster.emit(payload.event, payload.data, false);
+                    this.broadcaster.emitLocal(payload);
                 } catch (e) {
                     console.error('Error parsing message', e);
                 }
             }
         });
 
-        this.broadcaster.on('event', (event: Payload) => this.send(event));
+        this.broadcaster.on('__transmit__', (payload: Payload) => this.send(payload));
     }
 
     destroy() {

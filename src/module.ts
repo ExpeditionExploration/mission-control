@@ -10,8 +10,8 @@ export type NamespacedEventName = string;
  * a module depending on the namespace which the class is injected into.
  */
 export abstract class Module {
-    private readonly namespace!: string;
-    private readonly broadcaster!: Broadcaster;
+    public readonly namespace!: string;
+    public readonly broadcaster!: Broadcaster;
     public readonly logger!: Logger;
 
     constructor(deps: ModuleDependencies) {
@@ -29,8 +29,8 @@ export abstract class Module {
     off(event: string, listener: (data: any) => void) {
         this.broadcaster?.off(this.getEvent(event), listener);
     }
-    emit<T = any>(event: string, data: T, global = true) {
-        return this.broadcaster?.emit(this.getEvent(event), data, global);
+    emit<T = any>(event: string, data: T) {
+        return this.broadcaster?.emit(this.getEvent(event), data);
     }
 
     abstract onModuleInit(): void | Promise<void>;

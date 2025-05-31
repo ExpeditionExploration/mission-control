@@ -20,9 +20,9 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html'),
-                '3d-view': resolve(
+                spatial: resolve(
                     __dirname,
-                    'src/modules/3d-view/window/index.html',
+                    'src/modules/spatial/window/index.html',
                 ),
             },
         },

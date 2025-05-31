@@ -30,10 +30,9 @@ export class ServerConnection extends Connection {
         });
         ws.on('connection', (socket) => {
             socket.on('message', (message) => {
-                // console.log('Received message', message.toString());
                 try {
                     const payload = JSON.parse(message.toString()) as Payload;
-                    this.broadcaster.emit(payload.event, payload.data, false);
+                    this.broadcaster.emitLocal(payload);
                 } catch (e) {
                     console.error('Error parsing message', e);
                 }
@@ -47,7 +46,7 @@ export class ServerConnection extends Connection {
             resolve();
         }));
 
-        this.broadcaster.on('event', (event: Payload) => this.send(event));
+        this.broadcaster.on('__transmit__', (payload: Payload) => this.send(payload));
     }
 
     destroy() {

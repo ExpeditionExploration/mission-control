@@ -1,7 +1,8 @@
-export type Payload = {
+export type Payload<T = any> = {
     event: string;
-    data: any;
-}
+    namespace: string;
+    data: T;
+};
 
 export abstract class Connection {
     abstract init(): Promise<void>;
