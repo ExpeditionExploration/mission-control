@@ -13,7 +13,7 @@ export class ControlModuleClient extends Module {
     onModuleInit(): void | Promise<void> {
         setInterval(() => {
             const [gamepad] = navigator.getGamepads();
-           
+
             if (gamepad) {
                 this.processLeftJoystickInput([
                     gamepad.axes[0],

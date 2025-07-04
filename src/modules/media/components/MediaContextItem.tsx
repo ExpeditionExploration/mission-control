@@ -63,7 +63,7 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = ({
     }
 
     useEffect(() => {
-        // connectVideoStream();
+        connectVideoStream();
     }, []);
 
     return (

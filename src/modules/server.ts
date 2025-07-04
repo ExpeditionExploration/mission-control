@@ -7,7 +7,7 @@ import { AngleModuleServer } from './angle/server';
 import { SpatialModuleServer } from './spatial/server';
 
 export const modules = new Map([
-    // ['stats', StatsModuleServer],
+    ['stats', StatsModuleServer],
     ['media', MediaModuleServer],
     ['lights', LightsModuleServer],
     ['control', ControlModuleServer],

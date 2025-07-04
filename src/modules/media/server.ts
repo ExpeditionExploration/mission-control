@@ -8,7 +8,7 @@ export class MediaModuleServer extends Module {
 
     async onModuleInit() {
         this.logger.info('Starting media server');
-        // this.createMediaServer();
+        this.createMediaServer();
         this.on('takePicture', () => {
             this.logger.info('Take picture command received');
             this.takePicture();
