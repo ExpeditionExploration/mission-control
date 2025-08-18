@@ -8,7 +8,7 @@ import { SpatialModuleClient } from './spatial/client';
 export const modules = new Map([
     ['spatial', SpatialModuleClient],   
     ['stats', StatsModuleClient],
-    ['media', MediaModuleClient],
+    // ['media', MediaModuleClient],
     ['angle', AngleModuleClient],
     ['control', ControlModuleClient], 
 ]);

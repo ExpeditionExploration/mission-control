@@ -17,5 +17,6 @@ export class AngleModuleClient extends Module {
         this.userInterface.addFooterItem(CompassFooterItem);
         this.userInterface.addFooterItem(RollFooterItem);
         this.userInterface.addFooterItem(PitchFooterItem);
+    
     }
 }

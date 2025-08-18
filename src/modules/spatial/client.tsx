@@ -6,6 +6,7 @@ import { Payload } from 'src/connection';
 
 export class SpatialModuleClient extends Module {
     userInterface: UserInterface;
+    window: Window = null;
 
     constructor(deps: ClientModuleDependencies) {
         super(deps);
@@ -20,11 +21,6 @@ export class SpatialModuleClient extends Module {
     }
 
     sendStatusPayloadToWindow(payload: Payload) {
-        this.window.postMessage(payload, '*');
-    }
-
-    window: Window = null;
-    captureSpatialWindow(spatialWindow: Window) {
-        this.window = spatialWindow;
+        if(this.window) this.window.postMessage(payload, '*');
     }
 }

@@ -9,6 +9,7 @@ export const CompassFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
     module,
 }) => {
     const [heading, setHeading] = useState<Heading>(0);
+    
     useEffect(() => {
         module.on<Heading>('heading', (heading) => {
             setHeading(heading);
