@@ -1,5 +1,5 @@
 import './index.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls, Text, Billboard } from '@react-three/drei';
 import { Line } from '@react-three/drei';
@@ -8,8 +8,8 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MeshStandardMaterial, Mesh, Color } from 'three';
 import { KernelSize } from 'postprocessing';
 import { Status as ControlStatus } from 'src/modules/control/types';
-import { Payload } from 'src/connection';
 import { AngleStatus } from 'src/modules/angle/types';
+import { Payload } from 'src/connection';
 
 const TEXT_SCALE = 0.15;
 const LINE_HEIGHT = TEXT_SCALE * 1.25;
@@ -30,16 +30,19 @@ function Drone(props) {
     });
 
     useEffect(() => {
+        const spatialChannel = new BroadcastChannel('spatial-window');
+    
         const handleMessage = (event: MessageEvent<Payload>) => {
             const payload = event.data;
             if (payload.namespace === 'control') setControlStatus(payload.data);
             if (payload.namespace === 'angle')  setAngleStatus(payload.data);
         };
 
-        window.addEventListener('message', handleMessage);
+        spatialChannel.addEventListener('message', handleMessage);
 
         return () => {
-            window.removeEventListener('message', handleMessage);
+            spatialChannel.removeEventListener('message', handleMessage);
+            spatialChannel.close();
         };
     }, []);
 
