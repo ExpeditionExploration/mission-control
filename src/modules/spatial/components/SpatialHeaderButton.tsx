@@ -23,7 +23,7 @@ export const SpatialHeaderButton: React.FC<
                     windowUrl,
                     spatialWindow,      
                 });
-                module.window = spatialWindow;
+                module.captureSpatialWindow(spatialWindow);
             }}
             className="rounded-full w-14 h-14 flex border-2 border-white justify-center items-center transition-colors cursor-pointer hover:bg-emerald-600"
         >

@@ -23,4 +23,12 @@ export class SpatialModuleClient extends Module {
     sendStatusPayloadToWindow(payload: Payload) {
         if(this.window) this.window.postMessage(payload, '*');
     }
+
+    captureSpatialWindow(spatialWindow: Window) {
+        this.window = spatialWindow;
+
+        this.window.addEventListener('beforeunload', () => {
+            this.window = null;
+        });
+    }
 }
