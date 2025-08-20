@@ -3,13 +3,13 @@ import { ViewProps } from 'src/client/user-interface';
 import { type AngleModuleClient } from '../client';
 import { useEffect, useState } from 'react';
 import { cn } from 'src/client/utility';
-import { Heading } from '../types';
+import { Heading } from './types'
 
 export const CompassFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
     module,
 }) => {
-    const [heading, setHeading] = useState<Heading>(0);
-    
+    const [heading, setHeading] = useState<number>(0);
+
     useEffect(() => {
         module.on<Heading>('heading', (heading) => {
             setHeading(heading);
@@ -38,9 +38,8 @@ export const CompassFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
                     <div
                         className="relative w-0 h-0 transition-transform"
                         style={{
-                            transform: `rotateX(-45deg) rotateY(0deg) rotateZ(${
-                                90 - heading
-                            }deg)`,
+                            transform: `rotateX(-45deg) rotateY(0deg) rotateZ(${90 - heading
+                                }deg)`,
                             transformStyle: 'preserve-3d',
                         }}
                     >

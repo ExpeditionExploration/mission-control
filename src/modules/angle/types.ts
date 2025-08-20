@@ -1,2 +1,2 @@
-export type Heading = number;
-export type Angle = [number, number, number];
+
+// This module depends on the imu module and uses its Orientation type.
