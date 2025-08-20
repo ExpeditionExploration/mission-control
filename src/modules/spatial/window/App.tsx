@@ -8,8 +8,8 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MeshStandardMaterial, Mesh, Color } from 'three';
 import { KernelSize } from 'postprocessing';
 import { Status as ControlStatus } from 'src/modules/control/types';
-import { AngleStatus } from 'src/modules/angle/types';
 import { Payload } from 'src/connection';
+import { AngleStatus } from '../types';
 
 const TEXT_SCALE = 0.15;
 const LINE_HEIGHT = TEXT_SCALE * 1.25;

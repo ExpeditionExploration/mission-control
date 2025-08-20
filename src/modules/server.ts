@@ -13,6 +13,6 @@ export const modules = new Map([
     ['lights', LightsModuleServer],
     ['control', ControlModuleServer],
     ['angle', AngleModuleServer], // Angle module depends on imu
-    ['spatial', SpatialModuleServer],
+    ['spatial', SpatialModuleServer], // Spatial module depends on imu
     ['imu', IMUModuleServer], // Emits accelerationReceived and orientationReceived
 ]);
