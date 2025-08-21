@@ -5,8 +5,7 @@ import { ClientModuleDependencies } from 'src/client/client';
 import { Payload } from 'src/connection';
 import { Orientation, Acceleration } from '../imu/types';
 import { AngleStatus } from './types';
-
-// Module internal types
+import { Speed } from '../location/types';
 
 
 export class SpatialModuleClient extends Module {
@@ -26,6 +25,7 @@ export class SpatialModuleClient extends Module {
     onModuleInit(): void | Promise<void> {
         console.log('Spatial Module Client Initialized');
         this.userInterface.addFooterItem(SpatialHeaderButton);
+
         this.broadcaster.on('imu:orientationReceived', (payload: Payload) => {
             const imuOrientation = payload.data.map(a => this.rad2deg(a)) as Orientation;
             const angleStatus: AngleStatus = {
@@ -39,6 +39,10 @@ export class SpatialModuleClient extends Module {
                 data: angleStatus,
             });
         })
+
+        this.broadcaster.on('location:location', (payload: Payload) => {
+            this.sendStatusPayloadToWindow(payload);
+        });
     }
 
     sendStatusPayloadToWindow(payload: Payload) {
@@ -51,7 +55,7 @@ export class SpatialModuleClient extends Module {
             ? '/src/modules/spatial/window/index.html'
             : '/spatial.html'; // Built filename
 
-       window.open(windowUrl, "spatialWindow", 'width=800,height=600');
+        window.open(windowUrl, "spatialWindow", 'width=800,height=600');
     }
 
     destroy() {

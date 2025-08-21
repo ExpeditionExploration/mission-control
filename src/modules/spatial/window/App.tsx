@@ -10,6 +10,7 @@ import { KernelSize } from 'postprocessing';
 import { Status as ControlStatus } from 'src/modules/control/types';
 import { Payload } from 'src/connection';
 import { AngleStatus } from '../types';
+import { Location } from 'src/modules/location/types';
 
 const TEXT_SCALE = 0.15;
 const LINE_HEIGHT = TEXT_SCALE * 1.25;
@@ -31,11 +32,11 @@ function Drone(props) {
 
     useEffect(() => {
         const spatialChannel = new BroadcastChannel('spatial-window');
-    
+
         const handleMessage = (event: MessageEvent<Payload>) => {
             const payload = event.data;
             if (payload.namespace === 'control') setControlStatus(payload.data);
-            if (payload.namespace === 'angle')  setAngleStatus(payload.data);
+            if (payload.namespace === 'angle') setAngleStatus(payload.data);
         };
 
         spatialChannel.addEventListener('message', handleMessage);
@@ -336,7 +337,33 @@ function Drone(props) {
     );
 }
 export function App() {
-    const dronePosition: [number, number, number] = [0, 0, 0];
+    const [dronePosition, setDronePosition] =
+        useState<[number, number, number]>([0, 0, 0]);
+
+    useEffect(() => {
+        const spatialChannel = new BroadcastChannel('spatial-window');
+
+        const handleMessage = (event: MessageEvent<Payload>) => {
+            console.log('Received message:', event.data);
+            if (event.data.namespace === 'location') {
+                console.log('Location data received:', event.data.data);
+                // Update drone position based on location data
+                setDronePosition([
+                    (event.data.data as Location).x,
+                    (event.data.data as Location).y,
+                    (event.data.data as Location).z,
+                ]);
+                console.log('Drone position updated:', dronePosition);
+            }
+        };
+
+        spatialChannel.addEventListener('message', handleMessage);
+
+        return () => {
+            spatialChannel.removeEventListener('message', handleMessage);
+            spatialChannel.close();
+        };
+    }, []);
 
     return (
         <div className="bg-gray-900 bg-gradient-to-t from-gray-950 min-h-screen">
