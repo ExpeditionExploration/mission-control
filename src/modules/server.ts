@@ -6,6 +6,7 @@ import { ControlModuleServer } from './control/server';
 import { AngleModuleServer } from './angle/server';
 import { SpatialModuleServer } from './spatial/server';
 import { IMUModuleServer } from './imu/server';
+import { LocationModuleServer } from './location/server';
 
 export const modules = new Map([
     ['stats', StatsModuleServer],
@@ -13,6 +14,7 @@ export const modules = new Map([
     ['lights', LightsModuleServer],
     ['control', ControlModuleServer],
     ['angle', AngleModuleServer], // Angle module depends on imu
-    ['spatial', SpatialModuleServer], // Spatial module depends on imu
+    ['location', LocationModuleServer], // Location module depends on imu
+    ['spatial', SpatialModuleServer], // Spatial module depends on imu and location
     ['imu', IMUModuleServer], // Emits accelerationReceived and orientationReceived
 ]);
