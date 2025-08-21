@@ -5,7 +5,7 @@ import { Acceleration, Orientation } from './types';
 
 export class IMUModuleServer extends Module {
 
-    private samplingFrequency = 100
+    private samplingFrequency = 10
 
     private imu: IMU
     private previousTime: number
@@ -23,8 +23,10 @@ export class IMUModuleServer extends Module {
     private onMeasurement = (ev: SensorEvent, cookie: Object): void => {
         switch (ev.reportId) {
             case SensorId.SH2_LINEAR_ACCELERATION:
+                // Don't add delay. Timestamp is sensor's timestamp the sample
+                // was taken.
                 const timestamp =
-                    +this.toMs(ev.timestampMicroseconds) + ev.delayMicroseconds
+                    +this.toMs(ev.timestampMicroseconds)
                 this.emit<Acceleration>(
                     'accelerationReceived', {
                     x: +ev.x,

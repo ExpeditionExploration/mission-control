@@ -30,10 +30,10 @@ class IMU {
      *              sensor.
      * @param reportInterval_us 
      */
-    enableSensor(s: SensorId, reportInterval_us: number) {
+    enableSensor(s: SensorId, reportInterval_ms: number) {
         this.sensor.setSensorConfig(s, {
             alwaysOnEnabled: true,
-            reportInterval_us
+            reportInterval_us: reportInterval_ms * 1000, // Convert ms to us
         })
     }
 
