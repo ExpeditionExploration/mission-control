@@ -7,6 +7,7 @@ import { CompassFooterItem } from './components/CompassFooterItem';
 import { Orientation, Acceleration } from '../imu/types'
 import { Payload } from 'src/connection';
 import { Heading, Pitch, Roll } from './components/types'
+import { SpeedoMeterFooterItem } from './components/SpeedoMeterItem';
 
 export class AngleModuleClient extends Module {
     userInterface: UserInterface;
@@ -34,6 +35,7 @@ export class AngleModuleClient extends Module {
         this.userInterface.addFooterItem(CompassFooterItem);
         this.userInterface.addFooterItem(RollFooterItem);
         this.userInterface.addFooterItem(PitchFooterItem);
+        this.userInterface.addFooterItem(SpeedoMeterFooterItem);
         this.broadcaster.on("imu:orientationReceived", (payload: Payload) => {
             this.onOrientation(payload.data)
         })
