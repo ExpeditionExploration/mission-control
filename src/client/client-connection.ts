@@ -12,6 +12,8 @@ export class ClientConnection extends Connection {
         super();
         this.config = deps.config;
         this.broadcaster = deps.broadcaster;
+
+        this.broadcaster.on('__transmit__', (payload: Payload) => this.send(payload));
     }
 
     async init() {
@@ -34,7 +36,7 @@ export class ClientConnection extends Connection {
             this.socket.onerror = (error) => {
                 console.error('Error connecting to server', error);
                 resolve()
-                this.reconnect();
+                this.socket?.close();
             }
             this.socket.onmessage = (message) => {
                 try {
@@ -45,8 +47,6 @@ export class ClientConnection extends Connection {
                 }
             }
         });
-
-        this.broadcaster.on('__transmit__', (payload: Payload) => this.send(payload));
     }
 
     destroy() {
