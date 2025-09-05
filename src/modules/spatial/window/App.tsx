@@ -17,11 +17,10 @@ const LINE_HEIGHT = TEXT_SCALE * 1.25;
 function Drone(props) {
     const obj = useLoader(OBJLoader, './drone.obj');
     const [controlStatus, setControlStatus] = useState<ControlStatus>({
-        left: 0,
-        right: 0,
-        thrust: 0,
+        throttle: 0,
         yaw: 0,
         pitch: 0,
+        roll: 0,
     });
 
     const [angleStatus, setAngleStatus] = useState<AngleStatus>({
@@ -87,7 +86,7 @@ function Drone(props) {
                             emissiveIntensity={1}
                             toneMapped={false}
                         />
-                        Thrust
+                        Throttle
                     </Text>
                     <Text
                         position={[0, -LINE_HEIGHT, 0]}
@@ -102,7 +101,7 @@ function Drone(props) {
                             emissiveIntensity={1}
                             toneMapped={false}
                         />
-                        Power: {(controlStatus.thrust * 100).toFixed(0)}%
+                        Power: {(controlStatus.throttle * 100).toFixed(0)}%
                     </Text>
                 </Billboard>
                 <Line
@@ -194,7 +193,7 @@ function Drone(props) {
                                 emissiveIntensity={1}
                                 toneMapped={false}
                             />
-                            Right
+                            Roll Right
                         </Text>
                         <Text
                             position={[0, -LINE_HEIGHT, 0]}
@@ -209,7 +208,7 @@ function Drone(props) {
                                 emissiveIntensity={1}
                                 toneMapped={false}
                             />
-                            Power: {(controlStatus.right * 100).toFixed(0)}%
+                            Power: {(controlStatus.roll * 100).toFixed(0)}%
                         </Text>
                     </Billboard>
                     <Line
@@ -247,7 +246,7 @@ function Drone(props) {
                                 emissiveIntensity={1}
                                 toneMapped={false}
                             />
-                            Left
+                            Roll Left
                         </Text>
                         <Text
                             position={[0, -LINE_HEIGHT, 0]}
@@ -262,7 +261,7 @@ function Drone(props) {
                                 emissiveIntensity={1}
                                 toneMapped={false}
                             />
-                            Power: {(controlStatus.left * 100).toFixed(0)}%
+                            Power: {(-controlStatus.roll * 100).toFixed(0)}%
                         </Text>
                     </Billboard>
                     <Line
