@@ -6,36 +6,30 @@ import { Status } from './types';
 const isProd = false; // process.env.NODE_ENV === 'production';
 export class ControlModuleServer extends Module {
     motors: {
-        left: MotorState;
-        right: MotorState;
-        thrust: MotorState;
-        pitch: MotorState;
+        throttle: MotorState;
         yaw: MotorState;
+        pitch: MotorState;
+        roll: MotorState;
     } = {
-        left: new MotorState({
-            pin: 0,
-            logger: this.logger,
-            name: 'Left Motor',
-        }),
-        right: new MotorState({
-            pin: 1,
-            logger: this.logger,
-            name: 'Right Motor',
-        }),
-        thrust: new MotorState({
+        throttle: new MotorState({
             pin: 2,
             logger: this.logger,
-            name: 'Thrust Motor',
+            name: 'Throttle Motors',
         }),
         yaw: new MotorState({
             pin: 3,
             logger: this.logger,
-            name: 'Yaw Motor',
+            name: 'Yaw Motors',
         }),
         pitch: new MotorState({
             pin: 4,
             logger: this.logger,
-            name: 'Pitch Motor',
+            name: 'Pitch Motors',
+        }),
+        roll: new MotorState({
+            pin: 1,
+            logger: this.logger,
+            name: 'Roll Motors',
         }),
     };
 
@@ -51,14 +45,13 @@ export class ControlModuleServer extends Module {
     emitStatusContinuously() {
         setInterval(() => {
             const status: Status = {
-                left: this.motors.left.power,
-                right: this.motors.right.power,
-                thrust: this.motors.thrust.power,
+                throttle: this.motors.throttle.power,
                 yaw: this.motors.yaw.power,
                 pitch: this.motors.pitch.power,
+                roll: this.motors.roll.power,
             };
             this.emit('status', status);
-        }, 250); // Emit status every 500 milliseconds
+        }, 250);
     }
 
     async setupMotors() {
@@ -67,21 +60,19 @@ export class ControlModuleServer extends Module {
                 motor.init();
                 motor.on('setPower', (power) => {
                     this.logger.info(
-                        `Motor ${motor.name} power set to ${power}`,
+                        `${motor.name} power set to ${power}`,
                     );
                 });
             }),
         );
 
-        this.on('leftJoystick', (axis) => {
+        this.on('leftAxis', (axis) => {
             this.motors.yaw.setPower(axis.x);
-            this.motors.thrust.setPower(axis.y);
+            this.motors.throttle.setPower(axis.y);
         });
 
-        this.on('rightJoystick', (axis) => {
-            // TODO this needs to be mapped better to roll
-            this.motors.left.setPower(-axis.x);
-            this.motors.right.setPower(axis.x);
+        this.on('rightAxis', (axis) => {
+            this.motors.roll.setPower(axis.x);
             this.motors.pitch.setPower(axis.y);
         });
     }

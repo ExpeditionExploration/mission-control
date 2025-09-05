@@ -38,7 +38,7 @@ export class MotorState extends EventEmitter {
     }
 
     async init() {
-        this.logger.info(`Initializing motor ${this.name} on pin ${this.pin}`);
+        this.logger.info(`Initializing ${this.name}`);
         setInterval(() => {
             if (this.targetPower !== this.power) {
                 // Smoothly transition to the target power level
