@@ -4,9 +4,8 @@ export type Axis = {
 };
 
 export type Status = {
-    left: number;
-    right: number;
-    thrust: number;
-    pitch: number;
+    throttle: number;
     yaw: number;
+    pitch: number;
+    roll: number;
 };
