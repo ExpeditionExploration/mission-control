@@ -12,7 +12,7 @@ export const SpeedoMeterFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
     const [speed, setSpeed] = useState<number>(0);
 
     useEffect(() => {
-        module.broadcaster.on('location:speed', (speed: Payload) => {
+        module.broadcaster.on('imu:speed', (speed: Payload) => {
             // Calculate absolute speed from its components
             const absSpeed = Math.sqrt(
                 speed.data.x ** 2 + speed.data.y ** 2 + speed.data.z ** 2);
