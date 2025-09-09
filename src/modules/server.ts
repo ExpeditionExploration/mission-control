@@ -5,6 +5,7 @@ import { LightsModuleServer } from './lights/server';
 import { ControlModuleServer } from './control/server';
 import { AngleModuleServer } from './angle/server';
 import { SpatialModuleServer } from './spatial/server';
+import { BatteryModuleServer } from './battery/server';
 
 export const modules = new Map([
     ['stats', StatsModuleServer],
@@ -13,4 +14,5 @@ export const modules = new Map([
     ['control', ControlModuleServer],
     ['angle', AngleModuleServer],
     ['spatial', SpatialModuleServer],
+    ['battery', BatteryModuleServer],
 ]);
