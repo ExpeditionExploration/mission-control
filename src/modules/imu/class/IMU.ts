@@ -1,6 +1,6 @@
 import {
     bindings, SensorEvent, SensorId
-} from 'bno08x/dist'
+} from 'bno08x'
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 

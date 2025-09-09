@@ -13,7 +13,7 @@ export class IMUModuleServer extends Module {
     private speed: [number, number, number] = [0, 0, 0]
 
     onModuleInit(): void | Promise<void> {
-        this.imu = new IMU(1, 0x4b);
+        this.imu = new IMU(5, 0x4b);
         this.imu.open()
         this.imu.setMeasurementCallback(this.onMeasurement)
         this.imu.enableSensor(SensorId.SH2_ROTATION_VECTOR, this.samplingFrequency)

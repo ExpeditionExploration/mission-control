@@ -4,11 +4,13 @@ import { MediaModuleClient } from './media/client';
 import { AngleModuleClient } from './angle/client';
 import { ControlModuleClient } from './control/client';
 import { SpatialModuleClient } from './spatial/client';
+import { BatteryModuleClient } from './battery/client';
 
 export const modules = new Map([
     ['spatial', SpatialModuleClient],   
     ['stats', StatsModuleClient],
-    // ['media', MediaModuleClient],
+    ['media', MediaModuleClient],
     ['angle', AngleModuleClient],
-    ['control', ControlModuleClient], 
+    ['control', ControlModuleClient],
+    ['battery', BatteryModuleClient],
 ]);
