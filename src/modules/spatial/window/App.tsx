@@ -1,5 +1,5 @@
 import './index.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls, Text, Billboard } from '@react-three/drei';
 import { Line } from '@react-three/drei';
@@ -9,6 +9,7 @@ import { MeshStandardMaterial, Mesh, Color } from 'three';
 import { KernelSize } from 'postprocessing';
 import { Status as ControlStatus } from 'src/modules/control/types';
 import { Payload } from 'src/connection';
+import { AngleStatus } from '../types';
 
 const TEXT_SCALE = 0.15;
 const LINE_HEIGHT = TEXT_SCALE * 1.25;
@@ -23,17 +24,25 @@ function Drone(props) {
         pitch: 0,
     });
 
+    const [angleStatus, setAngleStatus] = useState<AngleStatus>({
+        angle: [0, 0, 0],
+        yaw: 0,
+    });
+
     useEffect(() => {
+        const spatialChannel = new BroadcastChannel('spatial-window');
+
         const handleMessage = (event: MessageEvent<Payload>) => {
             const payload = event.data;
-            console.log('Received message:', payload);
             if (payload.namespace === 'control') setControlStatus(payload.data);
+            if (payload.namespace === 'angle') setAngleStatus(payload.data);
         };
 
-        window.addEventListener('message', handleMessage);
+        spatialChannel.addEventListener('message', handleMessage);
 
         return () => {
-            window.removeEventListener('message', handleMessage);
+            spatialChannel.removeEventListener('message', handleMessage);
+            spatialChannel.close();
         };
     }, []);
 
@@ -53,7 +62,7 @@ function Drone(props) {
     }, [obj]);
 
     return (
-        <group {...props}>
+        <group {...props} rotation={[angleStatus.angle[0] * (Math.PI / 180), angleStatus.angle[1] * (Math.PI / 180), angleStatus.angle[2] * (Math.PI / 180)]}>
             <primitive
                 rotation={[0, 0, 0]}
                 scale={[0.1, 0.1, 0.1]}
@@ -327,7 +336,31 @@ function Drone(props) {
     );
 }
 export function App() {
-    const dronePosition: [number, number, number] = [0, 0, 0];
+    const [dronePosition, setDronePosition] =
+        useState<[number, number, number]>([0, 0, 0]);
+
+    useEffect(() => {
+        const spatialChannel = new BroadcastChannel('spatial-window');
+
+        const handleMessage = (event: MessageEvent<Payload>) => {
+            if (event.data.namespace === 'location') {
+                // Update drone position based on location data
+                setDronePosition([
+                    (event.data.data as Location).x,
+                    (event.data.data as Location).y,
+                    (event.data.data as Location).z,
+                ]);
+                console.log('Drone position updated:', dronePosition);
+            }
+        };
+
+        spatialChannel.addEventListener('message', handleMessage);
+
+        return () => {
+            spatialChannel.removeEventListener('message', handleMessage);
+            spatialChannel.close();
+        };
+    }, []);
 
     return (
         <div className="bg-gray-900 bg-gradient-to-t from-gray-950 min-h-screen">

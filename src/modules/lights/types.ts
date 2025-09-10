@@ -1,1 +1,1 @@
-export type Heading = number;
+export type Yaw = number;

@@ -2,15 +2,15 @@
 import { ViewProps } from 'src/client/user-interface';
 import { type AngleModuleClient } from '../client';
 import { useEffect, useState } from 'react';
-import { Angle, Heading } from '../types';
+import { Roll } from './types';
 
 export const RollFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
     module,
 }) => {
-    const [roll, setRoll] = useState<Heading>(0);
+    const [roll, setRoll] = useState<Roll>(0);
     useEffect(() => {
-        module.on<Angle>('angle', (angle) => {
-            setRoll(angle[0]);
+        module.on<Roll>('roll', (roll) => {
+            setRoll(roll);
         });
     }, []);
 

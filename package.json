@@ -27,6 +27,7 @@
         "@react-three/postprocessing": "^3.0.4",
         "@tailwindcss/vite": "^4.1.8",
         "awilix": "^12.0.5",
+        "bno08x": "file:../openi2c-BNO08x",
         "check-disk-space": "^3.4.0",
         "clsx": "^2.1.1",
         "colors": "^1.4.0",

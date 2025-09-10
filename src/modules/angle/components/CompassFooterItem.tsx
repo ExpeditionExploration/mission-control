@@ -3,22 +3,23 @@ import { ViewProps } from 'src/client/user-interface';
 import { type AngleModuleClient } from '../client';
 import { useEffect, useState } from 'react';
 import { cn } from 'src/client/utility';
-import { Heading } from '../types';
+import { Yaw } from './types'
 
 export const CompassFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
     module,
 }) => {
-    const [heading, setHeading] = useState<Heading>(0);
+    const [yaw, setYaw] = useState<number>(0);
+
     useEffect(() => {
-        module.on<Heading>('heading', (heading) => {
-            setHeading(heading);
+        module.on<Yaw>('yaw', (yaw) => {
+            setYaw(yaw);
         });
     }, []);
 
     return (
         <div className="relative flex w-14 hh-14 items-end justify-center">
             <div className="text-xs font-bold text-center relative z-10 bg-black/80 px-2 py-1 rounded-full w-12 -mb-4">
-                {heading.toFixed(0)}°
+                {yaw.toFixed(0)}°
             </div>
             <div
                 className="aspect-square w-full absolute z-0 bottom-0 border-2 border-white rounded-full flex justify-center items-center overflow-hidden"
@@ -37,9 +38,8 @@ export const CompassFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
                     <div
                         className="relative w-0 h-0 transition-transform"
                         style={{
-                            transform: `rotateX(-45deg) rotateY(0deg) rotateZ(${
-                                90 - heading
-                            }deg)`,
+                            transform: `rotateX(-45deg) rotateY(0deg) rotateZ(${90 - yaw
+                                }deg)`,
                             transformStyle: 'preserve-3d',
                         }}
                     >

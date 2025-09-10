@@ -2,15 +2,16 @@
 import { ViewProps } from 'src/client/user-interface';
 import { type AngleModuleClient } from '../client';
 import { useEffect, useState } from 'react';
-import { Angle, Heading } from '../types';
+import { Pitch } from './types'
 
 export const PitchFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
     module,
 }) => {
-    const [pitch, setPitch] = useState<Heading>(0);
+
+    const [pitch, setPitch] = useState<number>(0);
     useEffect(() => {
-        module.on<Angle>('angle', (angle) => {
-            setPitch(-angle[1]);
+        module.on<Pitch>('pitch', (pitch) => {
+            setPitch(pitch);
         });
     }, []);
 
