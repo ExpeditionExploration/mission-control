@@ -4,7 +4,7 @@ import { Acceleration, Orientation, Speed } from './types';
 
 export class IMUModuleServer extends Module {
 
-    private samplingFrequency = 10
+    private samplingInterval = 20
 
     private accelerationIntegrator = new TriAxisIntegrator()
     private currentYpr: [number, number, number] = [0, 0, 0]
@@ -16,10 +16,10 @@ export class IMUModuleServer extends Module {
         this.imu = new IMU(5, 0x4b);
         this.imu.open()
         this.imu.setMeasurementCallback(this.onMeasurement)
-        this.imu.enableSensor(SensorId.SH2_ROTATION_VECTOR, this.samplingFrequency)
-        this.imu.enableSensor(SensorId.SH2_LINEAR_ACCELERATION, this.samplingFrequency)
+        this.imu.enableSensor(SensorId.SH2_ROTATION_VECTOR, this.samplingInterval)
+        this.imu.enableSensor(SensorId.SH2_LINEAR_ACCELERATION, this.samplingInterval)
+        this.imu.useInterrupts()
         this.imu.devOn()
-        this.doServicePeriodically(100)
     }
 
     private onMeasurement = (ev: SensorEvent, cookie: Object): void => {
@@ -42,8 +42,10 @@ export class IMUModuleServer extends Module {
                 const ay_w = ax * (sy * cp) + ay * (sy * sp * sr + cy * cr) + az * (sy * sp * cr - cy * sr)
                 const az_w = ax * (-sp) + ay * (cp * sr) + az * (cp * cr)
 
+                // remap sensor axes to align with world axes
                 const world: [number, number, number] = [ax_w, az_w, -ay_w]
-                this.emit<Acceleration>('accelerationWorld', world as Acceleration)
+                // this.logger.debug('Linear acceleration', ev)
+                this.emit<Acceleration>('acceleration', world as Acceleration)
 
                 const dv = this.accelerationIntegrator.integrate(world, timestamp)
                 // Accumulate delta-v into current speed
@@ -70,12 +72,6 @@ export class IMUModuleServer extends Module {
                 this.currentYpr = [ev.yaw, ev.pitch, ev.roll]
                 break;
         }
-    }
-
-    private doServicePeriodically(ms: number): void {
-        setInterval(() => {
-            this.imu.service()
-        }), this.samplingFrequency
     }
 
     private toMs = (us: bigint): number => {

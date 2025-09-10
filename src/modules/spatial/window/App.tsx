@@ -345,12 +345,7 @@ export function App() {
         const handleMessage = (event: MessageEvent<Payload>) => {
             if (event.data.namespace === 'location') {
                 // Update drone position based on location data
-                setDronePosition([
-                    (event.data.data as Location).x,
-                    (event.data.data as Location).y,
-                    (event.data.data as Location).z,
-                ]);
-                console.log('Drone position updated:', dronePosition);
+                // console.log('Drone position updated:', dronePosition);
             }
         };
 

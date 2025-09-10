@@ -42,8 +42,12 @@ class IMU {
      * 
      * @param cb 
      */
-    setMeasurementCallback(cb: MeasurementCallback): void {
+    setMeasurementCallback = (cb: MeasurementCallback): void => {
         this.sensor.setSensorCallback(cb, {})
+    }
+
+    useInterrupts() {
+        this.sensor.useInterrupts("gpiochip1", 26)
     }
 
     /**
@@ -54,8 +58,9 @@ class IMU {
      * - `cookie` This is passed as an argument for `drvEvCb`.
      */
     open(drvEvCb?: (ev: SensorEvent, cookie?: Object) => void, cookie?: Object) {
+        // TODO: Make the cookie optional.
         this.sensor.open(drvEvCb ?? ((ev, cookie: Object) => {
-        }), cookie ?? { msg: "lala" })
+        }), cookie ?? { msg: "This cookies has to be an object" })
     }
 
     /**
@@ -73,10 +78,6 @@ class IMU {
         this.sensor.devReset()
     }
 
-    /**
-     * Service polls for new sensor events (measurements). It needs periodic
-     * calls to receive sensor measurements.
-     */
     service() {
         this.sensor.service()
     }
