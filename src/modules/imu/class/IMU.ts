@@ -42,7 +42,7 @@ class IMU {
      * 
      * @param cb 
      */
-    setMeasurementCallback(cb: MeasurementCallback): void {
+    setMeasurementCallback = (cb: MeasurementCallback): void => {
         this.sensor.setSensorCallback(cb, {})
     }
 
