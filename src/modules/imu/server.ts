@@ -44,8 +44,6 @@ export class IMUModuleServer extends Module {
 
                 const world: [number, number, number] = [ax_w, az_w, -ay_w]
                 this.emit<Acceleration>('accelerationWorld', world as Acceleration)
-                this.logger.debug("Acceleration (world)", world.map(a => a.toFixed(3)))
-                this.logger.debug("Speed (world)", this.speed.map(s => s.toFixed(3)))
 
                 const dv = this.accelerationIntegrator.integrate(world, timestamp)
                 // Accumulate delta-v into current speed

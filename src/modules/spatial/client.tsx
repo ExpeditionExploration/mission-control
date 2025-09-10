@@ -5,7 +5,6 @@ import { ClientModuleDependencies } from 'src/client/client';
 import { Payload } from 'src/connection';
 import { Orientation, Acceleration } from '../imu/types';
 import { AngleStatus } from './types';
-import { Speed } from '../location/types';
 
 
 export class SpatialModuleClient extends Module {
@@ -31,7 +30,7 @@ export class SpatialModuleClient extends Module {
             const angleStatus: AngleStatus = {
                 // TODO: Align IMU and spatial angles order
                 angle: [-imuOrientation[0], -imuOrientation[2], -imuOrientation[1]],
-                heading: this.rad2deg(imuOrientation[2]),
+                yaw: this.rad2deg(imuOrientation[2]),
             }
             this.sendStatusPayloadToWindow({
                 event: 'orientation',

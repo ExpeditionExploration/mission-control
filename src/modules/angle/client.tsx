@@ -6,13 +6,13 @@ import { PitchFooterItem } from './components/PitchFooterItem';
 import { CompassFooterItem } from './components/CompassFooterItem';
 import { Orientation, Acceleration } from '../imu/types'
 import { Payload } from 'src/connection';
-import { Heading, Pitch, Roll } from './components/types'
+import { Yaw, Pitch, Roll } from './components/types'
 import { SpeedoMeterFooterItem } from './components/SpeedoMeterItem';
 
 export class AngleModuleClient extends Module {
     userInterface: UserInterface;
 
-    heading: Heading = 0
+    yaw: Yaw = 0
     pitch: Pitch = 0
     roll: Roll = 0
 
@@ -26,7 +26,7 @@ export class AngleModuleClient extends Module {
     }
 
     onOrientation = (orientation: Orientation) => {
-        this.emit<Heading>('heading', this.rad2deg(orientation[2]))
+        this.emit<Yaw>('yaw', this.rad2deg(orientation[2]))
         this.emit<Pitch>('pitch', this.rad2deg(orientation[0]))
         this.emit<Roll>('roll', this.rad2deg(orientation[1]))
     }

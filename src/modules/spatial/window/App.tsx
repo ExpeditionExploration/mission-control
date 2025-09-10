@@ -10,7 +10,6 @@ import { KernelSize } from 'postprocessing';
 import { Status as ControlStatus } from 'src/modules/control/types';
 import { Payload } from 'src/connection';
 import { AngleStatus } from '../types';
-import { Location } from 'src/modules/location/types';
 
 const TEXT_SCALE = 0.15;
 const LINE_HEIGHT = TEXT_SCALE * 1.25;
@@ -27,7 +26,7 @@ function Drone(props) {
 
     const [angleStatus, setAngleStatus] = useState<AngleStatus>({
         angle: [0, 0, 0],
-        heading: 0,
+        yaw: 0,
     });
 
     useEffect(() => {
