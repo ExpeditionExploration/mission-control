@@ -25,7 +25,7 @@ export class SpatialModuleClient extends Module {
         console.log('Spatial Module Client Initialized');
         this.userInterface.addFooterItem(SpatialHeaderButton);
 
-        this.broadcaster.on('imu:orientationReceived', (payload: Payload) => {
+        this.broadcaster.on('imu:orientation', (payload: Payload) => {
             const imuOrientation = payload.data.map(a => this.rad2deg(a)) as Orientation;
             const angleStatus: AngleStatus = {
                 // TODO: Align IMU and spatial angles order

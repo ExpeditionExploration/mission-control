@@ -64,7 +64,7 @@ export class IMUModuleServer extends Module {
 
             case SensorId.SH2_ROTATION_VECTOR:
                 this.emit<Orientation>(
-                    "orientationReceived",
+                    "orientation",
                     [ev.yaw, ev.pitch, ev.roll]
                 )
                 this.currentYpr = [ev.yaw, ev.pitch, ev.roll]

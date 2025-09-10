@@ -9,7 +9,7 @@ export const Battery: React.FC<ViewProps<BatteryModuleClient>> = ({
 
     const [batteryLevel, setBatteryLevel] = React.useState<number | null>(null);
 
-    module.on('battery-status', (status) => {
+    module.on('status', (status) => {
         setBatteryLevel(status.level);
         module.logger.debug('Battery status', status);
     });

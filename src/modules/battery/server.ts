@@ -11,7 +11,7 @@ export class BatteryModuleServer extends Module {
     simulateBatteryDrain() {
         setInterval(() => {
             this.batteryLevel = Math.max(0, this.batteryLevel - 1);
-            this.emit<BatteryStatus>('battery-status', { level: this.batteryLevel });
+            this.emit<BatteryStatus>('status', { level: this.batteryLevel });
         }, 1000); // Decrease every second
     }
 }
