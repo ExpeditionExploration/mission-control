@@ -13,7 +13,7 @@ export const modules = new Map([
     // ['media', MediaModuleServer],
     ['lights', LightsModuleServer],
     ['control', ControlModuleServer],
-    ['imu', IMUModuleServer], // Emits accelerationReceived and orientationReceived
+    ['imu', IMUModuleServer],
     ['angle', AngleModuleServer],
     ['spatial', SpatialModuleServer],
     ['battery', BatteryModuleServer],

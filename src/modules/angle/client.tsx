@@ -36,7 +36,7 @@ export class AngleModuleClient extends Module {
         this.userInterface.addFooterItem(RollFooterItem);
         this.userInterface.addFooterItem(PitchFooterItem);
         this.userInterface.addFooterItem(SpeedoMeterFooterItem);
-        this.broadcaster.on("imu:orientationReceived", (payload: Payload) => {
+        this.broadcaster.on("imu:orientation", (payload: Payload) => {
             this.onOrientation(payload.data)
         })
     }

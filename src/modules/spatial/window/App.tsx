@@ -343,9 +343,7 @@ export function App() {
         const spatialChannel = new BroadcastChannel('spatial-window');
 
         const handleMessage = (event: MessageEvent<Payload>) => {
-            console.log('Received message:', event.data);
             if (event.data.namespace === 'location') {
-                console.log('Location data received:', event.data.data);
                 // Update drone position based on location data
                 setDronePosition([
                     (event.data.data as Location).x,
