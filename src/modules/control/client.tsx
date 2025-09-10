@@ -33,13 +33,13 @@ export class ControlModuleClient extends Module {
         // Change detection to reduce chatter
         if (Object.keys(next).some(k => (next as any)[k] !== (this.lastStatus as any)[k])) {
             this.lastStatus = next;
-            this.emit('status', next);
+            /*this.emit('status', next);
             this.logger.info(
                 `Throttle power set to ${throttle}`,
                 `Yaw power set to ${yaw}`,
                 `Pitch power set to ${pitch}`,
                 `Roll power set to ${roll}`,
-            );
+            );*/
             this.emit<Axis>('leftAxis', { x: yaw, y: throttle });
             this.emit<Axis>('rightAxis', { x: roll, y: pitch });
         }
