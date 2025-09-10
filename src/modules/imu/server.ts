@@ -4,7 +4,7 @@ import { Acceleration, Orientation, Speed } from './types';
 
 export class IMUModuleServer extends Module {
 
-    private samplingInterval = 10
+    private samplingInterval = 20
 
     private accelerationIntegrator = new TriAxisIntegrator()
     private currentYpr: [number, number, number] = [0, 0, 0]
