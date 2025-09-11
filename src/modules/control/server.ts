@@ -76,15 +76,15 @@ export class ControlModuleServer extends Module {
         this.on('leftAxis', (axis) => {
             this.motors.yaw.setPower(axis.x);
             this.motors.throttle.setPower(axis.y);
-            pwm1.setDutyCycle(1-axis.y);
-            pwm2.setDutyCycle(1-axis.x);
-            out1.value = 1-axis.y == 0;
+            pwm1.setDutyCycle(1 - Math.abs(axis.y)); // TODO: Remove abs and add support for reversion
+            pwm2.setDutyCycle(1 - Math.abs(axis.x)); // TODO: Remove abs and add support for reversion
+            out1.value = 1 - Math.abs(axis.y) == 0; // TODO: Enable PWM signalling
         });
 
         this.on('rightAxis', (axis) => {
             this.motors.roll.setPower(axis.x);
             this.motors.pitch.setPower(axis.y);
-            pwm3.setDutyCycle(axis.x);
+            pwm3.setDutyCycle(Math.abs(axis.x)); // TODO: Remove abs and add support for reversion
         });
     }
 }
