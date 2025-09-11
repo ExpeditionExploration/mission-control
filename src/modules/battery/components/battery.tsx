@@ -18,20 +18,20 @@ export const Battery: React.FC<ViewProps<BatteryModuleClient>> = ({
 
     useEffect(() => {
         if (batteryLevel < 25) {
-            setBatteryIcon(<BatteryWarning color="red" fontSize={'text-xs'} />);
+            setBatteryIcon(<BatteryWarning color="red" width={'w-4'} />);
         } else if (batteryLevel < 50) {
-            setBatteryIcon(<BatteryLow color="orange" fontSize={'text-xs'} />);
+            setBatteryIcon(<BatteryLow color="orange" width={'w-4'} />);
         } else if (batteryLevel < 75) {
-            setBatteryIcon(<BatteryMedium fontSize={'text-xs'} />);
+            setBatteryIcon(<BatteryMedium width={'w-4'} />);
         } else {
-            setBatteryIcon(<BatteryFull fontSize={'text-xs'} />);
+            setBatteryIcon(<BatteryFull width={'w-4'} />);
         }
     }, [batteryLevel]);
 
     return (
-        <div className="flex flex-x-space-2 rounded-full justify-center items-center duration-500 transition-colors">
+        <div className="flex space-x-2 px-1 w-16 rounded-full justify-center items-center duration-500 transition-colors">
             {batteryIcon}
-            <h3 className="ml-2 text-xs font-bold font-mono">{batteryLevel + '%'}</h3>
+            <span className="text-xs font-bold font-mono">{batteryLevel + '%'}</span>
         </div>
     );
 };
