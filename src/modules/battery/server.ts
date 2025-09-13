@@ -6,28 +6,15 @@ export class BatteryModuleServer extends Module {
     battery: Battery = new Battery(2550, 2, 3);
     batteryVoltageSetter = new BatteryLevelSetter(defaultChargeLevelFunction);
 
-    private currentSimulatedVoltage = 7.8; // Start fully charged
-    private currentSimulatedDrawmA = 3000; // Start at 3A draw
-
     async onModuleInit() {
         this.simulateBatteryVoltageCheck();
     }
 
     simulateBatteryVoltageCheck() {
         setInterval(() => {
-            // Simulated voltage between 6.4V (empty) and 8.4V (full)
-            const avgVoltageDrop = 0.00087963; // Just a linear drop over ~3h
-            const voltageDrop = Math.random() * avgVoltageDrop * 2;
-            this.currentSimulatedVoltage -= voltageDrop;
-            this.batteryVoltageSetter.setBatteryLevel(
-                this.currentSimulatedVoltage, this.battery);
             // Simulate current draw in mA (e.g., between 2000 mA and 4000 mA)
-            const variability = (Math.random() - 0.5) * 400; // +/- 200 mA
-            this.currentSimulatedDrawmA = Math.min(
-                4000,
-                Math.max(2000, this.currentSimulatedDrawmA + variability),
-            );
-            this.battery.recordConsumption(this.currentSimulatedDrawmA);
+            const simulatedCurrentDraw = 2000 + Math.random() * 2000;
+            this.battery.recordConsumption(simulatedCurrentDraw);
             this.emit<BatteryStatus>('status', {
                 level: this.battery.getBatteryLevelPercentage() * 100,
                 minutesRemaining: this.battery.getEstimatedTimeRemaining(),
@@ -160,7 +147,7 @@ class Battery {
     }
 
     /**
-     * @returns Time-weighted average current draw consumption in Amperes (A)
+     * @returns Time-weighted average current draw consumption in mA
      */
     getAverageConsumption(): number {
         if (this.history.length < 2) {
@@ -176,20 +163,20 @@ class Battery {
             const dt = (curr.timestamp - prev.timestamp) * 0.001; // seconds
             if (dt <= 0) continue;
             // assume draw during interval equals previous sample current
-            weightedSum += prev.current * 1000 * dt; // mA*1000*s
+            weightedSum += prev.current * dt;
             totalTime += dt;
         }
         if (totalTime === 0) return 0;
-        return weightedSum / totalTime; // A
+        return weightedSum / totalTime; // mA
     }
 
     /**
      * @returns Estimated time remaining in minutes
      */
     getEstimatedTimeRemaining(): number {
-        const avgConsumptionA = this.getAverageConsumption();
-        if (avgConsumptionA === 0) return Infinity;
-        const minutes = (this.remainingCapacity / avgConsumptionA) * 60;
+        const avgConsumption = this.getAverageConsumption();
+        if (avgConsumption === 0) return Infinity;
+        const minutes = this.remainingCapacity / avgConsumption * 0.060; // convert to minutes
         return minutes; // in minutes
     }
 }
