@@ -76,15 +76,15 @@ const BatteryPercentage: React.FC<StatValueProps> = (props: StatValueProps) => (
         )}>
         {props.icon && <props.icon className="w-4" />}
         <div className="text-xs font-bold font-mono">
-            <span>{Number.isFinite(props.value) ? props.value.toFixed(0) : '∞'}</span>
+            <span>{Number.isFinite(props.value) ? props.value.toFixed(0) : '-'}</span>
             <span>{props.symbol}</span>
         </div>
     </div>
 );
 
 const BatteryTimeRemaining: React.FC<StatValueProps> = (props: StatValueProps) => {
-    const hours = Number.isFinite(props.value) ? (props.value / 60).toFixed(0) : '∞';
-    const minutes = Number.isFinite(props.value) ? (props.value % 60).toFixed(0) : '∞';
+    const hours = Number.isFinite(props.value) ? (props.value / 60).toFixed(0) : '-';
+    const minutes = Number.isFinite(props.value) ? (props.value % 60).toFixed(0) : '-';
     return (
         <div
             title={props.title}
