@@ -1,6 +1,6 @@
 import  { Module } from 'src/module';
 import { ClientModuleDependencies } from 'src/client/client';
-import { Battery } from './components/battery';
+import { BatteryStats } from './components/battery';
 import { UserInterface } from 'src/client/user-interface';
 
 export class BatteryModuleClient extends Module {
@@ -11,6 +11,7 @@ export class BatteryModuleClient extends Module {
     }
 
     onModuleInit(): void | Promise<void> {
-        this.userInterface.addHeaderItem(Battery);
+        // this.userInterface.addHeaderItem(Battery);
+        this.userInterface.addHeaderItem(BatteryStats);
     }
 }
