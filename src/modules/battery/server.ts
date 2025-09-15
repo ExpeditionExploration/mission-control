@@ -5,13 +5,15 @@ export class BatteryModuleServer extends Module {
     // 2550 mAh cells for 2S3P battery for a nominal voltage of 7.4V.
     battery: Battery = new Battery(2550, 2, 3);
     batteryVoltageSetter = new BatteryLevelSetter(defaultChargeLevelFunction);
+    private statusInterval?: NodeJS.Timeout;
 
     async onModuleInit() {
         this.simulateBatteryVoltageCheck();
     }
 
     simulateBatteryVoltageCheck() {
-        const handle = setInterval(() => {
+        if (this.statusInterval) return;
+        this.statusInterval = setInterval(() => {
             // Simulate current draw in mA (e.g., between 2000 mA and 4000 mA)
             const simulatedCurrentDraw = 2000 + Math.random() * 2000;
             this.battery.recordConsumption(simulatedCurrentDraw);

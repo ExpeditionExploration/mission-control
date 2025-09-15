@@ -6,6 +6,7 @@ import { BatteryModuleClient } from "../client";
 import { BatteryStatus } from '../types';
 import { cn } from 'src/client/utility';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+import type { ChartOptions } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
 
 // Register Chart.js components
@@ -26,10 +27,11 @@ export const BatteryStats: React.FC<ViewProps<BatteryModuleClient>> = ({ module 
     // Use functional state update to avoid stale closures
     const addGraphDataPoint = (point: number) => {
         setGraphDataPoints(prev => {
-            const next = [...prev, point];
-            if (next.length > graphDataMaxLength) next.shift();
-            module.logger.debug('Graph data length', next.length);
-            return next;
+            if (prev.length >= graphDataMaxLength) {
+                // drop oldest, append newest (keeps length at graphDataMaxLength)
+                return [...prev.slice(1), point];
+            }
+            return [...prev, point];
         });
     };
 
@@ -156,13 +158,13 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
                 borderColor: '#ffffff',
                 backgroundColor: 'rgba(255, 255, 255, 0.15)',
                 fill: true,
-                tension: 0.3,
+                tension: 0,
                 pointRadius: 0,
                 borderWidth: 1,
             },
         ],
     }), [labels, props.dataPoints]);
-
+    
     // Localized thousands separator for tooltip values
     const numberFormatter = useMemo(() => new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }), []);
 
@@ -183,7 +185,6 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
             // base styles for tooltip
             el.style.position = 'absolute';
             el.style.pointerEvents = 'none';
-            el.style.transform = 'translate(-50%, -100%)';
             el.style.zIndex = '20';
             el.style.background = 'rgba(10,14,22,0.92)';
             el.style.color = '#fff';
@@ -209,18 +210,22 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
                 const yVal = typeof dp.parsed?.y === 'number' ? dp.parsed.y : (typeof dp.raw === 'number' ? dp.raw : parseFloat(String(dp.raw)));
                 const valueStr = Number.isFinite(yVal) ? numberFormatter.format(yVal) : '-';
                 const label = dp.dataset?.label || '';
-                lines.push(label ? `${label}: ${valueStr} mA` : `${valueStr} mA`);
+                lines.push(dp.label);
+                lines.push(label ? `${label}: ${valueStr.replace(',', '')}mA` : `${valueStr.replace(',', '')}mA`);
             }
         }
         el.innerHTML = lines.join('<br/>');
 
-        const canvas = chart.canvas as HTMLCanvasElement;
-        el.style.left = `${canvas.offsetLeft + tooltip.caretX}px`;
-        el.style.top = `${canvas.offsetTop + tooltip.caretY}px`;
+            const parentRect = parent.getBoundingClientRect();
+            const canvasRect = (chart.canvas as HTMLCanvasElement).getBoundingClientRect();
+            const relLeft = canvasRect.left - parentRect.left;
+            const relTop = canvasRect.top - parentRect.top + canvasRect.height;
+            el.style.left = `${relLeft}px`;
+            el.style.top = `${relTop+2}px`;
         el.style.opacity = '1';
     }, [numberFormatter]);
 
-    const options = useMemo(() => ({
+    const options = useMemo<ChartOptions<'line'>>(() => ({
         responsive: true,
         maintainAspectRatio: false,
         animation: false as const,
@@ -242,6 +247,7 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
             y: {
                 // Hide entire y-axis so no left gutter is reserved
                 display: false,
+                min: 0,
             },
         },
     }), [props.dataPoints.length, props.dataPointInterval, externalTooltipHandler]);
