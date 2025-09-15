@@ -11,13 +11,14 @@ export class BatteryModuleServer extends Module {
     }
 
     simulateBatteryVoltageCheck() {
-        setInterval(() => {
+        const handle = setInterval(() => {
             // Simulate current draw in mA (e.g., between 2000 mA and 4000 mA)
             const simulatedCurrentDraw = 2000 + Math.random() * 2000;
             this.battery.recordConsumption(simulatedCurrentDraw);
             this.emit<BatteryStatus>('status', {
                 level: this.battery.getBatteryLevelPercentage() * 100,
                 minutesRemaining: this.battery.getEstimatedTimeRemaining(),
+                currentDraw: simulatedCurrentDraw,
             });
         }, 5000); // Every 5 seconds
     }
