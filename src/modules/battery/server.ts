@@ -1,25 +1,31 @@
 import { Module } from 'src/module';
 import { BatteryStatus } from './types';
+import {
+    batteryCurrentGraphDataPointInterval,
+} from './components/constants';
 
 export class BatteryModuleServer extends Module {
     // 2550 mAh cells for 2S3P battery for a nominal voltage of 7.4V.
     battery: Battery = new Battery(2550, 2, 3);
     batteryVoltageSetter = new BatteryLevelSetter(defaultChargeLevelFunction);
+    private statusInterval?: NodeJS.Timeout;
 
     async onModuleInit() {
         this.simulateBatteryVoltageCheck();
     }
 
     simulateBatteryVoltageCheck() {
-        setInterval(() => {
+        if (this.statusInterval) return;
+        this.statusInterval = setInterval(() => {
             // Simulate current draw in mA (e.g., between 2000 mA and 4000 mA)
             const simulatedCurrentDraw = 2000 + Math.random() * 2000;
             this.battery.recordConsumption(simulatedCurrentDraw);
             this.emit<BatteryStatus>('status', {
                 level: this.battery.getBatteryLevelPercentage() * 100,
                 minutesRemaining: this.battery.getEstimatedTimeRemaining(),
+                currentDraw: simulatedCurrentDraw,
             });
-        }, 5000); // Every 5 seconds
+        }, batteryCurrentGraphDataPointInterval);
     }
 }
 
@@ -176,7 +182,7 @@ class Battery {
     getEstimatedTimeRemaining(): number {
         const avgConsumption = this.getAverageConsumption();
         if (avgConsumption === 0) return Infinity;
-        const minutes = this.remainingCapacity / avgConsumption * 0.060; // convert to minutes
-        return minutes; // in minutes
+        const minutes = this.remainingCapacity / avgConsumption / 60;
+        return minutes;
     }
 }
