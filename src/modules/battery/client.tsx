@@ -5,13 +5,13 @@ import { UserInterface } from 'src/client/user-interface';
 
 export class BatteryModuleClient extends Module {
     userInterface: UserInterface
+
     constructor(deps: ClientModuleDependencies) {
         super(deps);
         this.userInterface = deps.userInterface;
     }
 
     onModuleInit(): void | Promise<void> {
-        // this.userInterface.addHeaderItem(Battery);
         this.userInterface.addHeaderItem(BatteryStats);
     }
 }

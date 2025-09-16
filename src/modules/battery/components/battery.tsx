@@ -8,6 +8,10 @@ import { cn } from 'src/client/utility';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import type { ChartOptions } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
+import { 
+    batteryCurrentGraphDataPointInterval,
+    batteryCurrentGraphMaxDataPoints
+ } from "./constants";
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -19,15 +23,14 @@ export const BatteryStats: React.FC<ViewProps<BatteryModuleClient>> = ({ module 
     const [batteryIcon, setBatteryIcon] = React.useState<
         React.ForwardRefExoticComponent<Omit<LucideProps, 'ref'>>>(BatteryFull);
 
-    const graphDataMaxLength = 60;
     const [graphDataPoints, setGraphDataPoints] = useState<number[]>(
-        new Array(graphDataMaxLength).fill(0)
+        new Array(batteryCurrentGraphMaxDataPoints).fill(0)
     );
 
     // Use functional state update to avoid stale closures
     const addGraphDataPoint = (point: number) => {
         setGraphDataPoints(prev => {
-            if (prev.length >= graphDataMaxLength) {
+            if (prev.length >= batteryCurrentGraphMaxDataPoints) {
                 // drop oldest, append newest (keeps length at graphDataMaxLength)
                 return [...prev.slice(1), point];
             }
@@ -45,7 +48,6 @@ export const BatteryStats: React.FC<ViewProps<BatteryModuleClient>> = ({ module 
         module.on('status', handler);
         return () => {
             // remove listener on unmount/reconnect
-            // @ts-ignore
             module.off?.('status', handler);
         };
     }, [module]);
@@ -67,7 +69,7 @@ export const BatteryStats: React.FC<ViewProps<BatteryModuleClient>> = ({ module 
     
     return (
         <div>
-            <div className="grid grid-rows-2 grid-cols-2 gap-1">
+            <div className="grid grid-rows-2 grid-cols-[max-content_max-content] gap-1">
                 <BatteryPercentage
                     title="Battery left"
                     icon={batteryIcon}
@@ -76,7 +78,7 @@ export const BatteryStats: React.FC<ViewProps<BatteryModuleClient>> = ({ module 
                     symbol="%"
                 />
                 <CurrentUsageGraph
-                    dataPointInterval={5}
+                    dataPointInterval={batteryCurrentGraphDataPointInterval}
                     dataPoints={graphDataPoints}
                 />
                 <BatteryTimeRemaining
@@ -135,16 +137,18 @@ const BatteryTimeRemaining: React.FC<StatValueProps> = (props: StatValueProps) =
 };
 
 type CurrentUsageProps = {
-    dataPointInterval: number; // in seconds
+    dataPointInterval: number;
     dataPoints: number[];
 };
 
 const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps) => {
-    // Generate simple time labels like "55s", "50s", ...
+    const millisToSeconds = 1 / 1000;
     const labels = useMemo(
         () => props.dataPoints.map((_, i) => {
-            const secondsAgo = (props.dataPoints.length - i) * props.dataPointInterval;
-            return `${secondsAgo}s`;
+            const secondsAgo =
+                (props.dataPoints.length - i) * props.dataPointInterval * millisToSeconds;
+            const minutesAgo = Math.floor(secondsAgo / 60);
+            return `${minutesAgo}m ${secondsAgo % 60}s`;
         }),
         [props.dataPoints, props.dataPointInterval]
     );
@@ -154,7 +158,7 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
         datasets: [
             {
                 label: '',
-                data: props.dataPoints, // keep numeric data for accuracy and types
+                data: props.dataPoints,
                 borderColor: '#ffffff',
                 backgroundColor: 'rgba(255, 255, 255, 0.15)',
                 fill: true,
@@ -165,11 +169,8 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
         ],
     }), [labels, props.dataPoints]);
     
-    // Localized thousands separator for tooltip values
-    const numberFormatter = useMemo(() => new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }), []);
-
     // External HTML tooltip tailored for this graph
-    const externalTooltipHandler = React.useCallback((context: any) => {
+    const externalTooltipHandler = (context: any) => {
         const { chart, tooltip } = context;
         const parent = (chart?.canvas?.parentNode as HTMLElement) ?? null;
         if (!parent) return;
@@ -208,7 +209,7 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
         if (Array.isArray(dps)) {
             for (const dp of dps) {
                 const yVal = typeof dp.parsed?.y === 'number' ? dp.parsed.y : (typeof dp.raw === 'number' ? dp.raw : parseFloat(String(dp.raw)));
-                const valueStr = Number.isFinite(yVal) ? numberFormatter.format(yVal) : '-';
+                const valueStr = Number.isFinite(yVal) ? yVal.toFixed(0).toString() : '-';
                 const label = dp.dataset?.label || '';
                 lines.push(dp.label);
                 lines.push(label ? `${label}: ${valueStr.replace(',', '')}mA` : `${valueStr.replace(',', '')}mA`);
@@ -223,7 +224,7 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
             el.style.left = `${relLeft}px`;
             el.style.top = `${relTop+2}px`;
         el.style.opacity = '1';
-    }, [numberFormatter]);
+    };
 
     const options = useMemo<ChartOptions<'line'>>(() => ({
         responsive: true,
@@ -240,21 +241,44 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
         },
         interaction: { mode: 'index', intersect: false },
         scales: {
-            x: {
-                // Hide entire x-axis (ticks, labels, grid, border) and free its space
-                display: false,
-            },
+            x: { display: false },
             y: {
-                // Hide entire y-axis so no left gutter is reserved
-                display: false,
+                display: true,
                 min: 0,
+                max: 9000,
+                border: { display: false },
+                grid: {
+                    display: true,
+                    color: 'rgba(255,255,255,0.12)',
+                },
+                ticks: {
+                    display: true,
+                    stepSize: 3000,      // 0, 3k, 6k, 9k
+                    autoSkip: false,
+                    mirror: false,       // labels to the left of the chart area
+                    padding: 2,          // tiny gap to the plot
+                    color: 'rgba(255,255,255,0.7)',
+                    font: { size: 7, weight: 600, family: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' },
+                    callback: (v) => {
+                        const n = typeof v === 'string' ? Number(v) : (v as number);
+                        if (n === 0) return '0A';
+                        if (n === 3000) return '3A';
+                        if (n === 6000) return '6A';
+                        if (n === 9000) return '9A';
+                        return '';
+                    },
+                },
+                // Reserve just enough left gutter for short labels
+                afterFit: (scale) => {
+                    (scale as any).width = 18; // bump to 20–22 if it clips
+                },
             },
         },
     }), [props.dataPoints.length, props.dataPointInterval, externalTooltipHandler]);
 
     return (
         <div
-            className={`flex align-bottom-0 w-16 shrink-0 row-span-2 p-0 rounded justify-center items-center min-h-full relative`}>
+            className={`flex align-bottom-0 w-32 shrink-0 row-span-2 p-0 rounded justify-center items-center min-h-full relative`}>
             <Line data={data} options={options} className="w-full" height={52} />
         </div>
     );
