@@ -6,7 +6,7 @@ import { BatteryModuleClient } from "../client";
 import { BatteryStatus } from '../types';
 import { cn } from 'src/client/utility';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import type { ChartOptions } from 'chart.js';
+import type { ChartOptions, Scale, CoreScaleOptions } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
 import { 
     batteryCurrentGraphDataPointInterval,
@@ -239,13 +239,17 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
                 external: externalTooltipHandler,
             } as any,
         },
-        interaction: { mode: 'index', intersect: false },
+        interaction: {
+            mode: 'index',
+            intersect: false, 
+            axis: 'x'
+        },
         scales: {
             x: { display: false },
             y: {
                 display: true,
                 min: 0,
-                max: 9000,
+                max: 10000,
                 border: { display: false },
                 grid: {
                     display: true,
@@ -253,7 +257,7 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
                 },
                 ticks: {
                     display: true,
-                    stepSize: 3000,      // 0, 3k, 6k, 9k
+                    stepSize: 2000,
                     autoSkip: false,
                     mirror: false,       // labels to the left of the chart area
                     padding: 2,          // tiny gap to the plot
@@ -262,15 +266,16 @@ const CurrentUsageGraph: React.FC<CurrentUsageProps> = (props: CurrentUsageProps
                     callback: (v) => {
                         const n = typeof v === 'string' ? Number(v) : (v as number);
                         if (n === 0) return '0A';
-                        if (n === 3000) return '3A';
+                        if (n === 2000) return '2A';
+                        if (n === 4000) return '4A';
                         if (n === 6000) return '6A';
-                        if (n === 9000) return '9A';
+                        if (n === 8000) return '8A';
+                        if (n === 10000) return '10A';
                         return '';
                     },
                 },
                 // Reserve just enough left gutter for short labels
-                afterFit: (scale) => {
-                    (scale as any).width = 18; // bump to 20–22 if it clips
+                afterFit: (scale: Scale<CoreScaleOptions>) => {
                 },
             },
         },
