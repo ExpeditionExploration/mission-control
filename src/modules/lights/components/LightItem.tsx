@@ -12,33 +12,29 @@ export enum LightColor {
 
 export const LightItem: React.FC<{
     color?: LightColor;
-    brightness?: number;
     name?: string;
     setLight: (brightness: number) => Promise<void>;
-}> = ({ color = LightColor.Yellow, brightness = 1, name = '', setLight }) => {
-    const [lightIsOn, setLightIsOn] = useState<boolean>(false);
+}> = ({ color = LightColor.Yellow, name = '', setLight }) => {
+    const [brightness, setBrightness] = useState<number>(0);
+    const modes = 5;
 
     useEffect(() => {
-        if (lightIsOn) {
-            setLight(100);
-        } else {
-            setLight(0);
-        }
-    }, [lightIsOn]);
+        setLight(((modes - brightness) % modes) * (1 / modes));
+    }, [brightness]);
 
     return (
         <Switch
-            checked={lightIsOn}
-            onChange={setLightIsOn}
+            checked={brightness > 0}
+            onChange={() => {setBrightness((old) => (old + 1) % modes)}}
             className={cn(
                 {
                     'data-[checked]:bg-blue-600 !border-blue-300':
-                        brightness && color === LightColor.Blue,
+                        brightness > 0 && color === LightColor.Blue,
                     'data-[checked]:bg-yellow-600 !border-yellow-300':
-                        brightness && color === LightColor.Yellow,
+                        brightness > 0 && color === LightColor.Yellow,
                     'data-[checked]:bg-red-600 !border-red-300':
-                        brightness && color === LightColor.Red,
-                    'bg-gray-200': !brightness,
+                        brightness > 0 && color === LightColor.Red,
+                    'bg-gray-200': brightness === 0,
                 },
                 'group flex h-6 relative border-2 border-white w-14 bg-transparent items-center rounded-full transition',
             )}
@@ -55,7 +51,7 @@ export const LightItem: React.FC<{
                     </span>
                 </div>
                 <div className="absolute left-1 opacity-0 font-bold transition group-data-[checked]:opacity-100">
-                    {(brightness * 100).toFixed(0)}%
+                    {((modes - brightness) * (1 / (modes - 1)) * 100).toFixed(0)}%
                 </div>
             </span>
         </Switch>

@@ -10,7 +10,6 @@ export class LightsModuleServer extends Module {
         super(deps);
         const config: PCA9685Config = {
             frequency: 200,
-
         };
         this.pca9685 = new PCA9685(1, {frequency: 200});
         this.pca9685.init().then(() => {
