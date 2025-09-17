@@ -2,6 +2,7 @@ import { Module } from 'src/module';
 import { LightingGridController } from './components/LightingGridController';
 import { Side, UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
+import { SetLightRequest } from './types';
 
 export class LightsModuleClient extends Module {
     userInterface: UserInterface;
@@ -16,5 +17,9 @@ export class LightsModuleClient extends Module {
             side: Side.Right,
             order: -10,
         });
+    }
+
+    async setLight(light: 'vis' | 'ir' | 'uv', brightness: number) {
+        this.emit<SetLightRequest>('setLight', { type: light, brightness });
     }
 }
