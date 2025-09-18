@@ -7,7 +7,7 @@ import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MeshStandardMaterial, Mesh, Color } from 'three';
 import { KernelSize } from 'postprocessing';
-import { Status as ControlStatus } from 'src/modules/control/types';
+import { Wrench as ControlWrench } from 'src/modules/control/types';
 import { Payload } from 'src/connection';
 import { AngleStatus } from '../types';
 
@@ -16,8 +16,10 @@ const LINE_HEIGHT = TEXT_SCALE * 1.25;
 
 function Drone(props) {
     const obj = useLoader(OBJLoader, './drone.obj');
-    const [controlStatus, setControlStatus] = useState<ControlStatus>({
-        throttle: 0,
+    const [controlWrench, setControlWrench] = useState<ControlWrench>({
+        heave: 0,
+        sway: 0,
+        surge: 0,
         yaw: 0,
         pitch: 0,
         roll: 0,
@@ -33,7 +35,7 @@ function Drone(props) {
 
         const handleMessage = (event: MessageEvent<Payload>) => {
             const payload = event.data;
-            if (payload.namespace === 'control') setControlStatus(payload.data);
+            if (payload.namespace === 'control') setControlWrench(payload.data);
             if (payload.namespace === 'angle') setAngleStatus(payload.data);
         };
 
@@ -86,7 +88,7 @@ function Drone(props) {
                             emissiveIntensity={1}
                             toneMapped={false}
                         />
-                        Throttle
+                        Surge
                     </Text>
                     <Text
                         position={[0, -LINE_HEIGHT, 0]}
@@ -101,7 +103,7 @@ function Drone(props) {
                             emissiveIntensity={1}
                             toneMapped={false}
                         />
-                        Power: {(controlStatus.throttle * 100).toFixed(0)}%
+                        Power: {(controlWrench.surge * 100).toFixed(0)}%
                     </Text>
                 </Billboard>
                 <Line
@@ -154,7 +156,7 @@ function Drone(props) {
                             emissiveIntensity={1}
                             toneMapped={false}
                         />
-                        Power: {(controlStatus.yaw * 100).toFixed(0)}%
+                        Power: {(controlWrench.yaw * 100).toFixed(0)}%
                     </Text>
                 </Billboard>
 
@@ -208,7 +210,7 @@ function Drone(props) {
                                 emissiveIntensity={1}
                                 toneMapped={false}
                             />
-                            Power: {(controlStatus.roll * 100).toFixed(0)}%
+                            Power: {(controlWrench.roll * 100).toFixed(0)}%
                         </Text>
                     </Billboard>
                     <Line
@@ -261,7 +263,7 @@ function Drone(props) {
                                 emissiveIntensity={1}
                                 toneMapped={false}
                             />
-                            Power: {(-controlStatus.roll * 100).toFixed(0)}%
+                            Power: {(-controlWrench.roll * 100).toFixed(0)}%
                         </Text>
                     </Billboard>
                     <Line
@@ -315,7 +317,7 @@ function Drone(props) {
                             emissiveIntensity={1}
                             toneMapped={false}
                         />
-                        Power: {(controlStatus.pitch * 100).toFixed(0)}%
+                        Power: {(controlWrench.pitch * 100).toFixed(0)}%
                     </Text>
                 </Billboard>
 

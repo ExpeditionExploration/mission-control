@@ -1,13 +1,12 @@
 import { Module } from 'src/module';
 import { UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
-import { Status } from './types';
-import { Axis } from './types';
+import { Wrench } from './types';
 
 export class ControlModuleClient extends Module {
     userInterface: UserInterface;
     private pollHandle?: number;
-    private lastStatus: Status = { throttle: 0, yaw: 0, pitch: 0, roll: 0 };
+    private lastWrench: Wrench = { heave: 0, sway: 0, surge: 0, yaw: 0, pitch: 0, roll: 0 };
     // Added keyboard state
     private keyState = {
         w: false,
@@ -20,28 +19,15 @@ export class ControlModuleClient extends Module {
         ArrowRight: false
     };
 
-    private updateStatusFromInputs = (lx: number, ly: number, rx: number, ry: number) => {
+    private updateWrenchFromInputs = (lx: number, ly: number, rx: number, ry: number) => {
         const round = (v: number) => Math.round(v * 100) / 100;
 
-        const throttle = round(-ly);
-        const yaw = round(lx);
-        const pitch = round(-ry);
-        const roll = round(rx);
-
-        const next: Status = { throttle, yaw, pitch, roll };
+        const next: Wrench = { heave: 0, sway: 0, surge: round(-ly), yaw: round(lx), pitch: round(-ry), roll: round(rx) };
 
         // Change detection to reduce chatter
-        if (Object.keys(next).some(k => (next as any)[k] !== (this.lastStatus as any)[k])) {
-            this.lastStatus = next;
-            /*this.emit('status', next);
-            this.logger.info(
-                `Throttle power set to ${throttle}`,
-                `Yaw power set to ${yaw}`,
-                `Pitch power set to ${pitch}`,
-                `Roll power set to ${roll}`,
-            );*/
-            this.emit<Axis>('leftAxis', { x: yaw, y: throttle });
-            this.emit<Axis>('rightAxis', { x: roll, y: pitch });
+        if (Object.keys(next).some(k => (next as any)[k] !== (this.lastWrench as any)[k])) {
+            this.lastWrench = next;
+            this.emit<Wrench>('wrenchTarget', next);
         }
     };
 
@@ -77,7 +63,7 @@ export class ControlModuleClient extends Module {
             rx = this.keyState.ArrowLeft && this.keyState.ArrowRight ? 0 : (this.keyState.ArrowLeft ? -1 : 1);
         }
 
-        this.updateStatusFromInputs(lx, ly, rx, ry);
+        this.updateWrenchFromInputs(lx, ly, rx, ry);
     };
 
     private keyDownHandler = (e: KeyboardEvent) => {
@@ -109,7 +95,7 @@ export class ControlModuleClient extends Module {
             rx = this.keyState.ArrowLeft && this.keyState.ArrowRight ? 0 : (this.keyState.ArrowLeft ? -1 : 1);
         }
         
-        this.updateStatusFromInputs(lx, ly, rx, ry);
+        this.updateWrenchFromInputs(lx, ly, rx, ry);
     };
 
     private keyUpHandler = (e: KeyboardEvent) => {
@@ -141,7 +127,7 @@ export class ControlModuleClient extends Module {
             rx = this.keyState.ArrowLeft && this.keyState.ArrowRight ? 0 : (this.keyState.ArrowLeft ? -1 : 1);
         }
         
-        this.updateStatusFromInputs(lx, ly, rx, ry);
+        this.updateWrenchFromInputs(lx, ly, rx, ry);
     };
 
     constructor(deps: ClientModuleDependencies) {

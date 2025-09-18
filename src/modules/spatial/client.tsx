@@ -43,7 +43,7 @@ export class SpatialModuleClient extends Module {
             this.sendStatusPayloadToWindow(payload);
         });
 
-        this.broadcaster.on('control:status', (payload: Payload) => {
+        this.broadcaster.on('control:wrench', (payload: Payload) => {
             this.sendStatusPayloadToWindow(payload);
         });
     }
