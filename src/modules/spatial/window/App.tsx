@@ -1,5 +1,5 @@
 import './index.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls, Text, Billboard } from '@react-three/drei';
 import { Line } from '@react-three/drei';
@@ -61,6 +61,31 @@ function Drone(props) {
             }
         });
     }, [obj]);
+
+    const rollArcPoints = useMemo(() => {
+        const motorOffsetX = 0.7;        // fixed endpoint X
+        const endpointY = 0.5;           // fixed endpoint Y
+        const R = 0.72;
+        const steps = 72;
+
+        // Center chosen so circle passes through endpoints
+        const dY = Math.sqrt(R * R - motorOffsetX * motorOffsetX);
+        const centerY = endpointY + dY;
+
+        const beta = Math.atan2(endpointY - centerY, motorOffsetX);
+        const startAngle = Math.PI - beta;
+        const endAngle = beta;
+
+        const pts: [number, number, number][] = [];
+        for (let s = 0; s <= steps; s++) {
+            const t = s / steps;
+            const angle = startAngle + (endAngle - startAngle) * t;
+            const x = Math.cos(angle) * R;
+            const y = Math.sin(angle) * R + centerY;
+            pts.push([x, y, 0.001]);
+        }
+        return pts;
+    }, []);
 
     return (
         <group {...props} rotation={[angleStatus.angle[0] * (Math.PI / 180), angleStatus.angle[1] * (Math.PI / 180), angleStatus.angle[2] * (Math.PI / 180)]}>
@@ -173,111 +198,75 @@ function Drone(props) {
                 />
             </group>
             <group position={[0, 0, -0.5]}>
-                <group position={[-0.7, 0, 0]}>
-                    <Billboard
-                        position={
-                            [-0.4, 1.05, 0] // Position the billboard above the drone
-                        }
-                        follow={true}
-                        lockX={false}
-                        lockY={false}
-                        lockZ={false}
-                    >
-                        <Text
-                            fontSize={TEXT_SCALE * 1}
-                            color="#ffffff"
-                            anchorX="left"
-                            anchorY="middle"
-                        >
-                            <meshStandardMaterial
-                                color="#ffffff"
-                                emissive="#00ffff"
-                                emissiveIntensity={1}
-                                toneMapped={false}
-                            />
-                            Roll Right
-                        </Text>
-                        <Text
-                            position={[0, -LINE_HEIGHT, 0]}
-                            fontSize={TEXT_SCALE * 0.75}
-                            color="#ffffff"
-                            anchorX="left"
-                            anchorY="middle"
-                        >
-                            <meshStandardMaterial
-                                color="#ffffff"
-                                emissive="#00ffff"
-                                emissiveIntensity={1}
-                                toneMapped={false}
-                            />
-                            Power: {(controlWrench.roll * 100).toFixed(0)}%
-                        </Text>
-                    </Billboard>
-                    <Line
-                        points={[
-                            [0, 0.5, 0], // Left side of drone
-                            [-0.25, 1, 0], // Right side of drone
-                        ]}
+                <Billboard
+                    position={[0, 1.8, 0]}
+                    follow
+                    lockX={false}
+                    lockY={false}
+                    lockZ={false}
+                >
+                    <Text
+                        fontSize={TEXT_SCALE * 1}
                         color="#ffffff"
-                        transparent={true}
-                        opacity={0.25}
-                        lineWidth={0.02}
-                        worldUnits={true}
-                    />
-                </group>
-
-                <group position={[0.7, 0, 0]}>
-                    <Billboard
-                        position={
-                            [0.4, 1.05, 0] // Position the billboard above the drone
-                        }
-                        follow={true}
-                        lockX={false}
-                        lockY={false}
-                        lockZ={false}
+                        anchorX="center"
+                        anchorY="middle"
                     >
-                        <Text
-                            fontSize={TEXT_SCALE * 1}
+                        <meshStandardMaterial
                             color="#ffffff"
-                            anchorX="right"
-                            anchorY="middle"
-                        >
-                            <meshStandardMaterial
-                                color="#ffffff"
-                                emissive="#00ffff"
-                                emissiveIntensity={1}
-                                toneMapped={false}
-                            />
-                            Roll Left
-                        </Text>
-                        <Text
-                            position={[0, -LINE_HEIGHT, 0]}
-                            fontSize={TEXT_SCALE * 0.75}
-                            color="#ffffff"
-                            anchorX="right"
-                            anchorY="middle"
-                        >
-                            <meshStandardMaterial
-                                color="#ffffff"
-                                emissive="#00ffff"
-                                emissiveIntensity={1}
-                                toneMapped={false}
-                            />
-                            Power: {(-controlWrench.roll * 100).toFixed(0)}%
-                        </Text>
-                    </Billboard>
-                    <Line
-                        points={[
-                            [0, 0.5, 0], // Left side of drone
-                            [0.25, 1, 0], // Right side of drone
-                        ]}
+                            emissive="#00ffff"
+                            emissiveIntensity={1}
+                            toneMapped={false}
+                        />
+                        Roll
+                    </Text>
+                    <Text
+                        position={[0, -LINE_HEIGHT, 0]}
+                        fontSize={TEXT_SCALE * 0.75}
                         color="#ffffff"
-                        transparent={true}
-                        opacity={0.25}
-                        lineWidth={0.02}
-                        worldUnits={true}
-                    />
-                </group>
+                        anchorX="center"
+                        anchorY="middle"
+                    >
+                        <meshStandardMaterial
+                            color="#ffffff"
+                            emissive="#00ffff"
+                            emissiveIntensity={1}
+                            toneMapped={false}
+                        />
+                        Power: {(controlWrench.roll * 100).toFixed(0)}%
+                    </Text>
+                </Billboard>
+                {/* Semi-circle arc with endpoints at x = -0.7 and 0.7 (motor centers) */}
+                <Line
+                    points={rollArcPoints}
+                    color="#ffffff"
+                    transparent
+                    opacity={0.6}
+                    lineWidth={0.02}
+                    worldUnits
+                />
+                {/* Left endpoint downward arrow. */}
+                <Line
+                    points={[
+                        [-0.76, 0.5, 0.001],
+                        [-0.7, 0.42, 0.001],
+                    ]}
+                    color="#ffffff"
+                    transparent
+                    opacity={0.85}
+                    lineWidth={0.02}
+                    worldUnits
+                />
+                <Line
+                    points={[
+                        [-0.64, 0.5, 0.001],
+                        [-0.7, 0.42, 0.001],
+                    ]}
+                    color="#ffffff"
+                    transparent
+                    opacity={0.85}
+                    lineWidth={0.02}
+                    worldUnits
+                />
             </group>
             <group position={[0, 1, -2.6]}>
                 <Billboard
