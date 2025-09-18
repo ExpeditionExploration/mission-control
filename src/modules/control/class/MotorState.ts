@@ -96,7 +96,7 @@ export class MotorState extends EventEmitter {
         if (this.targetPower !== 0) {
             this.powerTimeout = setTimeout(() => {
             this.targetPower = 0;
-            }, 1000);
+            }, 60000);
         }
     }
 }
