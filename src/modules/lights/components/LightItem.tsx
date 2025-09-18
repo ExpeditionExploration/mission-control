@@ -19,7 +19,7 @@ export const LightItem: React.FC<{
     const modes = 5;
 
     useEffect(() => {
-        setLight(((modes - brightness) % modes) * (1 / modes));
+        setLight(((modes - brightness) % modes) * (1 / (modes - 1)));
     }, [brightness]);
 
     return (
