@@ -4,15 +4,6 @@ import { MotorState } from './class/MotorState';
 import { Status } from './types';
 import { OrangePi_5 } from 'opengpio';
 
-const pwm1 = OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A3, 1, 500); // large motor
-const pwm2 = OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A2, 0, 500); // small motor
-const pwm3 = OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_D1, 1, 500); // medium motor
-const stop1 = OrangePi_5.output(OrangePi_5.bcm.GPIO1_A4);
-const reverse1 = OrangePi_5.output(OrangePi_5.bcm.GPIO1_B0);
-const reverse2 = OrangePi_5.output(OrangePi_5.bcm.GPIO1_A6);
-const reverse3 = OrangePi_5.output(OrangePi_5.bcm.GPIO1_A7);
-
-
 const isProd = false; // process.env.NODE_ENV === 'production';
 export class ControlModuleServer extends Module {
     motors: {
@@ -22,22 +13,27 @@ export class ControlModuleServer extends Module {
         roll: MotorState;
     } = {
         throttle: new MotorState({
-            pin: 2,
+            name: 'Throttle Motors', // large motor
             logger: this.logger,
-            name: 'Throttle Motors',
+            gpioOutPWM: OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A3, 1, 500),
+            gpioOutStop: OrangePi_5.output(OrangePi_5.bcm.GPIO1_A4),
+            invertPWM: true,
         }),
         yaw: new MotorState({
-            pin: 3,
+            name: 'Yaw Motors', // small motor
             logger: this.logger,
-            name: 'Yaw Motors',
+            gpioOutPWM: OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A2, 0, 500),
+            gpioOutReverse: OrangePi_5.output(OrangePi_5.bcm.GPIO1_A6),
+            invertRotationDirection: true,
         }),
         pitch: new MotorState({
-            pin: 4,
+            name: 'Pitch Motors', // medium motor
             logger: this.logger,
-            name: 'Pitch Motors',
+            gpioOutPWM: OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_D1, 1, 500),
+            gpioOutReverse: OrangePi_5.output(OrangePi_5.bcm.GPIO1_A7),
+            invertPWM: true,
         }),
         roll: new MotorState({
-            pin: 1,
             logger: this.logger,
             name: 'Roll Motors',
         }),
@@ -79,18 +75,11 @@ export class ControlModuleServer extends Module {
         this.on('leftAxis', (axis) => {
             this.motors.yaw.setPower(axis.x);
             this.motors.throttle.setPower(axis.y);
-            pwm1.setDutyCycle(1 - Math.abs(axis.y));
-            pwm2.setDutyCycle(Math.abs(axis.x));
-            reverse1.value = axis.y < 0;
-            reverse2.value = axis.x < 0;
-            stop1.value = axis.y != 0;
         });
 
         this.on('rightAxis', (axis) => {
             this.motors.roll.setPower(axis.x);
             this.motors.pitch.setPower(axis.y);
-            pwm3.setDutyCycle(1 - Math.abs(axis.x));
-            reverse3.value = axis.x < 0;
         });
     }
 }
