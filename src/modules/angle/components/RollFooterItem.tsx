@@ -15,7 +15,7 @@ export const RollFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
     }, []);
 
     return (
-        <div className="relative flex w-14 h-14 justify-center items-end">
+        <div className="relative flex w-14 h-14 justify-center items-end" title='Roll'>
             <div className="text-xs font-bold text-center relative z-10 bg-black/80 px-2 py-1 rounded-full w-12 -mb-4">
                 {roll.toFixed(0)}°
             </div>

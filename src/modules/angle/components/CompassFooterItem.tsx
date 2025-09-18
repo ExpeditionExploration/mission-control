@@ -17,7 +17,7 @@ export const CompassFooterItem: React.FC<ViewProps<AngleModuleClient>> = ({
     }, []);
 
     return (
-        <div className="relative flex w-14 hh-14 items-end justify-center">
+        <div className="relative flex w-14 hh-14 items-end justify-center" title='Yaw'>
             <div className="text-xs font-bold text-center relative z-10 bg-black/80 px-2 py-1 rounded-full w-12 -mb-4">
                 {yaw.toFixed(0)}°
             </div>
