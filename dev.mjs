@@ -5,7 +5,7 @@ const { result } = concurrently(
         {
             command: 'npm run dev:server',
             name: 'Server',
-            env: { OPENGPIO_MOCKED: true },
+            env: { OPENGPIO_MOCKED: false },
         },
     ],
     {

@@ -1,41 +1,51 @@
 import { Module } from 'src/module';
 import { ServerModuleDependencies } from 'src/server/server';
 import { MotorState } from './class/MotorState';
-import { Status } from './types';
+import { Wrench } from './types';
+import { OrangePi_5 } from 'opengpio';
 
 const isProd = false; // process.env.NODE_ENV === 'production';
 export class ControlModuleServer extends Module {
     motors: {
-        left: MotorState;
-        right: MotorState;
-        thrust: MotorState;
-        pitch: MotorState;
+        heave: MotorState;
+        sway: MotorState;
+        surge: MotorState;
         yaw: MotorState;
+        pitch: MotorState;
+        roll: MotorState;
     } = {
-        left: new MotorState({
-            pin: 0,
+        heave: new MotorState({
             logger: this.logger,
-            name: 'Left Motor',
+            name: 'Heave Motors',
         }),
-        right: new MotorState({
-            pin: 1,
+        sway: new MotorState({
             logger: this.logger,
-            name: 'Right Motor',
+            name: 'Sway Motors',
         }),
-        thrust: new MotorState({
-            pin: 2,
+        surge: new MotorState({
+            name: 'Surge Motors', // large motor
             logger: this.logger,
-            name: 'Thrust Motor',
+            // gpioOutPWM: OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A3, 1, 500),
+            // gpioOutStop: OrangePi_5.output(OrangePi_5.bcm.GPIO1_A4),
+            invertPWM: true,
         }),
         yaw: new MotorState({
-            pin: 3,
+            name: 'Yaw Motors', // small motor
             logger: this.logger,
-            name: 'Yaw Motor',
+            // gpioOutPWM: OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A2, 0, 500),
+            // gpioOutReverse: OrangePi_5.output(OrangePi_5.bcm.GPIO1_A6),
+            invertRotationDirection: true,
         }),
         pitch: new MotorState({
-            pin: 4,
+            name: 'Pitch Motors', // medium motor
             logger: this.logger,
-            name: 'Pitch Motor',
+            // gpioOutPWM: OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_D1, 1, 500),
+            // gpioOutReverse: OrangePi_5.output(OrangePi_5.bcm.GPIO1_A7),
+            invertPWM: true,
+        }),
+        roll: new MotorState({
+            logger: this.logger,
+            name: 'Roll Motors',
         }),
     };
 
@@ -45,20 +55,21 @@ export class ControlModuleServer extends Module {
 
     async onModuleInit() {
         await this.setupMotors();
-        this.emitStatusContinuously();
+        this.emitWrenchContinuously();
     }
 
-    emitStatusContinuously() {
+    emitWrenchContinuously() {
         setInterval(() => {
-            const status: Status = {
-                left: this.motors.left.power,
-                right: this.motors.right.power,
-                thrust: this.motors.thrust.power,
+            const wrench: Wrench = {
+                heave: this.motors.heave.power,
+                sway: this.motors.sway.power,
+                surge: this.motors.surge.power,
                 yaw: this.motors.yaw.power,
                 pitch: this.motors.pitch.power,
+                roll: this.motors.roll.power,
             };
-            this.emit('status', status);
-        }, 250); // Emit status every 500 milliseconds
+            this.emit('wrench', wrench);
+        }, 250);
     }
 
     async setupMotors() {
@@ -67,22 +78,19 @@ export class ControlModuleServer extends Module {
                 motor.init();
                 motor.on('setPower', (power) => {
                     this.logger.info(
-                        `Motor ${motor.name} power set to ${power}`,
+                        `${motor.name} power set to ${power}`,
                     );
                 });
             }),
         );
 
-        this.on('leftJoystick', (axis) => {
-            this.motors.yaw.setPower(axis.x);
-            this.motors.thrust.setPower(axis.y);
-        });
-
-        this.on('rightJoystick', (axis) => {
-            // TODO this needs to be mapped better to roll
-            this.motors.left.setPower(-axis.x);
-            this.motors.right.setPower(axis.x);
-            this.motors.pitch.setPower(axis.y);
+        this.on('wrenchTarget', (wrench) => {
+            this.motors.heave.setPower(wrench.heave);
+            this.motors.sway.setPower(wrench.sway);
+            this.motors.surge.setPower(wrench.surge);
+            this.motors.yaw.setPower(wrench.yaw);
+            this.motors.pitch.setPower(wrench.pitch);
+            this.motors.roll.setPower(wrench.roll);
         });
     }
 }

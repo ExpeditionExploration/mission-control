@@ -1,151 +1,156 @@
 import { Module } from 'src/module';
 import { UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
-import { Axis } from './types';
+import { Wrench } from './types';
 
 export class ControlModuleClient extends Module {
     userInterface: UserInterface;
+    private pollHandle?: number;
+    private lastWrench: Wrench = { heave: 0, sway: 0, surge: 0, yaw: 0, pitch: 0, roll: 0 };
+    // Added keyboard state
+    private keyState = {
+        w: false,
+        a: false,
+        s: false,
+        d: false,
+        ArrowUp: false,
+        ArrowDown: false,
+        ArrowLeft: false,
+        ArrowRight: false
+    };
+
+    private updateWrenchFromInputs = (lx: number, ly: number, rx: number, ry: number) => {
+        const round = (v: number) => Math.round(v * 100) / 100;
+
+        const next: Wrench = { heave: 0, sway: 0, surge: round(-ly), yaw: round(lx), pitch: round(-ry), roll: round(rx) };
+
+        // Change detection to reduce chatter
+        if (Object.keys(next).some(k => (next as any)[k] !== (this.lastWrench as any)[k])) {
+            this.lastWrench = next;
+            this.emit<Wrench>('wrenchTarget', next);
+        }
+    };
+
+    private pollGamepad = () => {
+        const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+        const gamepad = Array.from(pads).find(p => !!p && p.axes.length >= 4);
+
+        // Defaults (neutral)
+        let lx = 0, ly = 0, rx = 0, ry = 0;
+
+        if (gamepad) {
+            if (gamepad.axes.length >= 2) {
+                lx = gamepad.axes[0]; // yaw
+                ly = gamepad.axes[1]; // throttle
+            }
+            if (gamepad.axes.length >= 4) {
+                rx = gamepad.axes[2]; // roll
+                ry = gamepad.axes[3]; // pitch
+            }
+        }
+
+        // Override with keyboard state
+        if (this.keyState.w || this.keyState.s) {
+            ly = this.keyState.w && this.keyState.s ? 0 : (this.keyState.w ? -1 : 1);
+        }
+        if (this.keyState.a || this.keyState.d) {
+            lx = this.keyState.a && this.keyState.d ? 0 : (this.keyState.a ? -1 : 1);
+        }
+        if (this.keyState.ArrowUp || this.keyState.ArrowDown) {
+            ry = this.keyState.ArrowUp && this.keyState.ArrowDown ? 0 : (this.keyState.ArrowUp ? -1 : 1);
+        }
+        if (this.keyState.ArrowLeft || this.keyState.ArrowRight) {
+            rx = this.keyState.ArrowLeft && this.keyState.ArrowRight ? 0 : (this.keyState.ArrowLeft ? -1 : 1);
+        }
+
+        this.updateWrenchFromInputs(lx, ly, rx, ry);
+    };
+
+    private keyDownHandler = (e: KeyboardEvent) => {
+        switch (e.key) {
+            case 'w': case 'W': this.keyState.w = true; break;
+            case 'a': case 'A': this.keyState.a = true; break;
+            case 's': case 'S': this.keyState.s = true; break;
+            case 'd': case 'D': this.keyState.d = true; break;
+            case 'ArrowUp': this.keyState.ArrowUp = true; break;
+            case 'ArrowDown': this.keyState.ArrowDown = true; break;
+            case 'ArrowLeft': this.keyState.ArrowLeft = true; break;
+            case 'ArrowRight': this.keyState.ArrowRight = true; break;
+            default: return;
+        }
+        
+        // Compute current keyboard state immediately (no gamepad polling)
+        let lx = 0, ly = 0, rx = 0, ry = 0;
+        
+        if (this.keyState.w || this.keyState.s) {
+            ly = this.keyState.w && this.keyState.s ? 0 : (this.keyState.w ? -1 : 1);
+        }
+        if (this.keyState.a || this.keyState.d) {
+            lx = this.keyState.a && this.keyState.d ? 0 : (this.keyState.a ? -1 : 1);
+        }
+        if (this.keyState.ArrowUp || this.keyState.ArrowDown) {
+            ry = this.keyState.ArrowUp && this.keyState.ArrowDown ? 0 : (this.keyState.ArrowUp ? -1 : 1);
+        }
+        if (this.keyState.ArrowLeft || this.keyState.ArrowRight) {
+            rx = this.keyState.ArrowLeft && this.keyState.ArrowRight ? 0 : (this.keyState.ArrowLeft ? -1 : 1);
+        }
+        
+        this.updateWrenchFromInputs(lx, ly, rx, ry);
+    };
+
+    private keyUpHandler = (e: KeyboardEvent) => {
+        switch (e.key) {
+            case 'w': case 'W': this.keyState.w = false; break;
+            case 'a': case 'A': this.keyState.a = false; break;
+            case 's': case 'S': this.keyState.s = false; break;
+            case 'd': case 'D': this.keyState.d = false; break;
+            case 'ArrowUp': this.keyState.ArrowUp = false; break;
+            case 'ArrowDown': this.keyState.ArrowDown = false; break;
+            case 'ArrowLeft': this.keyState.ArrowLeft = false; break;
+            case 'ArrowRight': this.keyState.ArrowRight = false; break;
+            default: return;
+        }
+        
+        // Compute current keyboard state immediately (no gamepad polling)
+        let lx = 0, ly = 0, rx = 0, ry = 0;
+        
+        if (this.keyState.w || this.keyState.s) {
+            ly = this.keyState.w && this.keyState.s ? 0 : (this.keyState.w ? -1 : 1);
+        }
+        if (this.keyState.a || this.keyState.d) {
+            lx = this.keyState.a && this.keyState.d ? 0 : (this.keyState.a ? -1 : 1);
+        }
+        if (this.keyState.ArrowUp || this.keyState.ArrowDown) {
+            ry = this.keyState.ArrowUp && this.keyState.ArrowDown ? 0 : (this.keyState.ArrowUp ? -1 : 1);
+        }
+        if (this.keyState.ArrowLeft || this.keyState.ArrowRight) {
+            rx = this.keyState.ArrowLeft && this.keyState.ArrowRight ? 0 : (this.keyState.ArrowLeft ? -1 : 1);
+        }
+        
+        this.updateWrenchFromInputs(lx, ly, rx, ry);
+    };
+
     constructor(deps: ClientModuleDependencies) {
         super(deps);
         this.userInterface = deps.userInterface;
     }
 
     onModuleInit(): void | Promise<void> {
-        setInterval(() => {
-            const [gamepad] = navigator.getGamepads();
+        // Register keyboard listeners
+        window.addEventListener('keydown', this.keyDownHandler);
+        window.addEventListener('keyup', this.keyUpHandler);
 
-            if (gamepad) {
-                this.processLeftJoystickInput([
-                    gamepad.axes[0],
-                    gamepad.axes[1],
-                ]);
-                this.processRightJoystickInput([
-                    gamepad.axes[2],
-                    gamepad.axes[3],
-                ]);
-            }
-        }, 100);
+        // Regular polling for gamepad updates (includes keyboard overrides)
+        this.pollHandle = window.setInterval(this.pollGamepad, 20); // 50Hz
     }
 
-    cleanAxisInput(axis: [number, number]) {
-        // Invert the axis values to match the expected control direction
-        return [-parseFloat(axis[0].toFixed(1)), -parseFloat(axis[1].toFixed(1))];
+    onModuleDestroy(): void {
+        if (this.pollHandle) {
+            clearInterval(this.pollHandle);
+            this.pollHandle = undefined;
+        }
+        // Remove keyboard listeners
+        window.removeEventListener('keydown', this.keyDownHandler);
+        window.removeEventListener('keyup', this.keyUpHandler);
     }
-
-    lastLeftJoystickInput: Axis = { x: 0, y: 0 };
-    processLeftJoystickInput(axis: [number, number]) {
-        const [x, y] = this.cleanAxisInput(axis);
-        // if (
-        //     x === this.lastLeftJoystickInput.x &&
-        //     y === this.lastLeftJoystickInput.y
-        // ) {
-        //     return;
-        // }
-        this.lastLeftJoystickInput = { x, y };
-        this.emit<Axis>('leftJoystick', { x, y });
-    }
-
-    lastRightJoystickInput: Axis = { x: 0, y: 0 };
-    processRightJoystickInput(axis: [number, number]) {
-        const [x, y] = this.cleanAxisInput(axis);
-        // if (
-        //     x === this.lastRightJoystickInput.x &&
-        //     y === this.lastRightJoystickInput.y
-        // ) {
-        //     return;
-        // }
-        this.lastRightJoystickInput = { x, y };
-        this.emit<Axis>('rightJoystick', { x, y });
-    }
-
-    //     mapAxisToControls(
-    //         { x, y }: Axis,
-    //         invertY = true,
-    //     ): { left: number; right: number } {
-    //         x = this.clamp(x, -1, 1);
-    //         y = this.clamp(y, -1, 1);
-
-    //         let degrees = Math.atan2(x, y) * (180 / Math.PI); // We purpose swap x and y so the rotation starts at 0 degrees and moves clockwise like on the joystick
-    //         if (degrees < 0) degrees += 360; // Convert negative degrees to positive to fit the 0-360 degree range
-
-    //         let left = 0;
-    //         let right = 0;
-    //         const isCentered = x === 0 && y === 0;
-
-    //         if (!isCentered) {
-    //             // If the joystick is not in the center
-    //             if (invertY) {
-    //                 /**
-    //                  * Invert Y
-    //                  * { x: 0, y: 1 } -> { left: -90, right: -90 } = 0 degrees
-    //                  *      { x: 1, y: 1 } -> { left: -90, right: 0 } = 45 degrees
-    //                  * { x: 1, y: 0 } -> { left: -90, right: 90 } = 90 degrees
-    //                  *      { x: 1, y: -1 } -> { left: 0, right: 90 } = 135 degrees
-    //                  * { x: 0, y: -1 } -> { left: 90, right: 90 } = 180 degrees
-    //                  *      { x: -1, y: -1 } -> { left: 90, right: 0 } = 225 degrees
-    //                  * { x: -1, y: 0 } -> { left: 90, right: -90 } = 270 degrees
-    //                  *      { x: -1, y: 1 } -> { left: 0, right: -90 } = 315 degrees
-    //                  */
-    //                 if (degrees < 90) {
-    //                     left = this.mapValue(degrees, 0, 90, -90, -90); // Left aileron is always -90 degrees in this range
-    //                     right = this.mapValue(degrees, 0, 90, -90, 90);
-    //                 } else if (degrees < 180) {
-    //                     left = this.mapValue(degrees, 90, 180, -90, 90);
-    //                     right = this.mapValue(degrees, 90, 180, 90, 90); // Right aileron is always 90 degrees in this range
-    //                 } else if (degrees < 270) {
-    //                     left = this.mapValue(degrees, 180, 270, 90, 90); // Left aileron is always 90 degrees in this range
-    //                     right = this.mapValue(degrees, 180, 270, 90, -90);
-    //                 } else {
-    //                     // degrees < 360
-    //                     left = this.mapValue(degrees, 270, 360, 90, -90);
-    //                     right = this.mapValue(degrees, 270, 360, -90, -90); // Right aileron is always -90 degrees in this range
-    //                 }
-    //             } else {
-    //                 /**
-    //                  * Non-Inverted Y
-    //                  * { x: 0, y: 1 } -> { left: 90, right: 90 } = 0 degrees
-    //                  *      { x: 1, y: 1 } -> { left: 0, right: 90 } = 45 degrees
-    //                  * { x: 1, y: 0 } -> { left: -90, right: 90 } = 90 degrees
-    //                  *      { x: 1, y: -1 } -> { left: -90, right: 0 } = 135 degrees
-    //                  * { x: 0, y: -1 } -> { left: -90, right: -90 } = 180 degrees
-    //                  *      { x: -1, y: -1 } -> { left: 0, right: -90 } = 225 degrees
-    //                  * { x: -1, y: 0 } -> { left: 90, right: -90 } = 270 degrees
-    //                  *      { x: -1, y: 1 } -> { left: 90, right: 0 } = 315 degrees
-    //                  */
-    //                 if (degrees < 90) {
-    //                     left = this.mapValue(degrees, 0, 90, 90, -90);
-    //                     right = this.mapValue(degrees, 0, 90, 90, 90); // Right aileron is always 90 degrees in this range
-    //                 } else if (degrees < 180) {
-    //                     left = this.mapValue(degrees, 90, 180, -90, -90); // Left aileron is always -90 degrees in this range
-    //                     right = this.mapValue(degrees, 90, 180, 90, -90);
-    //                 } else if (degrees < 270) {
-    //                     left = this.mapValue(degrees, 180, 270, -90, 90);
-    //                     right = this.mapValue(degrees, 180, 270, -90, -90); // Right aileron is always -90 degrees in this range
-    //                 } else {
-    //                     // degrees < 360
-    //                     left = this.mapValue(degrees, 270, 360, 90, 90); // Left aileron is always 90 degrees in this range
-    //                     right = this.mapValue(degrees, 270, 360, -90, 90);
-    //                 }
-    //             }
-    //         }
-
-    //         return {
-    //             left: left,
-    //             right: right,
-    //         };
-    //     }
-
-    //     clamp(value: number, min: number, max: number) {
-    //         return Math.min(Math.max(value, min), max);
-    //     }
-
-    //     mapValue(
-    //         value: number,
-    //         inMin: number,
-    //         inMax: number,
-    //         outMin: number,
-    //         outMax: number,
-    //     ) {
-    //         return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
-    //     }
 }
