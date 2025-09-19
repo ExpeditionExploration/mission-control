@@ -5,6 +5,7 @@ import { AngleModuleClient } from './angle/client';
 import { ControlModuleClient } from './control/client';
 import { SpatialModuleClient } from './spatial/client';
 import { BatteryModuleClient } from './battery/client';
+import { LightsModuleClient } from './lights/client';
 
 export const modules = new Map([
     ['spatial', SpatialModuleClient],   
@@ -13,4 +14,5 @@ export const modules = new Map([
     ['angle', AngleModuleClient],
     ['control', ControlModuleClient],
     ['battery', BatteryModuleClient],
+    ['lights', LightsModuleClient],
 ]);
