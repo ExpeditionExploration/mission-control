@@ -10,7 +10,8 @@ export class LightsModuleServer extends Module {
 
     constructor(deps: ServerModuleDependencies) {
         super(deps);
-        this.pwmModule = PCA9685 ? new PCA9685(this.bus) : undefined;
+        // Uncomment the following line to enable PCA9685 control.
+        // this.pwmModule = new PCA9685(this.bus);
     }
 
     onModuleInit(): void | Promise<void> {
