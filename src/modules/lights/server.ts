@@ -3,20 +3,20 @@ import { PCA9685 } from 'openi2c';
 import { ServerModuleDependencies } from 'src/server/server';
 
 export class LightsModuleServer extends Module {
-    private pca9685: PCA9685;
+    private pwmModule: PCA9685;
     private frequency = 200;
     private bus = 1;
     private pcaRanInit = false;
 
     constructor(deps: ServerModuleDependencies) {
         super(deps);
-        this.pca9685 = new PCA9685(this.bus);
+        this.pwmModule = new PCA9685(this.bus);
     }
 
     onModuleInit(): void | Promise<void> {
-        this.pca9685.init().then(() => {
+        this.pwmModule.init().then(() => {
             this.pcaRanInit = true;
-            this.pca9685.setFrequency(this.frequency)
+            this.pwmModule.setFrequency(this.frequency)
                 .then(() => {
                     this.logger.info(`PCA9685 initialized at ${this.frequency}Hz on bus ${this.bus}`);
                 })
@@ -30,7 +30,7 @@ export class LightsModuleServer extends Module {
                 console.warn('PCA9685 not initialized yet');
                 return;
             }
-            let channel: number;
+            let channel: number; // Channel is PWM module output channel.
             switch (data.type) {
                 case 'vis':
                     channel = 0;
@@ -46,7 +46,7 @@ export class LightsModuleServer extends Module {
                     return;
             }
             const brightness = Math.min(1, Math.max(0, data.brightness));
-            await this.pca9685.setDutyCycle(channel, brightness);
+            await this.pwmModule.setDutyCycle(channel, brightness);
         });
     }
 }
