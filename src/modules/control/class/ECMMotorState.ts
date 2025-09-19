@@ -18,6 +18,8 @@ export class ECMMotorState extends MotorState {
         invertPWM: invertPWM,
         invertRotationDirection: invertRotationDirection,
         rampSpeed: rampSpeed,
+        position: position,
+        orientation: orientation,
     }: {
         name: string;
         logger: Logger;
@@ -27,8 +29,10 @@ export class ECMMotorState extends MotorState {
         invertPWM?: boolean;
         invertRotationDirection?: boolean;
         rampSpeed?: number;
+        position?: number[];
+        orientation?: number[];
     }) {
-        super({name: name, logger: logger, rampSpeed: rampSpeed});
+        super({name: name, logger: logger, rampSpeed: rampSpeed, position: position, orientation: orientation});
         this.gpioOutPWM = gpioOutPWM;
         this.gpioOutReverse = gpioOutReverse;
         this.gpioOutStop = gpioOutStop;

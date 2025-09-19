@@ -5,6 +5,8 @@ export class MotorState extends EventEmitter {
     logger: Logger;
     name: string;
     rampSpeed: number; // Ramp speed for power transitions
+    position: number []; // Relative position of the motor
+    orientation: number []; // Relative orientation of the motor
     power: number = 0; // Power level for the motor, typically between -100 and 100
     protected targetPower: number = 0; // Target power level for the motor, used for smooth transitions
 
@@ -12,15 +14,21 @@ export class MotorState extends EventEmitter {
         name,
         logger,
         rampSpeed: rampSpeed,
+        position: position,
+        orientation: orientation,
     }: {
         name: string;
         logger: Logger;
         rampSpeed?: number;
+        position?: number[];
+        orientation?: number[];
     }) {
         super();
         this.name = name;
         this.logger = logger;
         this.rampSpeed = rampSpeed || 0.5; // Default speed for the motor
+        this.position = position || [0, 0, 0];
+        this.orientation = orientation || [0, 0, 0];
     }
 
     async init() {
