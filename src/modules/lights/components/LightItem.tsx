@@ -32,13 +32,15 @@ export const LightItem: React.FC<{
                         brightness > 0 && color === LightColor.Blue,
                     'data-[checked]:bg-yellow-600 !border-yellow-300':
                         brightness > 0 && color === LightColor.Yellow,
-                    'data-[checked]:bg-red-600 !border-red-300':
+                    'data-[checked]:bg-red-600  !border-red-300':
                         brightness > 0 && color === LightColor.Red,
-                    'bg-gray-200': brightness === 0,
+                    'bg-gray-200 hover:bg-blue-600': brightness === 0 && color === LightColor.Blue,
+                    'bg-gray-200 hover:bg-yellow-600': brightness === 0 && color === LightColor.Yellow,
+                    'bg-gray-200 hover:bg-red-600': brightness === 0 && color === LightColor.Red,
                 },
                 'group flex h-6 relative border-2 border-white w-14 bg-transparent items-center rounded-full transition',
             )}
-            title={`Toggle ${name}`}
+            title={`Adjust ${name}`}
         >
             <span className="w-full relative flex items-center px-0 text-[0.6rem]">
                 <div className="absolute flex items-center space-x-1 left-1 opacity-100">
