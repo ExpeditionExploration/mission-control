@@ -1,14 +1,56 @@
 import { Module } from 'src/module';
 import { BatteryStatus } from './types';
 import {
+    type INA226, INA226ConversionTime, INA226AverageMode, INA226Mode, bindings
+} from 'openi2c-ina226';
+import {
     batteryCurrentGraphDataPointInterval,
 } from './components/constants';
+import { ServerModuleDependencies } from 'src/server/server';
+
+class INA226CurrentSensor {
+    private ina226: INA226;
+
+    constructor(
+        i2cBus: number, address: number, shuntResistance: number,
+        shuntConversionTime: INA226ConversionTime = INA226ConversionTime.CONVERSION_TIME_1P1_MS,
+        busConversionTime: INA226ConversionTime = INA226ConversionTime.CONVERSION_TIME_1P1_MS,
+        averageMode: INA226AverageMode = INA226AverageMode.AVERAGE_16,
+        mode: INA226Mode = INA226Mode.SHUNT_AND_BUS_CONTINUOUS
+    ) {
+        this.ina226 = bindings;
+        this.ina226.init(
+            i2cBus, address, shuntResistance,
+            shuntConversionTime, busConversionTime,
+            averageMode, mode
+        );
+    }
+
+    getCurrent(): number {
+        return this.ina226.getCurrent();
+    }
+}
 
 export class BatteryModuleServer extends Module {
     // 2550 mAh cells for 2S3P battery for a nominal voltage of 7.4V.
     battery: Battery = new Battery(2550, 2, 3);
     batteryVoltageSetter = new BatteryLevelSetter(defaultChargeLevelFunction);
     private statusInterval?: NodeJS.Timeout;
+    private currentSensor?: INA226CurrentSensor;
+
+    constructor(deps: ServerModuleDependencies) {
+        super(deps);
+        // Uncomment to enable current sensor
+        // this.currentSensor = new INA226CurrentSensor(
+        //     1,  // i2cBus
+        //     0x40,  // address
+        //     0.1,  // shuntResistance
+        //     INA226ConversionTime.CONVERSION_TIME_1P1_MS,
+        //     INA226ConversionTime.CONVERSION_TIME_1P1_MS,
+        //     INA226AverageMode.INA226_AVG_16,
+        //     INA226Mode.SHUNT_BUS_VOLTAGE_CONTINUOUS
+        // );
+    }
 
     async onModuleInit() {
         this.simulateBatteryVoltageCheck();
@@ -17,13 +59,12 @@ export class BatteryModuleServer extends Module {
     simulateBatteryVoltageCheck() {
         if (this.statusInterval) return;
         this.statusInterval = setInterval(() => {
-            // Simulate current draw in mA (e.g., between 2000 mA and 4000 mA)
-            const simulatedCurrentDraw = 2000 + Math.random() * 2000;
-            this.battery.recordConsumption(simulatedCurrentDraw);
+            const currentDraw = this.currentSensor?.getCurrent() ?? Math.random() * 2000 + 2000;
+            this.battery.recordConsumption(currentDraw);
             this.emit<BatteryStatus>('status', {
                 level: this.battery.getBatteryLevelPercentage() * 100,
                 minutesRemaining: this.battery.getEstimatedTimeRemaining(),
-                currentDraw: simulatedCurrentDraw,
+                currentDraw: currentDraw,
             });
         }, batteryCurrentGraphDataPointInterval);
     }
