@@ -1,17 +1,3 @@
+import { ScanData, ScanZone, ScanTarget } from 'vl53l5cx/dist/types';
 
-type TargetData = {
-    targetStatus: number,
-    distanceMillimeters: number,
-    signalPerSpad: number,
-    rangeSigmaMillimeters: number,
-}
-
-export type TOFZone = {
-    zoneIndex: number,
-    distanceMillimeters: number,
-    status: number,
-    nbTargetDetected: number,
-    ambientPerSpad: number,
-    nbSpadsEnabled: number,
-    targetData: TargetData[]
-}
+export type {ScanData, ScanZone, ScanTarget};

@@ -1,7 +1,7 @@
 import { Module } from 'src/module';
 import { ServerModuleDependencies } from 'src/server/server';
 import { TOF_VL53L5CX } from './class/TOF';
-import { TOFZone } from './types';
+import { ScanData } from './types';
 
 export class TOFModuleServer extends Module {
     private tofSensor = new TOF_VL53L5CX(1);  // Takes i2c bus as argument
@@ -13,7 +13,7 @@ export class TOFModuleServer extends Module {
 
         setInterval(async () => {
             const data = this.tofSensor.getRangingData();
-            this.emit<TOFZone[]>('tof', data);
-        }, 1000);
+            this.emit<ScanData>('data', data);
+        }, 1000 / 5); // 5 Hz
     }
 }
