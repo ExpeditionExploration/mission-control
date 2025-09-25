@@ -7,7 +7,7 @@ const tofSettings = {
     orientationCorrectionEnabled: true,
     orientationCorrection: {
         yaw: 0,
-        pitch: -180,
+        pitch: -90,
         roll: 90
     },
     mirrorAxis: {
@@ -89,10 +89,9 @@ export class TOFKeeper {
         const maxDist = 4000;  // mm
         const norm = Math.min(1, Math.max(0, (distance_mm - minDist) / (maxDist - minDist)));
         const transparency = norm * norm;
-        let opacity = 1 - transparency;
-        if (opacity < 0.02) opacity = 0.0; 
-        const color = new THREE.Color('#fff');
-        return new THREE.MeshStandardMaterial({ color, transparent: true, opacity, depthWrite: opacity > 0.1 });
+        const opacity = Math.max(0.05, 1 - transparency);
+        const color = new THREE.Color(opacity, opacity, opacity);
+        return new THREE.MeshStandardMaterial({ color, transparent: true, opacity });
     }
 
     /**
@@ -127,6 +126,7 @@ export class TOFKeeper {
         const mesh = this.meshArray[scanZoneNdx]
         if (mesh) {
             mesh.position.set(worldPos.x, worldPos.y, worldPos.z);
+            mesh.material = this.createToFMaterial(distance_mm);
         }
     }
 
