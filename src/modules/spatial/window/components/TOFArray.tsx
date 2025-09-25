@@ -9,8 +9,6 @@ import * as THREE from 'three';
 export interface TOFProps {
     dronePosition: [number, number, number];
     droneOrientation: { yaw: number; pitch: number; roll: number };
-    /** Multiplier applied to distance (and thus sphere placement & size). Default 1.0 */
-    scale?: number;
 }
 
 
@@ -51,16 +49,9 @@ export const TOFArray = (props: TOFProps) => {
 
     useEffect(() => {
         if (zones && keeperRef.current) {
-            const scale = props.scale ?? 1.0;
-            if (scale === 1.0) {
-                keeperRef.current.update(zones);
-            } else {
-                // Create a scaled copy of scan data distances
-                const scaled = { ...zones, scanZones: zones.scanZones.map(z => z ? { ...z, distanceMillimeters: z.distanceMillimeters * scale } : z) } as ScanData;
-                keeperRef.current.update(scaled);
-            }
+            keeperRef.current.update(zones);
         }
-    }, [zones, props.scale]);
+    }, [zones]);
 
     return (<></>);
 };

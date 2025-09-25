@@ -82,19 +82,17 @@ export class TOFKeeper {
     }
 
     /**
-     * Returns a MeshStandardMaterial colored from red (close) to light blue
-     * (far) based on distance.
+     * Returns a MeshStandardMaterial with opacity falling off (quadratically) as distance grows.
      */
     private createToFMaterial(distance_mm: number): THREE.MeshStandardMaterial {
-        const minDist = 100 // mm, adjust as needed
-        const maxDist = 2000 // mm, adjust as needed
-        const t = Math.max(0, Math.min(1, (distance_mm - minDist) / (maxDist - minDist)))
-        // Red: (1,0,0), Light blue: (0.588,0.588,1)
-        const r = (1 - t) * 1.0 + t * 0.588
-        const g = (1 - t) * 0.0 + t * 0.588
-        const b = (1 - t) * 0.0 + t * 1.0
-        const color = new THREE.Color(r, g, b)
-        return new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.3 })
+        const minDist = 100;   // mm
+        const maxDist = 4000;  // mm
+        const norm = Math.min(1, Math.max(0, (distance_mm - minDist) / (maxDist - minDist)));
+        const transparency = norm * norm;
+        let opacity = 1 - transparency;
+        if (opacity < 0.02) opacity = 0.0; 
+        const color = new THREE.Color('#fff');
+        return new THREE.MeshStandardMaterial({ color, transparent: true, opacity, depthWrite: opacity > 0.1 });
     }
 
     /**
@@ -126,11 +124,9 @@ export class TOFKeeper {
         const offset = worldDir.multiplyScalar(distance_mm / 1000.0)
         // Add to drone's world position
         const worldPos = this.drone.getWorldPosition(new THREE.Vector3()).add(offset)
-
         const mesh = this.meshArray[scanZoneNdx]
         if (mesh) {
-            mesh.position.set(worldPos.x, worldPos.y, worldPos.z)
-            const size = this.getZoneSize(distance_mm)
+            mesh.position.set(worldPos.x, worldPos.y, worldPos.z);
         }
     }
 
@@ -158,9 +154,6 @@ export class TOFKeeper {
                 this.meshArray[i] = mesh
             } else {
                 this.resizeMesh(i, distance_mm)
-                // Update color/material
-                const mesh = this.meshArray[i]
-                if (mesh) mesh.material = this.createToFMaterial(distance_mm)
             }
             this.displaceMesh(i, distance_mm)
         }

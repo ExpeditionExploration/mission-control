@@ -14,6 +14,7 @@ import { TOFArray } from './components/TOFArray';
 
 const TEXT_SCALE = 0.15;
 const LINE_HEIGHT = TEXT_SCALE * 1.25;
+const LINE_WIDTH = 0.003;
 
 function Drone(props: { position: [number, number, number]; controlWrench: ControlWrench; angleStatus: AngleStatus }) {
     const obj = useLoader(OBJLoader, './drone.obj');
@@ -60,7 +61,7 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
     }, []);
 
     return (
-    <group position={props.position} rotation={[angleStatus.angle[0] * (Math.PI / 180), angleStatus.angle[1] * (Math.PI / 180), angleStatus.angle[2] * (Math.PI / 180)]}>
+    <group scale={[0.1, 0.1, 0.1]} position={props.position} rotation={[angleStatus.angle[0] * (Math.PI / 180), angleStatus.angle[1] * (Math.PI / 180), angleStatus.angle[2] * (Math.PI / 180)]}>
             <primitive
                 rotation={[0, 0, 0]}
                 scale={[0.1, 0.1, 0.1]}
@@ -111,7 +112,7 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                     color="#ffffff"
                     transparent={true}
                     opacity={0.25}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits={true}
                 />
             </group>
@@ -165,7 +166,7 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                     color="#ffffff"
                     transparent={true}
                     opacity={0.25}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits={true}
                 />
             </group>
@@ -213,7 +214,7 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                     color="#ffffff"
                     transparent
                     opacity={0.6}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits
                 />
                 {/* Left endpoint downward arrow. */}
@@ -225,7 +226,7 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                     color="#ffffff"
                     transparent
                     opacity={0.85}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits
                 />
                 <Line
@@ -236,7 +237,7 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                     color="#ffffff"
                     transparent
                     opacity={0.85}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits
                 />
             </group>
@@ -290,7 +291,7 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                     color="#ffffff"
                     transparent={true}
                     opacity={0.25}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits={true}
                 />
             </group>
@@ -350,7 +351,7 @@ export function App() {
                     intensity={20}
                 />
                 <Drone position={dronePosition} controlWrench={controlWrench} angleStatus={angleStatus} />
-                <TOFArray scale={100.0} dronePosition={dronePosition} droneOrientation={{ yaw: angleStatus.yaw, pitch: angleStatus.angle[1], roll: angleStatus.angle[2] }} />
+                <TOFArray dronePosition={dronePosition} droneOrientation={{ yaw: angleStatus.yaw, pitch: angleStatus.angle[1], roll: angleStatus.angle[2] }} />
                 <EffectComposer>
                     <N8AO
                         aoRadius={500}
