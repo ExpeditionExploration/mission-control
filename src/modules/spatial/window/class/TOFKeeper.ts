@@ -7,7 +7,7 @@ const tofSettings = {
     orientationCorrectionEnabled: true,
     orientationCorrection: {
         yaw: 0,
-        pitch: 0,
+        pitch: -180,
         roll: 90
     },
     mirrorAxis: {

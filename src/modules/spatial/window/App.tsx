@@ -350,7 +350,7 @@ export function App() {
                     intensity={20}
                 />
                 <Drone position={dronePosition} controlWrench={controlWrench} angleStatus={angleStatus} />
-                <TOFArray dronePosition={dronePosition} droneOrientation={{ yaw: angleStatus.yaw, pitch: angleStatus.angle[1], roll: angleStatus.angle[2] }} />
+                <TOFArray scale={100.0} dronePosition={dronePosition} droneOrientation={{ yaw: angleStatus.yaw, pitch: angleStatus.angle[1], roll: angleStatus.angle[2] }} />
                 <EffectComposer>
                     <N8AO
                         aoRadius={500}
