@@ -40,11 +40,10 @@ export const TOFArray = (props: TOFProps) => {
     useEffect(() => {
         const g = droneGroupRef.current;
         g.position.set(...props.dronePosition);
-        // Convert yaw/pitch/roll (deg) into quaternion (assuming order Y (yaw), X (pitch), Z (roll) maybe) – minimally keep mapping
-        const yaw = THREE.MathUtils.degToRad(props.droneOrientation.yaw || 0);
-        const pitch = THREE.MathUtils.degToRad(props.droneOrientation.pitch || 0);
-        const roll = THREE.MathUtils.degToRad(props.droneOrientation.roll || 0);
-    g.setRotationFromEuler(new THREE.Euler(pitch, yaw, roll, 'YXZ'));
+        const yaw = props.droneOrientation.yaw || 0;
+        const pitch = props.droneOrientation.pitch || 0;
+        const roll = props.droneOrientation.roll || 0;
+        g.rotation.set(pitch, yaw, roll, 'YXZ');
     }, [props.dronePosition, props.droneOrientation]);
 
     useEffect(() => {

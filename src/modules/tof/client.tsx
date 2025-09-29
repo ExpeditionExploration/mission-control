@@ -11,10 +11,6 @@ export class TOFModuleClient extends Module {
         this.userInterface = deps.userInterface;
     }
     
-    rad2deg(radians: number): number {
-        return radians * (180 / Math.PI);
-    }
-
     onModuleInit(): void | Promise<void> {
         const spatialChannel = new BroadcastChannel('tof-data');
 

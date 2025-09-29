@@ -4,7 +4,6 @@ import { bindings as vl53l5cx } from 'vl53l5cx';
 
 
 export class TOF_VL53L5CX {
-    private bus: number = 1;
     private sensor: VL53L5CX;
     private cfgSlot: number = 0;
     private resolution?: number;
