@@ -15,7 +15,8 @@ export class ControlModuleServer extends Module {
             name: 'Rear Motor',
             logger: this.logger,
             gpioOutPWM: 6, // OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A3, 1, 500),
-            gpioOutStop: 7, // OrangePi_5.output(OrangePi_5.bcm.GPIO1_A4),
+            gpioOutReverse: 7,
+            gpioOutStop: 8, // OrangePi_5.output(OrangePi_5.bcm.GPIO1_A4),
             invertPWM: true,
             position: [0, 0.5, -2.5],
             orientation: [0, 0, 1], // Right-hand rule (Z forward)

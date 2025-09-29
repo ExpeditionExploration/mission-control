@@ -45,11 +45,11 @@
         "server": {
             "enabled": true,
             "bno085": {
-                "i2cBus": 3,
+                "i2cBus": 5,
                 "i2cAddr": "0x4b",
                 "useInterrupts": true,
                 "interruptChip": "gpiochip0",
-                "interruptLine": 23
+                "interruptLine": 26
             }
         },
         "client": {}
@@ -62,7 +62,7 @@
             "cellsInSeries": 2,
             "cellsInParallel": 3,
             "ina226": {
-                "i2cBus": 1,
+                "i2cBus": 5,
                 "i2cAddr": "0x40",
                 "shuntResistorOhms": 0.1
             }
@@ -73,7 +73,7 @@
         "server": {
             "enabled": true,
             "vl53l5cx": {
-                "i2cBus": 1,
+                "i2cBus": 4,
                 "i2cAddr": "0x29",
                 "rangingFrequency": 5
             }
