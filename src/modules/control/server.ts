@@ -3,7 +3,7 @@ import { ServerModuleDependencies } from 'src/server/server';
 import { MotorState } from './class/MotorState';
 import { ECMMotorState } from './class/ECMMotorState';
 import { Wrench } from './types';
-import { OrangePi_5 } from 'opengpio';
+// import { OrangePi_5 } from 'opengpio';
 import { cross, subtract, pi, sin, cos, multiply, pinv, transpose, round } from 'mathjs';
 
 const isProd = false; // process.env.NODE_ENV === 'production';
@@ -14,8 +14,8 @@ export class ControlModuleServer extends Module {
         rear: new ECMMotorState({
             name: 'Rear Motor',
             logger: this.logger,
-            // gpioOutPWM: OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A3, 1, 500),
-            // gpioOutStop: OrangePi_5.output(OrangePi_5.bcm.GPIO1_A4),
+            gpioOutPWM: 6, // OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A3, 1, 500),
+            gpioOutStop: 7, // OrangePi_5.output(OrangePi_5.bcm.GPIO1_A4),
             invertPWM: true,
             position: [0, 0.5, -2.5],
             orientation: [0, 0, 1], // Right-hand rule (Z forward)
@@ -23,17 +23,19 @@ export class ControlModuleServer extends Module {
         rearTransverse: new ECMMotorState({
             name: 'Medium Motor',
             logger: this.logger,
-            // gpioOutPWM: OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_D1, 1, 500),
-            // gpioOutReverse: OrangePi_5.output(OrangePi_5.bcm.GPIO1_A7),
+            gpioOutPWM: 4, // OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_D1, 1, 500),
+            gpioOutReverse: 5, // OrangePi_5.output(OrangePi_5.bcm.GPIO1_A7),
             invertPWM: true,
+            scale: 4,
             position: [0, 0.54, -1.93],
             orientation: [1, 0, 0], // Right-hand rule (X left)
         }),
         leftWing: new ECMMotorState({
             name: 'Small Motor Left',
             logger: this.logger,
-            // gpioOutPWM: OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A2, 0, 500),
-            // gpioOutReverse: OrangePi_5.output(OrangePi_5.bcm.GPIO1_A6),
+            gpioOutPWM: 0, // OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A2, 0, 500),
+            gpioOutReverse: 1, // OrangePi_5.output(OrangePi_5.bcm.GPIO1_A6),
+            scale: 2,
             invertRotationDirection: true,
             position: [0.66, 0.36, -0.49],
             orientation: [sin(this.wingAngleInDegrees * (pi / 180)), cos(this.wingAngleInDegrees * (pi / 180)), 0],
@@ -41,6 +43,9 @@ export class ControlModuleServer extends Module {
         rightWing: new ECMMotorState({
             name: 'Small Motor Right',
             logger: this.logger,
+            gpioOutPWM: 2,
+            gpioOutReverse: 3,
+            scale: 2,
             position: [-0.66, 0.36, -0.49],
             orientation: [sin(this.wingAngleInDegrees * (pi / 180)), -cos(this.wingAngleInDegrees * (pi / 180)), 0],
         }),
