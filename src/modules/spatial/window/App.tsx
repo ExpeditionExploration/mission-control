@@ -10,42 +10,15 @@ import { KernelSize } from 'postprocessing';
 import { Wrench as ControlWrench } from 'src/modules/control/types';
 import { Payload } from 'src/connection';
 import { AngleStatus } from '../types';
+import { TOFArray } from './components/TOFArray';
 
 const TEXT_SCALE = 0.15;
 const LINE_HEIGHT = TEXT_SCALE * 1.25;
+const LINE_WIDTH = 0.003;
 
-function Drone(props) {
+function Drone(props: { position: [number, number, number]; controlWrench: ControlWrench; angleStatus: AngleStatus }) {
     const obj = useLoader(OBJLoader, './drone.obj');
-    const [controlWrench, setControlWrench] = useState<ControlWrench>({
-        heave: 0,
-        sway: 0,
-        surge: 0,
-        yaw: 0,
-        pitch: 0,
-        roll: 0,
-    });
-
-    const [angleStatus, setAngleStatus] = useState<AngleStatus>({
-        angle: [0, 0, 0],
-        yaw: 0,
-    });
-
-    useEffect(() => {
-        const spatialChannel = new BroadcastChannel('spatial-window');
-
-        const handleMessage = (event: MessageEvent<Payload>) => {
-            const payload = event.data;
-            if (payload.namespace === 'control') setControlWrench(payload.data);
-            if (payload.namespace === 'angle') setAngleStatus(payload.data);
-        };
-
-        spatialChannel.addEventListener('message', handleMessage);
-
-        return () => {
-            spatialChannel.removeEventListener('message', handleMessage);
-            spatialChannel.close();
-        };
-    }, []);
+    const { controlWrench, angleStatus } = props;
 
     useEffect(() => {
         // Apply MeshStandardMaterial to all meshes in the loaded object
@@ -88,7 +61,7 @@ function Drone(props) {
     }, []);
 
     return (
-        <group {...props} rotation={[angleStatus.angle[0] * (Math.PI / 180), angleStatus.angle[1] * (Math.PI / 180), angleStatus.angle[2] * (Math.PI / 180)]}>
+    <group scale={[0.1, 0.1, 0.1]} position={props.position} rotation={[angleStatus.angle[0] * (Math.PI / 180), angleStatus.angle[1] * (Math.PI / 180), angleStatus.angle[2] * (Math.PI / 180)]}>
             <primitive
                 rotation={[0, 0, 0]}
                 scale={[0.1, 0.1, 0.1]}
@@ -139,7 +112,7 @@ function Drone(props) {
                     color="#ffffff"
                     transparent={true}
                     opacity={0.25}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits={true}
                 />
             </group>
@@ -193,7 +166,7 @@ function Drone(props) {
                     color="#ffffff"
                     transparent={true}
                     opacity={0.25}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits={true}
                 />
             </group>
@@ -241,7 +214,7 @@ function Drone(props) {
                     color="#ffffff"
                     transparent
                     opacity={0.6}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits
                 />
                 {/* Left endpoint downward arrow. */}
@@ -253,7 +226,7 @@ function Drone(props) {
                     color="#ffffff"
                     transparent
                     opacity={0.85}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits
                 />
                 <Line
@@ -264,7 +237,7 @@ function Drone(props) {
                     color="#ffffff"
                     transparent
                     opacity={0.85}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits
                 />
             </group>
@@ -318,7 +291,7 @@ function Drone(props) {
                     color="#ffffff"
                     transparent={true}
                     opacity={0.25}
-                    lineWidth={0.02}
+                    lineWidth={LINE_WIDTH}
                     worldUnits={true}
                 />
             </group>
@@ -326,26 +299,36 @@ function Drone(props) {
     );
 }
 export function App() {
-    const [dronePosition, setDronePosition] =
-        useState<[number, number, number]>([0, 0, 0]);
+    const [dronePosition, setDronePosition] = useState<[number, number, number]>([0, 0, 0]);
+    const [controlWrench, setControlWrench] = useState<ControlWrench>({ heave: 0, sway: 0, surge: 0, yaw: 0, pitch: 0, roll: 0 });
+    const [angleStatus, setAngleStatus] = useState<AngleStatus>({ angle: [0, 0, 0], yaw: 0 });
 
     useEffect(() => {
         const spatialChannel = new BroadcastChannel('spatial-window');
-
         const handleMessage = (event: MessageEvent<Payload>) => {
-            if (event.data.namespace === 'location') {
-                // Update drone position based on location data
-                // console.log('Drone position updated:', dronePosition);
+            const payload = event.data;
+            switch (payload.namespace) {
+                case 'location':
+                    if (Array.isArray(payload.data?.position)) {
+                        setDronePosition(payload.data.position as [number, number, number]);
+                    }
+                    break;
+                case 'control':
+                    setControlWrench(payload.data as ControlWrench);
+                    break;
+                case 'angle':
+                    setAngleStatus(payload.data as AngleStatus);
+                    break;
             }
         };
-
         spatialChannel.addEventListener('message', handleMessage);
-
         return () => {
             spatialChannel.removeEventListener('message', handleMessage);
             spatialChannel.close();
         };
     }, []);
+
+    const deg2rad = (deg: number) => deg * (Math.PI / 180);
 
     return (
         <div className="bg-gray-900 bg-gradient-to-t from-gray-950 min-h-screen">
@@ -369,7 +352,8 @@ export function App() {
                     decay={0}
                     intensity={20}
                 />
-                <Drone position={dronePosition} />
+                <Drone position={dronePosition} controlWrench={controlWrench} angleStatus={angleStatus} />
+                <TOFArray dronePosition={dronePosition} droneOrientation={{ yaw: deg2rad(angleStatus.angle[1]), pitch: deg2rad(angleStatus.angle[0]), roll: deg2rad(angleStatus.angle[2]) }} />
                 <EffectComposer>
                     <N8AO
                         aoRadius={500}
