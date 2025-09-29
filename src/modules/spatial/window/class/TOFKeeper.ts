@@ -87,10 +87,10 @@ export class TOFKeeper {
     private createToFMaterial(distance_mm: number): THREE.MeshStandardMaterial {
         const minDist = 100;   // mm
         const maxDist = 4000;  // mm
-        const f = (x: number) => 1 / (Math.pow(x, 1.1));
+        const f = (x: number) => 1 / (Math.pow(x, 2));
         const unreliability = Math.min(1, Math.max(0, (f(distance_mm) - f(minDist)) / (f(maxDist) - f(minDist))));
         const reliability = 1 - unreliability;
-        const color = new THREE.Color(reliability, reliability, reliability);
+        const color = new THREE.Color(1, 1, 1);
         return new THREE.MeshStandardMaterial({ color, transparent: true, opacity: Math.max(reliability, 0.1) });
     }
 
