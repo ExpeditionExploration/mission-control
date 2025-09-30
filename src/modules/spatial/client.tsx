@@ -46,6 +46,14 @@ export class SpatialModuleClient extends Module {
         this.broadcaster.on('control:wrench', (payload: Payload) => {
             this.sendStatusPayloadToWindow(payload);
         });
+
+        // Relay configuration values to the spatial window.
+        this.broadcaster.on('*:configResponse', (payload: Payload) => {
+            this.sendStatusPayloadToWindow(payload);
+        });
+    }
+
+    onModuleConfigReceived(): void | Promise<void> {
     }
 
     sendStatusPayloadToWindow(payload: Payload) {
