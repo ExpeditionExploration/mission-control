@@ -26,7 +26,6 @@
         "@react-three/fiber": "^9.1.2",
         "@react-three/postprocessing": "^3.0.4",
         "@tailwindcss/vite": "^4.1.8",
-        "@types/json5": "^0.0.30",
         "awilix": "^12.0.5",
         "bno08x": "github:ExpeditionExploration/openi2c-BNO08x",
         "chart.js": "^4.5.0",
