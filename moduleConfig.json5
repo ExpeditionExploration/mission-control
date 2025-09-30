@@ -43,7 +43,14 @@
     },
     "imu": {
         "server": {
-            "enabled": true
+            "enabled": true,
+            "bno085": {
+                "i2cBus": 3,
+                "i2cAddr": "0x4b",
+                "useInterrupts": true,
+                "interruptChip": "gpiochip0",
+                "interruptLine": 23
+            }
         },
         "client": {}
     },

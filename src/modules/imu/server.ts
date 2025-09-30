@@ -9,7 +9,6 @@ export class IMUModuleServer extends Module {
     private accelerationIntegrator = new TriAxisIntegrator()
     private currentYpr: [number, number, number] = [0, 0, 0]
     private imu?: IMU
-    private previousTime: number
     private speed: [number, number, number] = [0, 0, 0]
 
     onModuleInit(): void | Promise<void> {
@@ -21,7 +20,12 @@ export class IMUModuleServer extends Module {
         this.imu.setMeasurementCallback(this.onMeasurement)
         this.imu.enableSensor(SensorId.SH2_ROTATION_VECTOR, this.samplingInterval)
         this.imu.enableSensor(SensorId.SH2_LINEAR_ACCELERATION, this.samplingInterval)
-        this.imu.useInterrupts()
+        if (this.config.modules.imu.server.bno085.useInterrupts) {
+            this.imu.useInterrupts(
+                this.config.modules.imu.server.bno085.interruptChip,
+                this.config.modules.imu.server.bno085.interruptLine
+            )
+        }
         this.imu.devOn()
     }
 
@@ -63,8 +67,6 @@ export class IMUModuleServer extends Module {
                     z: this.speed[2],
                     timestamp,
                 })
-
-                this.previousTime = timestamp
                 break;
 
             case SensorId.SH2_ROTATION_VECTOR:
