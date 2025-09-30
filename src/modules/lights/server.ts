@@ -9,7 +9,7 @@ export class LightsModuleServer extends Module {
         super(deps);
     }
 
-    async processConfig(): Promise<void> {
+    async onModuleConfigReceived(): Promise<void> {
         if (!this.pwmModule) {
             // Uncomment the following line to enable PCA9685 control.
             if (this.config.lights.server.enabled) {

@@ -23,6 +23,6 @@ export class TOFModuleClient extends Module {
         })
     }
 
-    processConfig(): void | Promise<void> {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }

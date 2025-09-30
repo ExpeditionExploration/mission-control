@@ -86,7 +86,7 @@ export class ControlModuleServer extends Module {
         await this.setupMotors();
         this.emitWrenchContinuously();
     }
-    processConfig() {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 
     emitWrenchContinuously() {

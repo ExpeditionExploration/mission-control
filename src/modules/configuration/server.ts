@@ -27,6 +27,6 @@ export class ConfigurationModuleServer extends Module {
         this.logger.debug("[config] Configuration module initialized")
     }
 
-    processConfig(): void | Promise<void> {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }

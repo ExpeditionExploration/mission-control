@@ -15,6 +15,6 @@ export class StatsModuleClient extends Module {
         this.userInterface.addHeaderItem(StatsHeaderItem);
     }
 
-    processConfig(): void | Promise<void> {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }

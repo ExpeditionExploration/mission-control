@@ -56,7 +56,7 @@ export class BatteryModuleServer extends Module {
         this.simulateBatteryVoltageCheck();
     }
 
-    processConfig(): void | Promise<void> {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 
     simulateBatteryVoltageCheck() {

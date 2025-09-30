@@ -19,6 +19,6 @@ export class StatsModuleServer extends Module {
         }, 1000);
     }
 
-    processConfig(): void | Promise<void> {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }

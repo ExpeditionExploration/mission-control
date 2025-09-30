@@ -41,6 +41,6 @@ export class AngleModuleClient extends Module {
         })
     }
 
-    processConfig() {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }

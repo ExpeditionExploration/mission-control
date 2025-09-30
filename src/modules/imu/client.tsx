@@ -10,6 +10,6 @@ export class IMUModuleClient extends Module {
     onModuleInit(): void | Promise<void> {
     }
 
-    processConfig(): void | Promise<void> {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }

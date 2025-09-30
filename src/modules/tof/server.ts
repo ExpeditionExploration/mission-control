@@ -12,7 +12,7 @@ export class TOFModuleServer extends Module {
     onModuleInit(): void | Promise<void> {
     }
 
-    processConfig(): void | Promise<void> {
+    onModuleConfigReceived(): void | Promise<void> {
         this.logger.debug(            this.config.tof.server.vl53l5cx.i2cBus,
             this.config.tof.server.vl53l5cx.rangingFrequency
         );

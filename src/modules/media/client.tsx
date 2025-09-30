@@ -23,6 +23,6 @@ export class MediaModuleClient extends Module {
         });
     }
 
-    processConfig(): void | Promise<void> {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }

@@ -21,7 +21,7 @@ export abstract class Module {
         this.broadcaster = deps.broadcaster;
         this.logger = deps.logger;
         if (this.namespace !== 'configuration') {
-            this.requestConfig?.();
+            this.requestConfig();
         }
     }
 
@@ -41,7 +41,7 @@ export abstract class Module {
     abstract onModuleInit(): void | Promise<void>;
 
     requestConfig(): void {
-        this.logger?.info?.(`[${this.namespace}] Requesting configuration`);
+        this.logger.info(`[${this.namespace}] Requesting configuration`);
         this.on('configResponse', (data) => {
             if (this.config) {
                 return; // Already have config, ignore further responses
@@ -50,10 +50,10 @@ export abstract class Module {
             try {
                 const fn = (this as any).processConfig;
                 if (typeof fn === 'function') {
-                    this.logger?.info?.(`[${this.namespace}] Received and processing configuration`);
+                    this.logger.info(`[${this.namespace}] Received and processing configuration`);
                     fn.call(this);
                 } else {
-                    this.logger?.warn?.(`[${this.namespace}] processConfig() not implemented; ignoring configResponse`);
+                    this.logger.warn(`[${this.namespace}] onModuleConfigReceived() not implemented; ignoring configResponse`);
                 }
             } finally {
                 if (this.configIntervalHandle) {
@@ -79,5 +79,5 @@ export abstract class Module {
      * 
      * Config is stored in `this.config`.
      */
-    abstract processConfig(): void | Promise<void>;
+    abstract onModuleConfigReceived(): void | Promise<void>;
 }

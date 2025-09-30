@@ -3,6 +3,6 @@ import { Module } from 'src/module';
 export class AngleModuleServer extends Module {
     onModuleInit(): void | Promise<void> {
     }
-    processConfig() {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }

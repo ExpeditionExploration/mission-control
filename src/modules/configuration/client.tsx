@@ -14,6 +14,6 @@ export class ConfigurationModuleClient extends Module {
     onModuleInit(): void | Promise<void> {
     }
 
-    processConfig(): void | Promise<void> {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }

@@ -132,6 +132,6 @@ export class MediaModuleServer extends Module {
         });
     }
 
-    processConfig(): void | Promise<void> {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }

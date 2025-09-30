@@ -5,6 +5,6 @@ export class SpatialModuleServer extends Module {
     onModuleInit(): void | Promise<void> {
     }
 
-    processConfig() {
+    onModuleConfigReceived(): void | Promise<void> {
     }
 }
