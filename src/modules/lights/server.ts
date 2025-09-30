@@ -7,20 +7,17 @@ export class LightsModuleServer extends Module {
 
     constructor(deps: ServerModuleDependencies) {
         super(deps);
-        let bus = 4;
-        let frequency = 4096;
+    }
+
+    async onModuleConfigReceived(): Promise<void> {
         if (!this.pwmModule) {
             // Uncomment the following line to enable PCA9685 control.
-            // this.pwmModule = new PCA9685(bus);
-            this.pwmModule?.init().then(() => {
-                this.pwmModule?.setFrequency(frequency)
-                    .then(() => {
-                        this.logger.info(`PCA9685 initialized at ${frequency}Hz on bus ${bus}`);
-                    })
-                    .catch((err) => {
-                        this.logger.error('Failed to set PCA9685 frequency', err);
-                    });
-            });
+            if (this.config.lights.server.enabled) {
+                this.pwmModule = new PCA9685(this.config.lights.server.pca9685.i2cBus, parseInt(this.config.lights.server.pca9685.i2cAddr, 16));
+            }
+            await this.pwmModule?.init();
+            await this.pwmModule?.setFrequency(this.config.lights.server.pca9685.frequency);
+            this.logger.info(`PCA9685 enabled: ${this.config.lights.server.enabled}`);
         }
     }
 
@@ -29,13 +26,13 @@ export class LightsModuleServer extends Module {
             let channel: number; // Channel is PWM module output channel.
             switch (data.type) {
                 case 'vis':
-                    channel = 12;
+                    channel = this.config.lights.server.pca9685.leds.vis;
                     break;
                 case 'ir':
-                    channel = 13;
+                    channel = this.config.lights.server.pca9685.leds.ir;
                     break;
                 case 'uv':
-                    channel = 14;
+                    channel = this.config.lights.server.pca9685.leds.uv;
                     break;
                 default:
                     console.warn(`Unknown light type: ${data.type}`);

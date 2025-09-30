@@ -14,4 +14,7 @@ export class StatsModuleClient extends Module {
     onModuleInit(): void | Promise<void> {
         this.userInterface.addHeaderItem(StatsHeaderItem);
     }
+
+    onModuleConfigReceived(): void | Promise<void> {
+    }
 }

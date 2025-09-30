@@ -4,16 +4,27 @@ import { TOF_VL53L5CX } from './class/TOF';
 import { ScanData } from './types';
 
 export class TOFModuleServer extends Module {
-    private tofSensor = new TOF_VL53L5CX(1);  // Takes i2c bus as argument
+    private tofSensor: TOF_VL53L5CX;
 
     constructor(deps: ServerModuleDependencies) {
         super(deps);
     }
     onModuleInit(): void | Promise<void> {
+    }
 
+    onModuleConfigReceived(): void | Promise<void> {
+        if (!this.config.tof.server.enabled) {
+            return;
+        }
+        this.tofSensor = new TOF_VL53L5CX(
+            this.config.tof.server.vl53l5cx.i2cBus,
+            this.config.tof.server.vl53l5cx.rangingFrequency
+        );
         setInterval(async () => {
             const data = this.tofSensor.getRangingData();
-            this.emit<ScanData>('data', data);
+            if (data) {
+                this.emit<ScanData>('data', data);
+            }
         }, 1000 / 5); // 5 Hz
     }
 }

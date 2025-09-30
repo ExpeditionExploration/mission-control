@@ -1,10 +1,10 @@
-import  { Module } from 'src/module';
-import { ClientModuleDependencies } from 'src/client/client';
-import { BatteryStats } from './components/battery';
+import { Module } from 'src/module';
 import { UserInterface } from 'src/client/user-interface';
+import { ClientModuleDependencies } from 'src/client/client';
 
-export class BatteryModuleClient extends Module {
-    userInterface: UserInterface
+
+export class ConfigurationModuleClient extends Module {
+    userInterface: UserInterface;
 
     constructor(deps: ClientModuleDependencies) {
         super(deps);
@@ -12,7 +12,6 @@ export class BatteryModuleClient extends Module {
     }
 
     onModuleInit(): void | Promise<void> {
-        this.userInterface.addHeaderItem(BatteryStats);
     }
 
     onModuleConfigReceived(): void | Promise<void> {

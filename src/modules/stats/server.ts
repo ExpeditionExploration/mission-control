@@ -18,4 +18,7 @@ export class StatsModuleServer extends Module {
             this.emit<Stats>('stats', data);
         }, 1000);
     }
+
+    onModuleConfigReceived(): void | Promise<void> {
+    }
 }

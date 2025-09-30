@@ -22,4 +22,7 @@ export class MediaModuleClient extends Module {
             side: Side.Right,
         });
     }
+
+    onModuleConfigReceived(): void | Promise<void> {
+    }
 }

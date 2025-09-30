@@ -34,6 +34,7 @@
         "colors": "^1.4.0",
         "forever": "^4.0.3",
         "gstwebrtc-api": "github:ExpeditionExploration/gstwebrtc-api",
+        "json5": "^2.2.3",
         "lucide-react": "^0.511.0",
         "mathjs": "^14.7.0",
         "mpegts.js": "^1.8.0",

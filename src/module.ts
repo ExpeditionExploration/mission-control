@@ -13,11 +13,16 @@ export abstract class Module {
     public readonly namespace!: string;
     public readonly broadcaster!: Broadcaster;
     public readonly logger!: Logger;
+    protected config?: { [key: string]: any };
+    private configRequestIntervalHandle?: NodeJS.Timeout;
 
     constructor(deps: ModuleDependencies) {
         this.namespace = deps.namespace;
         this.broadcaster = deps.broadcaster;
         this.logger = deps.logger;
+        if (this.namespace !== 'configuration') {
+            this.requestConfig();
+        }
     }
 
     getEvent(event: string): NamespacedEventName {
@@ -34,4 +39,45 @@ export abstract class Module {
     }
 
     abstract onModuleInit(): void | Promise<void>;
+
+    requestConfig(): void {
+        this.logger.info(`[${this.namespace}] Requesting configuration`);
+        this.on('configResponse', (data) => {
+            if (this.config) {
+                return; // Already have config, ignore further responses
+            }
+            this.config = data;
+            try {
+                const fn = (this as any).onModuleConfigReceived;
+                if (typeof fn === 'function') {
+                    this.logger.info(`Received and processing configuration`);
+                    fn.call(this);
+                } else {
+                    this.logger.warn(`onModuleConfigReceived() not implemented; ignoring configResponse`);
+                }
+            } finally {
+                if (this.configRequestIntervalHandle) {
+                    clearInterval(this.configRequestIntervalHandle);
+                    this.configRequestIntervalHandle = undefined;
+                }
+            }
+        });
+        this.configRequestIntervalHandle = setInterval(() => {   
+            if (this.config) {
+                return; // Already have config, ignore further requests
+            }
+            this.emit('configRequest', {
+                event: 'configRequest',
+                namespace: this.namespace,
+                data: null,
+            } as Payload);
+        }, 1000);
+    }
+
+    /**
+     * Process the configuration data once received.
+     * 
+     * Config is stored in `this.config`.
+     */
+    abstract onModuleConfigReceived(): void | Promise<void>;
 }

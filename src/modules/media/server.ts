@@ -131,4 +131,7 @@ export class MediaModuleServer extends Module {
             this.logger.error('Failed to start GStreamer process:', err);
         });
     }
+
+    onModuleConfigReceived(): void | Promise<void> {
+    }
 }

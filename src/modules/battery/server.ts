@@ -56,6 +56,9 @@ export class BatteryModuleServer extends Module {
         this.simulateBatteryVoltageCheck();
     }
 
+    onModuleConfigReceived(): void | Promise<void> {
+    }
+
     simulateBatteryVoltageCheck() {
         if (this.statusInterval) return;
         this.statusInterval = setInterval(() => {
