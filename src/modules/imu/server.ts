@@ -22,6 +22,9 @@ export class IMUModuleServer extends Module {
         this.imu.devOn()
     }
 
+    processConfig(): void | Promise<void> {
+    }
+
     private onMeasurement = (ev: SensorEvent, cookie: Object): void => {
         switch (ev.reportId) {
             case SensorId.SH2_LINEAR_ACCELERATION:

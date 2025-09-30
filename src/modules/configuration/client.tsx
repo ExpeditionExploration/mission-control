@@ -1,9 +1,9 @@
 import { Module } from 'src/module';
-import { StatsHeaderItem } from './components/StatsHeaderItem';
 import { UserInterface } from 'src/client/user-interface';
 import { ClientModuleDependencies } from 'src/client/client';
 
-export class StatsModuleClient extends Module {
+
+export class ConfigurationModuleClient extends Module {
     userInterface: UserInterface;
 
     constructor(deps: ClientModuleDependencies) {
@@ -12,7 +12,6 @@ export class StatsModuleClient extends Module {
     }
 
     onModuleInit(): void | Promise<void> {
-        this.userInterface.addHeaderItem(StatsHeaderItem);
     }
 
     processConfig(): void | Promise<void> {

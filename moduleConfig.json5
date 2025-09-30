@@ -1,0 +1,58 @@
+// This file is used to configure various module settings.
+
+{
+    "stats": {
+        "server": {},
+        "client": {}
+    },
+    "media": {
+        "server": {},
+        "client": {}
+    },
+    "lights": {
+        "server": {
+            "enabled": false,
+            "pca9685": {
+                "i2cBus": 3,
+                "i2cAddr": "0x40",
+                "frequency": 4096,
+                "leds": {
+                    "vis": 0,
+                    "ir": 1,
+                    "uv": 2
+                }
+            }
+        },
+        "client": {}
+    },
+    "control": {
+        "server": {},
+        "client": {}
+    },
+    "angle": {
+        "server": {},
+        "client": {}
+    },
+    "spatial": {
+        "server": {},
+        "client": {}
+    },
+    "imu": {
+        "server": {},
+        "client": {}
+    },
+    "battery": {
+        "server": {},
+        "client": {}
+    },
+    "tof": {
+        "server": {
+            "vl53l5cx": {
+                "i2cBus": 1,
+                "i2cAddr": "0x29",
+                "rangingFrequency": 5
+            }
+        },
+        "client": {}
+    }
+}

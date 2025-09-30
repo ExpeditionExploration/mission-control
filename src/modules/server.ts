@@ -8,6 +8,7 @@ import { SpatialModuleServer } from './spatial/server';
 import { IMUModuleServer } from './imu/server';
 import { BatteryModuleServer } from './battery/server';
 import { TOFModuleServer } from './tof/server';
+import { ConfigurationModuleServer } from './configuration/server';
 
 export const modules = new Map([
     ['stats', StatsModuleServer],
@@ -18,5 +19,6 @@ export const modules = new Map([
     ['angle', AngleModuleServer],
     ['spatial', SpatialModuleServer],
     ['battery', BatteryModuleServer],
-    ['tof', TOFModuleServer]
+    ['tof', TOFModuleServer],
+    ['configuration', ConfigurationModuleServer],
 ]);
