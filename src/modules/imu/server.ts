@@ -8,21 +8,24 @@ export class IMUModuleServer extends Module {
 
     private accelerationIntegrator = new TriAxisIntegrator()
     private currentYpr: [number, number, number] = [0, 0, 0]
-    private imu: IMU
+    private imu?: IMU
     private previousTime: number
     private speed: [number, number, number] = [0, 0, 0]
 
     onModuleInit(): void | Promise<void> {
-        this.imu = new IMU(5, 0x4b);
+    }
+
+    onModuleConfigReceived(): void | Promise<void> {
+        if (!this.config.imu.server.enabled) {
+            return;
+        }
+        this.imu = new IMU(3, 0x4b);
         this.imu.open()
         this.imu.setMeasurementCallback(this.onMeasurement)
         this.imu.enableSensor(SensorId.SH2_ROTATION_VECTOR, this.samplingInterval)
         this.imu.enableSensor(SensorId.SH2_LINEAR_ACCELERATION, this.samplingInterval)
         this.imu.useInterrupts()
         this.imu.devOn()
-    }
-
-    onModuleConfigReceived(): void | Promise<void> {
     }
 
     private onMeasurement = (ev: SensorEvent, cookie: Object): void => {

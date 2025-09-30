@@ -42,7 +42,9 @@
         "client": {}
     },
     "imu": {
-        "server": {},
+        "server": {
+            "enabled": true
+        },
         "client": {}
     },
     "battery": {

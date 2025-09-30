@@ -50,10 +50,10 @@ export abstract class Module {
             try {
                 const fn = (this as any).onModuleConfigReceived;
                 if (typeof fn === 'function') {
-                    this.logger.info(`[${this.namespace}] Received and processing configuration`);
+                    this.logger.info(`Received and processing configuration`);
                     fn.call(this);
                 } else {
-                    this.logger.warn(`[${this.namespace}] onModuleConfigReceived() not implemented; ignoring configResponse`);
+                    this.logger.warn(`onModuleConfigReceived() not implemented; ignoring configResponse`);
                 }
             } finally {
                 if (this.configRequestIntervalHandle) {
