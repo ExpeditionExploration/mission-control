@@ -1,6 +1,10 @@
-// This file is used to configure various module settings.
+// This file is used to configure various modules and common settings.
 
 {
+    // General settings that apply to all modules and drone core settings.
+    "common": {},
+
+    // Module-specific settings.
     "stats": {
         "server": {},
         "client": {}

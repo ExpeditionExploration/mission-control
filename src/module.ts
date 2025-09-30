@@ -14,7 +14,7 @@ export abstract class Module {
     public readonly broadcaster!: Broadcaster;
     public readonly logger!: Logger;
     protected config?: { [key: string]: any };
-    private configIntervalHandle?: NodeJS.Timeout;
+    private configRequestIntervalHandle?: NodeJS.Timeout;
 
     constructor(deps: ModuleDependencies) {
         this.namespace = deps.namespace;
@@ -56,13 +56,13 @@ export abstract class Module {
                     this.logger.warn(`[${this.namespace}] onModuleConfigReceived() not implemented; ignoring configResponse`);
                 }
             } finally {
-                if (this.configIntervalHandle) {
-                    clearInterval(this.configIntervalHandle);
-                    this.configIntervalHandle = undefined;
+                if (this.configRequestIntervalHandle) {
+                    clearInterval(this.configRequestIntervalHandle);
+                    this.configRequestIntervalHandle = undefined;
                 }
             }
         });
-        this.configIntervalHandle = setInterval(() => {   
+        this.configRequestIntervalHandle = setInterval(() => {   
             if (this.config) {
                 return; // Already have config, ignore further requests
             }

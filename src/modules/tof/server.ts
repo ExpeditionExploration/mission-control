@@ -13,9 +13,6 @@ export class TOFModuleServer extends Module {
     }
 
     onModuleConfigReceived(): void | Promise<void> {
-        this.logger.debug(            this.config.tof.server.vl53l5cx.i2cBus,
-            this.config.tof.server.vl53l5cx.rangingFrequency
-        );
         this.tofSensor = new TOF_VL53L5CX(
             this.config.tof.server.vl53l5cx.i2cBus,
             this.config.tof.server.vl53l5cx.rangingFrequency

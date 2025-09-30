@@ -26,13 +26,13 @@ export class LightsModuleServer extends Module {
             let channel: number; // Channel is PWM module output channel.
             switch (data.type) {
                 case 'vis':
-                    channel = this.config.pca9685.leds.vis;
+                    channel = this.config.lights.server.pca9685.leds.vis;
                     break;
                 case 'ir':
-                    channel = this.config.pca9685.leds.ir;
+                    channel = this.config.lights.server.pca9685.leds.ir;
                     break;
                 case 'uv':
-                    channel = this.config.pca9685.leds.uv;
+                    channel = this.config.lights.server.pca9685.leds.uv;
                     break;
                 default:
                     console.warn(`Unknown light type: ${data.type}`);

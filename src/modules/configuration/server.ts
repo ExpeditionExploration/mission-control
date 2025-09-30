@@ -5,7 +5,7 @@ import path from 'node:path';
 import JSON5 from 'json5';
 
 export class ConfigurationModuleServer extends Module {
-    private settings: unknown;
+    private settings: { [key: string]: any };
 
     async onModuleInit(): Promise<void> {
         const file = path.resolve(process.cwd(), 'moduleConfig.json5');
