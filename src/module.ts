@@ -48,7 +48,7 @@ export abstract class Module {
             }
             this.config = data;
             try {
-                const fn = (this as any).processConfig;
+                const fn = (this as any).onModuleConfigReceived;
                 if (typeof fn === 'function') {
                     this.logger.info(`[${this.namespace}] Received and processing configuration`);
                     fn.call(this);

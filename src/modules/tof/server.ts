@@ -13,6 +13,9 @@ export class TOFModuleServer extends Module {
     }
 
     onModuleConfigReceived(): void | Promise<void> {
+        if (!this.config.tof.server.enabled) {
+            return;
+        }
         this.tofSensor = new TOF_VL53L5CX(
             this.config.tof.server.vl53l5cx.i2cBus,
             this.config.tof.server.vl53l5cx.rangingFrequency
