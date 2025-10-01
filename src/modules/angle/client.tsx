@@ -40,7 +40,4 @@ export class AngleModuleClient extends Module {
             this.onOrientation(payload.data)
         })
     }
-
-    onModuleConfigReceived(): void | Promise<void> {
-    }
 }

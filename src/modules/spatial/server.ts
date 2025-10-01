@@ -4,7 +4,4 @@ export class SpatialModuleServer extends Module {
 
     onModuleInit(): void | Promise<void> {
     }
-
-    onModuleConfigReceived(): void | Promise<void> {
-    }
 }

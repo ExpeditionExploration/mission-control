@@ -53,9 +53,6 @@ export class SpatialModuleClient extends Module {
         });
     }
 
-    onModuleConfigReceived(): void | Promise<void> {
-    }
-
     sendStatusPayloadToWindow(payload: Payload) {
         // Send via BroadcastChannel instead of postMessage
         this.spatialChannel.postMessage(payload);
