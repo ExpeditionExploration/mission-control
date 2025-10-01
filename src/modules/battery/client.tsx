@@ -14,7 +14,4 @@ export class BatteryModuleClient extends Module {
     onModuleInit(): void | Promise<void> {
         this.userInterface.addHeaderItem(BatteryStats);
     }
-
-    onModuleConfigReceived(): void | Promise<void> {
-    }
 }

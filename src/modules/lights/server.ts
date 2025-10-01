@@ -9,30 +9,27 @@ export class LightsModuleServer extends Module {
         super(deps);
     }
 
-    async onModuleConfigReceived(): Promise<void> {
+    onModuleInit(): void | Promise<void> {
         if (!this.pwmModule) {
             // Uncomment the following line to enable PCA9685 control.
-            if (this.config.lights.server.enabled) {
-                this.pwmModule = new PCA9685(this.config.lights.server.pca9685.i2cBus, parseInt(this.config.lights.server.pca9685.i2cAddr, 16));
+            if (this.config.modules.lights.server.enabled) {
+                this.pwmModule = new PCA9685(this.config.modules.lights.server.pca9685.i2cBus, parseInt(this.config.modules.lights.server.pca9685.i2cAddr, 16));
             }
-            await this.pwmModule?.init();
-            await this.pwmModule?.setFrequency(this.config.lights.server.pca9685.frequency);
-            this.logger.info(`PCA9685 enabled: ${this.config.lights.server.enabled}`);
+            this.pwmModule?.init();
+            this.pwmModule?.setFrequency(this.config.modules.lights.server.pca9685.frequency);
+            this.logger.info(`PCA9685 enabled: ${this.config.modules.lights.server.enabled}`);
         }
-    }
-
-    onModuleInit(): void | Promise<void> {
         this.on('setLight', async (data: { type: 'vis' | 'ir' | 'uv'; brightness: number }) => {
             let channel: number; // Channel is PWM module output channel.
             switch (data.type) {
                 case 'vis':
-                    channel = this.config.lights.server.pca9685.leds.vis;
+                    channel = this.config.modules.lights.server.pca9685.leds.vis;
                     break;
                 case 'ir':
-                    channel = this.config.lights.server.pca9685.leds.ir;
+                    channel = this.config.modules.lights.server.pca9685.leds.ir;
                     break;
                 case 'uv':
-                    channel = this.config.lights.server.pca9685.leds.uv;
+                    channel = this.config.modules.lights.server.pca9685.leds.uv;
                     break;
                 default:
                     console.warn(`Unknown light type: ${data.type}`);
