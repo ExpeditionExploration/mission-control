@@ -10,15 +10,12 @@ export class TOFModuleServer extends Module {
         super(deps);
     }
     onModuleInit(): void | Promise<void> {
-    }
-
-    onModuleConfigReceived(): void | Promise<void> {
-        if (!this.config.tof.server.enabled) {
+        if (!this.config.modules.tof.server.enabled) {
             return;
         }
         this.tofSensor = new TOF_VL53L5CX(
-            this.config.tof.server.vl53l5cx.i2cBus,
-            this.config.tof.server.vl53l5cx.rangingFrequency
+            this.config.modules.tof.server.vl53l5cx.i2cBus,
+            this.config.modules.tof.server.vl53l5cx.rangingFrequency
         );
         setInterval(async () => {
             const data = this.tofSensor.getRangingData();

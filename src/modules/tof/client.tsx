@@ -22,7 +22,4 @@ export class TOFModuleClient extends Module {
             });
         })
     }
-
-    onModuleConfigReceived(): void | Promise<void> {
-    }
 }
