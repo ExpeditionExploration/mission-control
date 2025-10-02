@@ -46,8 +46,8 @@ class IMU {
         this.sensor.setSensorCallback(cb, {})
     }
 
-    useInterrupts() {
-        this.sensor.useInterrupts("gpiochip1", 26)
+    useInterrupts(chip: string, line: number) {
+        this.sensor.useInterrupts(chip, line)
     }
 
     /**

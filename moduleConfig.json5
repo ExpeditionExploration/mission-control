@@ -43,19 +43,37 @@
     },
     "imu": {
         "server": {
-            "enabled": true
+            "enabled": true,
+            "bno085": {
+                "i2cBus": 3,
+                "i2cAddr": "0x4b",
+                "useInterrupts": true,
+                "interruptChip": "gpiochip0",
+                "interruptLine": 23
+            }
         },
         "client": {}
     },
     "battery": {
-        "server": {},
+        "server": {
+            "enabled": true,
+            "simulated": true,
+            "cellCapacity": 2550, // mAh
+            "cellsInSeries": 2,
+            "cellsInParallel": 3,
+            "ina226": {
+                "i2cBus": 1,
+                "i2cAddr": "0x40",
+                "shuntResistorOhms": 0.1
+            }
+        },
         "client": {}
     },
     "tof": {
         "server": {
             "enabled": true,
             "vl53l5cx": {
-                "i2cBus": 4,
+                "i2cBus": 1,
                 "i2cAddr": "0x29",
                 "rangingFrequency": 5
             }
