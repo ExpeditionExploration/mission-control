@@ -33,27 +33,36 @@ class INA226CurrentSensor {
 
 export class BatteryModuleServer extends Module {
     // 2550 mAh cells for 2S3P battery for a nominal voltage of 7.4V.
-    battery: Battery = new Battery(2550, 2, 3);
+    battery: Battery
     batteryVoltageSetter = new BatteryLevelSetter(defaultChargeLevelFunction);
     private statusInterval?: NodeJS.Timeout;
     private currentSensor?: INA226CurrentSensor;
 
     constructor(deps: ServerModuleDependencies) {
         super(deps);
-        // Uncomment to enable current sensor
-        // this.currentSensor = new INA226CurrentSensor(
-        //     1,  // i2cBus
-        //     0x40,  // address
-        //     0.1,  // shuntResistance
-        //     INA226ConversionTime.CONVERSION_TIME_1P1_MS,
-        //     INA226ConversionTime.CONVERSION_TIME_1P1_MS,
-        //     INA226AverageMode.INA226_AVG_16,
-        //     INA226Mode.SHUNT_BUS_VOLTAGE_CONTINUOUS
-        // );
     }
 
     async onModuleInit() {
+        this.battery = new Battery(
+            this.config.modules.battery.server.cellCapacity,
+            this.config.modules.battery.server.cellsInSeries,
+            this.config.modules.battery.server.cellsInParallel
+        );
         this.simulateBatteryVoltageCheck();
+        if (this.config.modules.battery.server.simulated) {
+            this.logger.info('Battery module is running in simulated mode.');
+            return;
+        }
+        this.currentSensor = new INA226CurrentSensor(
+            this.config.modules.battery.server.ina226.i2cBus,
+            parseInt(this.config.modules.battery.server.ina226.i2cAddr, 16),
+            this.config.modules.battery.server.ina226.shuntResistorOhms,
+            INA226ConversionTime.CONVERSION_TIME_1P1_MS,
+            INA226ConversionTime.CONVERSION_TIME_1P1_MS,
+            INA226AverageMode.INA226_AVG_16,
+            INA226Mode.SHUNT_BUS_VOLTAGE_CONTINUOUS
+        );
+
     }
 
     simulateBatteryVoltageCheck() {
