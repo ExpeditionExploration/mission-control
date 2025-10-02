@@ -15,7 +15,10 @@ export class IMUModuleServer extends Module {
         if (!this.config.modules.imu.server.enabled) {
             return;
         }
-        this.imu = new IMU(5, 0x4b);
+        this.imu = new IMU(
+            this.config.modules.imu.server.bno085.i2cBus,
+            parseInt(this.config.modules.imu.server.bno085.i2cAddr, 16)
+        );
         this.imu.open()
         this.imu.setMeasurementCallback(this.onMeasurement)
         this.imu.enableSensor(SensorId.SH2_ROTATION_VECTOR, this.samplingInterval)
