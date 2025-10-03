@@ -11,7 +11,48 @@
     },
     "media": {
         "server": {},
-        "client": {}
+        "client": {
+            "webRtc": {
+
+                // Needed for the drone to connect to stream video to Mission Control.
+                "droneConnection": {
+                    "enabled": true,
+                    "signalingServer": "ws://your.signaling.server:8443",
+                    "STUNServers": ["stun:stun.l.google.com:19302"]
+                },
+
+                // Needed for Mission Control to further share the stream.
+                "signalingServer": {
+                    "enabled": true,
+                    "port": 8443,
+                    "useSsl": false,
+                    "sslCert": "/path/to/cert.pem",
+                    "sslKey": "/path/to/key.pem",
+
+                    // Proxied video settings for outgoing stream.
+                    // This is for Mission Control running your host, not the drone.
+                    "videoProxy": { 
+                        "enabled": true,
+                        "bitrate": 1000000,
+                        "framerate": 15,
+                        "width": 640,
+                        "height": 480,
+                        "useH264": true,
+
+                        // TURN server settings if needed. It is used for NAT
+                        // traversal when both peers are behind a restrictive
+                        // firewall or NAT.
+                        "turnServers": [
+                            {
+                                "urls": "turn:your.turn.server:3478",
+                                "username": "username",
+                                "credential": "password"
+                            }
+                        ]
+                    },
+                },
+            }
+        }
     },
     "lights": {
         "server": {
