@@ -2,7 +2,15 @@
 
 {
     // General settings that apply to all modules and drone core settings.
-    "common": {},
+    "common": {
+        "pca9685": {
+            "enabled": true,
+            // "i2cBus": 1, // RaspberryPi_4B
+            "i2cBus": 4, // OrangePi_5
+            "i2cAddr": "0x40",
+            "frequency": 1526,
+        }
+    },
 
     // Module-specific settings.
     "stats": {
@@ -17,14 +25,10 @@
         "server": {
             "enabled": false,
             "pca9685": {
-                // "i2cBus": 1, // RaspberryPi_4B
-                "i2cBus": 4, // OrangePi_5
-                "i2cAddr": "0x40",
-                "frequency": 1526,
                 "leds": {
-                    "vis": 0,
-                    "ir": 1,
-                    "uv": 2
+                    "vis": 13,
+                    "ir": 14,
+                    "uv": 15
                 }
             }
         },
