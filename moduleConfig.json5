@@ -17,7 +17,8 @@
         "server": {
             "enabled": false,
             "pca9685": {
-                "i2cBus": 4,
+                // "i2cBus": 1, // RaspberryPi_4B
+                "i2cBus": 4, // OrangePi_5
                 "i2cAddr": "0x40",
                 "frequency": 1526,
                 "leds": {
@@ -45,7 +46,8 @@
         "server": {
             "enabled": true,
             "bno085": {
-                "i2cBus": 5,
+                // "i2cBus": 3, // RaspberryPi_4B
+                "i2cBus": 5, // OrangePi_5
                 "i2cAddr": "0x4b",
                 "useInterrupts": true,
                 // From opengpio library use device-specific bcm pin names.
@@ -63,7 +65,8 @@
             "cellsInSeries": 2,
             "cellsInParallel": 3,
             "ina226": {
-                "i2cBus": 5,
+                // "i2cBus": 1, // RaspberryPi_4B
+                "i2cBus": 5, // OrangePi_5
                 "i2cAddr": "0x40",
                 "shuntResistorOhms": 0.1
             }
@@ -74,7 +77,8 @@
         "server": {
             "enabled": true,
             "vl53l5cx": {
-                "i2cBus": 4,
+                // "i2cBus": 1, // RaspberryPi_4B
+                "i2cBus": 4, // OrangePi_5
                 "i2cAddr": "0x29",
                 "rangingFrequency": 5
             }
