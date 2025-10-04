@@ -48,9 +48,9 @@
                 "i2cBus": 5,
                 "i2cAddr": "0x4b",
                 "useInterrupts": true,
-                 // Interrupt pin = GPIO1_D2 in Orange Pi CM5 Tablet Base Board
-                "interruptChip": "gpiochip1",
-                "interruptLine": 26
+                // From opengpio library use device-specific bcm pin names.
+                // "interruptPin": ["RaspberryPi_4B", "GPIO23"],
+                "interruptPin": ["OrangePi_5", "GPIO1_D2"],
             }
         },
         "client": {}
