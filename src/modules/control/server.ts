@@ -5,86 +5,70 @@ import { ECMMotorState } from './class/ECMMotorState';
 import { Wrench } from './types';
 // import { OrangePi_5 } from 'opengpio';
 import { cross, subtract, pi, sin, cos, multiply, pinv, transpose, round } from 'mathjs';
+import { PCA9685 } from 'openi2c';
 
 const isProd = false; // process.env.NODE_ENV === 'production';
 export class ControlModuleServer extends Module {
-    readonly centerOfMass = [0, 0.3, -1.0]; // [sway/pitch, heave/yaw, surge/roll] in 3D Viewer
-    readonly wingAngleInDegrees = 25;
-    physicalMotors: { [key: string]: MotorState } = {
-        rear: new ECMMotorState({
-            name: 'Rear Motor',
-            logger: this.logger,
-            gpioOutPWM: 6, // OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A3, 1, 500),
-            gpioOutReverse: 7,
-            gpioOutStop: 8, // OrangePi_5.output(OrangePi_5.bcm.GPIO1_A4),
-            invertPWM: true,
-            position: [0, 0.5, -2.5],
-            orientation: [0, 0, 1], // Right-hand rule (Z forward)
-        }),
-        rearTransverse: new ECMMotorState({
-            name: 'Medium Motor',
-            logger: this.logger,
-            gpioOutPWM: 4, // OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_D1, 1, 500),
-            gpioOutReverse: 5, // OrangePi_5.output(OrangePi_5.bcm.GPIO1_A7),
-            invertPWM: true,
-            scale: 4,
-            position: [0, 0.54, -1.93],
-            orientation: [1, 0, 0], // Right-hand rule (X left)
-        }),
-        leftWing: new ECMMotorState({
-            name: 'Small Motor Left',
-            logger: this.logger,
-            gpioOutPWM: 0, // OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A2, 0, 500),
-            gpioOutReverse: 1, // OrangePi_5.output(OrangePi_5.bcm.GPIO1_A6),
-            scale: 2,
-            invertRotationDirection: true,
-            position: [0.66, 0.36, -0.49],
-            orientation: [sin(this.wingAngleInDegrees * (pi / 180)), cos(this.wingAngleInDegrees * (pi / 180)), 0],
-        }),
-        rightWing: new ECMMotorState({
-            name: 'Small Motor Right',
-            logger: this.logger,
-            gpioOutPWM: 2,
-            gpioOutReverse: 3,
-            scale: 2,
-            position: [-0.66, 0.36, -0.49],
-            orientation: [sin(this.wingAngleInDegrees * (pi / 180)), -cos(this.wingAngleInDegrees * (pi / 180)), 0],
-        }),
-    };
-    virtualMotors: { [key: string]: MotorState } = {
-        heave: new MotorState({
-            logger: this.logger,
-            name: 'Heave Motors',
-        }),
-        sway: new MotorState({
-            logger: this.logger,
-            name: 'Sway Motors',
-        }),
-        surge: new MotorState({
-            name: 'Surge Motors',
-            logger: this.logger,
-        }),
-        yaw: new MotorState({
-            name: 'Yaw Motors',
-            logger: this.logger,
-        }),
-        pitch: new MotorState({
-            name: 'Pitch Motors',
-            logger: this.logger,
-        }),
-        roll: new MotorState({
-            logger: this.logger,
-            name: 'Roll Motors',
-        }),
-    };
+    private pwmModule: PCA9685;
+    private physicalMotors: { [key: string]: MotorState } = {};
+    private virtualMotors: { [key: string]: MotorState } = {};
     private virtualToPhysical: { [physicalKey: string]: { [virtualKey: string]: number } } = {};
 
     constructor(deps: ServerModuleDependencies) {
         super(deps);
     }
 
-    async onModuleInit() {
-        await this.setupMotors();
+    onModuleInit(): void | Promise<void> {
+        if (!this.pwmModule) {
+            if (this.config.modules.control.server.enabled && this.config.modules.common.pca9685.enabled) {
+                this.pwmModule = new PCA9685(this.config.modules.common.pca9685.i2cBus, parseInt(this.config.modules.common.pca9685.i2cAddr, 16));
+            }
+            this.pwmModule?.init();
+            this.pwmModule?.setFrequency(this.config.modules.common.pca9685.frequency);
+            this.logger.info(`PCA9685 enabled: ${this.config.modules.control.server.enabled && this.config.modules.common.pca9685.enabled}`);
+        }
+        for (const [name, motor] of Object.entries(this.config.modules.common.motors)) {
+            this.physicalMotors[name] = new ECMMotorState({
+                name: `${name} Motor`,
+                logger: this.logger,
+                pwmModule: this.pwmModule,
+                gpioOutPWM: motor.gpioOutPWM,
+                gpioOutReverse: motor.gpioOutReverse,
+                gpioOutStop: motor.gpioOutStop,
+                invertPWM: motor.invertPWM,
+                invertRotationDirection: motor.invertRotationDirection,
+                scale: motor.scale,
+                position: motor.position,
+                orientation: motor.orientation,
+            });
+        }
+        this.virtualMotors = {
+            heave: new MotorState({
+                logger: this.logger,
+                name: 'Heave Motors',
+            }),
+            sway: new MotorState({
+                logger: this.logger,
+                name: 'Sway Motors',
+            }),
+            surge: new MotorState({
+                name: 'Surge Motors',
+                logger: this.logger,
+            }),
+            yaw: new MotorState({
+                name: 'Yaw Motors',
+                logger: this.logger,
+            }),
+            pitch: new MotorState({
+                name: 'Pitch Motors',
+                logger: this.logger,
+            }),
+            roll: new MotorState({
+                logger: this.logger,
+                name: 'Roll Motors',
+            }),
+        };
+        this.setupMotors();
         this.emitWrenchContinuously();
     }
 
@@ -117,7 +101,7 @@ export class ControlModuleServer extends Module {
             let position = motor?.position ?? [0, 0, 0];
             let orientation = motor?.orientation ?? [0, 0, 0];
             // Round to 2 decimals but keep values as numbers to satisfy the expected types
-            position = subtract(position, this.centerOfMass) as number[];
+            position = subtract(position, this.config.modules.common.drone.centerOfMass) as number[];
             let force = orientation;
             let torque = cross(position, orientation);
             this.logger.info(`${motor.name} position: ${round(position, 2)}, orientation: ${round(orientation, 2)}, force: ${round(force, 2)}, torque: ${round(torque, 2)}`);
