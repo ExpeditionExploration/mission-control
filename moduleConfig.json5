@@ -19,7 +19,7 @@
             "pca9685": {
                 "i2cBus": 4,
                 "i2cAddr": "0x40",
-                "frequency": 4096,
+                "frequency": 1526,
                 "leds": {
                     "vis": 0,
                     "ir": 1,
@@ -48,7 +48,8 @@
                 "i2cBus": 5,
                 "i2cAddr": "0x4b",
                 "useInterrupts": true,
-                "interruptChip": "gpiochip0",
+                 // Interrupt pin = GPIO1_D2 in Orange Pi CM5 Tablet Base Board
+                "interruptChip": "gpiochip1",
                 "interruptLine": 26
             }
         },
