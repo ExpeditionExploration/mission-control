@@ -1,4 +1,8 @@
+import { EventEmitter } from 'node:events';
 import concurrently from 'concurrently';
+
+EventEmitter.defaultMaxListeners = 100;
+process.setMaxListeners(100);
 const { result } = concurrently(
     [
         { command: 'npm run dev:client', name: 'Client' },

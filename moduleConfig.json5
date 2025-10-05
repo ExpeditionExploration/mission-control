@@ -26,7 +26,7 @@
                 "gpioOutPWM": 4, // [OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_D1, 1, 500),
                 "gpioOutReverse": 5, // [OrangePi_5.output(OrangePi_5.bcm.GPIO1_A7),
                 "invertPWM": true,
-                "scale": 4,
+                "scale": 1,
                 "position": [0, 0.54, -1.93],
                 "orientation": [1, 0, 0], // Right-hand rule (X left)
             },
@@ -34,14 +34,14 @@
                 "gpioOutPWM": 0, // OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A2, 0, 500),
                 "gpioOutReverse": 1, // OrangePi_5.output(OrangePi_5.bcm.GPIO1_A6),
                 "invertRotationDirection": true,
-                "scale": 2,
+                "scale": 1,
                 "position": [0.66, 0.36, -0.49],
                 "orientation": [-0.13235175009, 0.99120281186, 0], // [-sind(25), cosd(25), 0]
             },
             "Right Wing": {
                 "gpioOutPWM": 2,
                 "gpioOutReverse": 3,
-                "scale": 2,
+                "scale": 1,
                 "position": [-0.66, 0.36, -0.49],
                 "orientation": [-0.13235175009, -0.99120281186, 0], // [-sind(25), -cosd(25), 0]
             },
