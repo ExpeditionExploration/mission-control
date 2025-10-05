@@ -2,7 +2,51 @@
 
 {
     // General settings that apply to all modules and drone core settings.
-    "common": {},
+    "common": {
+        "drone": {
+            "centerOfMass": [0, 0.3, -1.0], // [sway/pitch, heave/yaw, surge/roll] in 3D Viewer
+        },
+        "pca9685": {
+            "enabled": true,
+            // "i2cBus": 1, // RaspberryPi_4B
+            "i2cBus": 4, // OrangePi_5
+            "i2cAddr": "0x40",
+            "frequency": 1526,
+        },
+        "motors": {
+            "Rear": {
+                "gpioOutPWM": 6, // [OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A3, 1, 500),
+                "gpioOutReverse": 7,
+                "gpioOutStop": 8, // [OrangePi_5.output(OrangePi_5.bcm.GPIO1_A4),
+                "invertPWM": true,
+                "position": [0, 0.5, -2.5],
+                "orientation": [0, 0, 1], // Right-hand rule (Z forward)
+            },
+            "Rear Transverse": {
+                "gpioOutPWM": 4, // [OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_D1, 1, 500),
+                "gpioOutReverse": 5, // [OrangePi_5.output(OrangePi_5.bcm.GPIO1_A7),
+                "invertPWM": true,
+                "scale": 1,
+                "position": [0, 0.54, -1.93],
+                "orientation": [1, 0, 0], // Right-hand rule (X left)
+            },
+            "Left Wing": {
+                "gpioOutPWM": 0, // OrangePi_5.pwm(OrangePi_5.bcm.GPIO1_A2, 0, 500),
+                "gpioOutReverse": 1, // OrangePi_5.output(OrangePi_5.bcm.GPIO1_A6),
+                "invertRotationDirection": true,
+                "scale": 1,
+                "position": [0.66, 0.36, -0.49],
+                "orientation": [-0.13235175009, 0.99120281186, 0], // [-sind(25), cosd(25), 0]
+            },
+            "Right Wing": {
+                "gpioOutPWM": 2,
+                "gpioOutReverse": 3,
+                "scale": 1,
+                "position": [-0.66, 0.36, -0.49],
+                "orientation": [-0.13235175009, -0.99120281186, 0], // [-sind(25), -cosd(25), 0]
+            },
+        }
+    },
 
     // Module-specific settings.
     "stats": {
@@ -15,22 +59,21 @@
     },
     "lights": {
         "server": {
-            "enabled": false,
+            "enabled": true,
             "pca9685": {
-                "i2cBus": 4,
-                "i2cAddr": "0x40",
-                "frequency": 4096,
                 "leds": {
-                    "vis": 0,
-                    "ir": 1,
-                    "uv": 2
+                    "vis": 13,
+                    "ir": 14,
+                    "uv": 15
                 }
             }
         },
         "client": {}
     },
     "control": {
-        "server": {},
+        "server": {
+            "enabled": true,
+        },
         "client": {}
     },
     "angle": {
@@ -45,11 +88,13 @@
         "server": {
             "enabled": true,
             "bno085": {
-                "i2cBus": 3,
+                // "i2cBus": 3, // RaspberryPi_4B
+                "i2cBus": 5, // OrangePi_5
                 "i2cAddr": "0x4b",
                 "useInterrupts": true,
-                "interruptChip": "gpiochip0",
-                "interruptLine": 23
+                // From opengpio library use device-specific bcm pin names.
+                // "interruptPin": ["RaspberryPi_4B", "GPIO23"],
+                "interruptPin": ["OrangePi_5", "GPIO1_D2"],
             }
         },
         "client": {}
@@ -62,7 +107,8 @@
             "cellsInSeries": 2,
             "cellsInParallel": 3,
             "ina226": {
-                "i2cBus": 1,
+                // "i2cBus": 1, // RaspberryPi_4B
+                "i2cBus": 5, // OrangePi_5
                 "i2cAddr": "0x40",
                 "shuntResistorOhms": 0.1
             }
@@ -73,7 +119,8 @@
         "server": {
             "enabled": true,
             "vl53l5cx": {
-                "i2cBus": 1,
+                // "i2cBus": 1, // RaspberryPi_4B
+                "i2cBus": 4, // OrangePi_5
                 "i2cAddr": "0x29",
                 "rangingFrequency": 5
             }

@@ -1,6 +1,7 @@
 import { Module } from 'src/module';
 import { IMU, SensorEvent, SensorId } from './class/IMU'; // SensorEvent comes from IMU
 import { Acceleration, Orientation, Speed } from './types';
+import * as opengpio from 'opengpio';
 
 export class IMUModuleServer extends Module {
 
@@ -24,10 +25,14 @@ export class IMUModuleServer extends Module {
         this.imu.enableSensor(SensorId.SH2_ROTATION_VECTOR, this.samplingInterval)
         this.imu.enableSensor(SensorId.SH2_LINEAR_ACCELERATION, this.samplingInterval)
         if (this.config.modules.imu.server.bno085.useInterrupts) {
-            this.imu.useInterrupts(
-                this.config.modules.imu.server.bno085.interruptChip,
-                this.config.modules.imu.server.bno085.interruptLine
-            )
+            try {
+                const [className, fieldName] = this.config.modules.imu.server.bno085.interruptPin;
+                const GpioClass = (opengpio as Record<string, any>)[className];
+                const interruptPin = GpioClass.bcm?.[fieldName];
+                this.imu.useInterrupts(`gpiochip${interruptPin.chip}`, interruptPin.line);
+            } catch (error) {
+                this.logger?.error?.('Failed to configure IMU interrupts', error);
+            }
         }
         this.imu.devOn()
     }

@@ -8,14 +8,15 @@ export class MotorState extends EventEmitter {
     rampSpeed: number; // Ramp speed for power transitions
     position: number[]; // Relative position of the motor
     orientation: number[]; // Relative orientation of the motor
-    scale: number = 1; // Scale factor for the motor
+    scale: number; // Scale factor for the motor
     power: number = 0; // Power level for the motor, typically between -100 and 100
     protected targetPower: number = 0; // Target power level for the motor, used for smooth transitions
-    protected static pwmModule: PCA9685; // Shared PCA9685 instance for all motors
+    protected pwmModule: PCA9685;
 
     constructor({
         name,
         logger,
+        pwmModule: pwmModule,
         rampSpeed: rampSpeed,
         position: position,
         orientation: orientation,
@@ -23,6 +24,7 @@ export class MotorState extends EventEmitter {
     }: {
         name: string;
         logger: Logger;
+        pwmModule?: PCA9685;
         rampSpeed?: number;
         position?: number[];
         orientation?: number[];
@@ -31,25 +33,11 @@ export class MotorState extends EventEmitter {
         super();
         this.name = name;
         this.logger = logger;
+        this.pwmModule = pwmModule;
         this.rampSpeed = rampSpeed || 0.5; // Default speed for the motor
         this.position = position || [0, 0, 0];
         this.orientation = orientation || [0, 0, 0];
-
-        let bus = 4;
-        let frequency = 4096;
-        if (!MotorState.pwmModule) {
-            // Uncomment the following line to enable PCA9685 control.
-            // MotorState.pwmModule = new PCA9685(bus);
-            MotorState.pwmModule?.init().then(() => {
-                MotorState.pwmModule?.setFrequency(frequency)
-                    .then(() => {
-                        this.logger.info(`PCA9685 initialized at ${frequency}Hz on bus ${bus}`);
-                    })
-                    .catch((err) => {
-                        this.logger.error('Failed to set PCA9685 frequency', err);
-                    });
-            });
-        }
+        this.scale = scale || 1;
     }
 
     async init() {
