@@ -20,12 +20,35 @@ export class MediaModuleServer extends Module {
         });
     }
 
-    private videoSource =
-        process.platform === 'darwin'
+    private getVideoSource(): string[] {
+        const mocked = (this.config as any)?.modules?.media?.server?.mocked;
+        this.logger.info('Media module mocked mode:', mocked);
+        if (mocked) {
+            return [
+                'videotestsrc', 'is-live=true', 'pattern=ball',
+                '!' , 'video/x-raw,format=I420,width=1280,height=720,framerate=30/1',
+            ];
+        }
+
+        const src = process.platform === 'darwin'
             ? 'avfvideosrc device-index=0'
             : process.platform === 'win32'
             ? 'ksvideosrc device-index=0'
             : 'v4l2src device-index=0';
+        const asrc = src.split(' ');
+        asrc.push(
+            // Better to keep video in GL memory for performance since
+            // we will also be using Gstreamer to capture video.
+            // According to AI, it can prevent unnecessary CPU overhead
+            // by creating multiple copies of the video frame.
+            'video/x-raw(memory:GLMemory)',
+            '!',
+            // Add any GL processing elements here if needed
+            'gldownload',
+            '!',
+        );
+        return asrc
+    }
 
     takePicture(): void {
         this.logger.info('Taking picture...');
@@ -34,7 +57,7 @@ export class MediaModuleServer extends Module {
         )}.png`;
         const gstArgs = [
             '-v',
-            ...this.videoSource.split(' '),
+            ...this.getVideoSource(),
             'num-buffers=1',
             '!',
             'video/x-raw(memory:GLMemory)',
@@ -77,40 +100,46 @@ export class MediaModuleServer extends Module {
     createMediaServer(): void {
         console.log('Starting media server with GStreamer');
         // gst-launch-1.0 -v avfvideosrc device-index=0 ! videoconvert ! vtenc_h264 realtime=true ! queue max-size-buffers=1 leaky=downstream ! webrtcsink run-signalling-server=true video-caps="video/x-h264"
+        const mocked = (this.config as any)?.modules?.media?.server?.mocked;
+        const h264Path = [
+            ...(mocked ? ['videoconvert', '!'] : []),
+            'x264enc','tune=zerolatency','speed-preset=ultrafast','key-int-max=30','byte-stream=false','!',
+            'h264parse','config-interval=-1','!',
+            'video/x-h264,stream-format=avc,alignment=au','!',
+            'webrtcsink', 'video-caps=video/x-h264'
+        ];
 
         const h264Encoder =
             process.platform === 'darwin'
                 ? // For macOS, use vtenc_h264 encoder
                   ['vtenc_h264', 'realtime=true']
                 : // For Windows and Linux, use x264 encoder
-                  ['x264enc', 'tune=zerolatency', 'speed-preset=ultrafast'];
+                  [
+                    ...(mocked ? ['videoconvert', '!'] : []),
+                    'x264enc','tune=zerolatency','speed-preset=ultrafast','key-int-max=30','byte-stream=false','!',
+                    'h264parse','config-interval=-1','!',
+                    'video/x-h264,stream-format=avc,alignment=au','!',
+                    'webrtcsink', 'run-signalling-server=true', 'video-caps=video/x-h264'
+                ];
 
         // Use device index 0 for the first camera
+        this.logger.info('Using video source:', this.getVideoSource().join(' '));
         const gstArgs = [
             '-v',
-            ...this.videoSource.split(' '),
-            '!',
-            // Better to keep video in GL memory for performance since
-            // we will also be using Gstreamer to capture video.
-            // According to AI, it can prevent unnecessary CPU overhead
-            // by creating multiple copies of the video frame.
-            'video/x-raw(memory:GLMemory)',
-            '!',
-            // Add any GL processing elements here if needed
-            'gldownload',
+            ...this.getVideoSource(),
             '!',
             // Convert video format to H264
             ...h264Encoder,
-            '!',
-            // Make queue drop older framers for real-time performance
-            'queue',
-            'max-size-buffers=1',
-            'leaky=downstream',
-            '!',
-            // Sink to WebRTC
-            'webrtcsink',
-            'run-signalling-server=true',
-            'video-caps=video/x-h264',
+            //'!',
+            // // Make queue drop older framers for real-time performance
+            // 'queue',
+            // 'max-size-buffers=1',
+            // 'leaky=downstream',
+            // '!',
+            // // Sink to WebRTC
+            // 'webrtcsink',
+            // 'run-signalling-server=true',
+            // 'video-caps=video/x-h264',
         ];
 
         this.gstreamer = spawn('gst-launch-1.0', gstArgs, { stdio: 'pipe' });

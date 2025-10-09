@@ -54,7 +54,10 @@
         "client": {}
     },
     "media": {
-        "server": {},
+        "server": {
+            // Enable to loop a pre-encoded video instead of a live capture.
+            "mocked": true
+        },
         "client": {}
     },
     "lights": {
