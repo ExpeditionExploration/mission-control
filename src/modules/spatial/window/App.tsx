@@ -1,11 +1,11 @@
 import './index.css';
 import { useEffect, useState, useMemo } from 'react';
 import { Canvas, useLoader } from '@react-three/fiber';
-import { OrbitControls, Text, Billboard } from '@react-three/drei';
+import { OrbitControls, Text, Billboard, MapControls } from '@react-three/drei';
 import { Line } from '@react-three/drei';
 import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { MeshStandardMaterial, Mesh, Color } from 'three';
+import { MeshStandardMaterial, Mesh, Color, EllipseCurve } from 'three';
 import { KernelSize } from 'postprocessing';
 import { Wrench as ControlWrench } from 'src/modules/control/types';
 import { Payload } from 'src/connection';
@@ -16,7 +16,14 @@ const TEXT_SCALE = 0.15;
 const LINE_HEIGHT = TEXT_SCALE * 1.25;
 const LINE_WIDTH = 0.003;
 
-function Drone(props: { position: [number, number, number]; controlWrench: ControlWrench; angleStatus: AngleStatus }) {
+interface DroneProps {
+    position: [number, number, number];
+    controlWrench: ControlWrench;
+    angleStatus: AngleStatus;
+    settings: any;
+}
+
+function Drone(props: DroneProps) {
     const obj = useLoader(OBJLoader, './drone.obj');
     const { controlWrench, angleStatus } = props;
 
@@ -35,19 +42,53 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
         });
     }, [obj]);
 
-    const rollArcPoints = useMemo(() => {
-        const motorOffsetX = 0.7;        // fixed endpoint X
-        const endpointY = 0.5;           // fixed endpoint Y
-        const R = 0.72;
+    const ellipseArcPoints = (
+        horizontalD: number,
+        verticalD: number,
+        endAngle: number,
+        plane: 'XY' | 'ZY' | 'ZX' = 'XY',
+        rotation: number = 0,
+        clockwise: boolean = false,
+        depth: number = 0.001,
+        centerX: number = 0,
+        centerY: number = 0,
+    ) => {
+        const curve = new EllipseCurve(
+            centerX,  centerY,
+            horizontalD / 2, verticalD / 2,
+            0,  endAngle, // start and end angle.
+            clockwise,
+            rotation
+        );
+        const points = curve.getPoints(72);
+        switch (plane) {
+            case 'XY':
+                return points;
+            case 'ZY':
+                return points.map(p => [depth, p.y, p.x] as [number, number, number]);
+            case 'ZX':
+                return points.map(p => [p.y, depth, p.x] as [number, number, number]);
+        }
+    }
+
+    const arcPoints = (
+        horizontalOffset: number,
+        verticalOffset: number,
+        depthOffset: number,
+        plane: 'XY' | 'ZY' | 'ZX' = 'XY',
+        rotation: number = 0,
+        radius: number = 0.72,
+    ) => {
+        const R = radius;
         const steps = 72;
 
         // Center chosen so circle passes through endpoints
-        const dY = Math.sqrt(R * R - motorOffsetX * motorOffsetX);
-        const centerY = endpointY + dY;
+        const dY = Math.sqrt(R * R - horizontalOffset * horizontalOffset);
+        const centerY = verticalOffset + dY;
 
-        const beta = Math.atan2(endpointY - centerY, motorOffsetX);
-        const startAngle = Math.PI - beta;
-        const endAngle = beta;
+        const beta = Math.atan2(verticalOffset - centerY, horizontalOffset);
+        const startAngle = Math.PI - beta + rotation;
+        const endAngle = beta + rotation;
 
         const pts: [number, number, number][] = [];
         for (let s = 0; s <= steps; s++) {
@@ -55,10 +96,43 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
             const angle = startAngle + (endAngle - startAngle) * t;
             const x = Math.cos(angle) * R;
             const y = Math.sin(angle) * R + centerY;
-            pts.push([x, y, 0.001]);
+            switch (plane) {
+                case 'XY':
+                    pts.push([x, y, depthOffset]);
+                    break;
+                case 'ZY':
+                    pts.push([depthOffset, y, x]);
+                    break;
+                case 'ZX':
+                    pts.push([y, depthOffset, x]);
+                    break;
+            }
         }
         return pts;
+    }
+
+    const locs = props.settings?.spatial.client.uiMarkers;
+    const rollArcPoints = useMemo(() => {
+        const motorOffsetX = 0.7;        // fixed endpoint X
+        const endpointY = 0.5;           // fixed endpoint Y
+        const pts = arcPoints(motorOffsetX, endpointY, 0.001);
+        return pts;
     }, []);
+
+    const yawArcPoints = useMemo(() => {
+        const horiz = 1.5;
+        const vert = 1.5;
+        const depth = 0.001;
+        const points = ellipseArcPoints(horiz, vert, Math.PI * 0.6, 'ZX', 1.2 * Math.PI);
+        return points;
+    }, [locs]);
+
+    const pitchArcPoints = useMemo(() => {
+        const horiz = 1.5;
+        const vert = 1.5;
+        const points = ellipseArcPoints(horiz, vert, Math.PI * 3/5, 'ZY', Math.PI + 1/5 * Math.PI);
+        return points;
+    }, [locs]);
 
     return (
     <group scale={[0.1, 0.1, 0.1]} position={props.position} rotation={[angleStatus.angle[0] * (Math.PI / 180), angleStatus.angle[1] * (Math.PI / 180), angleStatus.angle[2] * (Math.PI / 180)]}>
@@ -67,12 +141,14 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                 scale={[0.1, 0.1, 0.1]}
                 object={obj}
             />
-            <group position={[0, -0.5, -2.5]}>
+            {locs &&
+            <group position={[0, 0, 0]}>
                 <Billboard
                     follow={true}
                     lockX={false}
                     lockY={false}
                     lockZ={false}
+                    position={locs.surgeBillboard}
                 >
                     <Text
                         fontSize={TEXT_SCALE * 1}
@@ -106,8 +182,8 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                 </Billboard>
                 <Line
                     points={[
-                        [0, 0.5, 0], // Left side of drone
-                        [0, 0.2, 0], // Right side of drone
+                        locs.surgeBillboard.map((a, i) => i === 1 ? a + 0.2 : a),
+                        locs.surgeBillboard.map((a, i) => i === 1 ? a + 0.5 : a),
                     ]}
                     color="#ffffff"
                     transparent={true}
@@ -115,12 +191,11 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                     lineWidth={LINE_WIDTH}
                     worldUnits={true}
                 />
-            </group>
-            <group position={[0, 0.54, -1.93]}>
+            </group> }
+            {locs &&
+            <group position={locs.yawBillboard}>
                 <Billboard
-                    position={
-                        [-0.85, 0, 0] // Position the billboard above the drone
-                    }
+                    position={[-1, 0, 0]}
                     follow={true}
                     lockX={false}
                     lockY={false}
@@ -130,7 +205,7 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                         position={[0, 0, 0]}
                         fontSize={TEXT_SCALE * 1}
                         color="#ffffff"
-                        anchorX="left"
+                        anchorX="center"
                         anchorY="middle"
                     >
                         <meshStandardMaterial
@@ -145,7 +220,7 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                         position={[0, -LINE_HEIGHT, 0]}
                         fontSize={TEXT_SCALE * 0.75}
                         color="#ffffff"
-                        anchorX="left"
+                        anchorX="center"
                         anchorY="middle"
                     >
                         <meshStandardMaterial
@@ -158,21 +233,21 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                     </Text>
                 </Billboard>
 
-                <Line
-                    points={[
-                        [-0.2, 0, 0], // Left side of drone
-                        [-0.7, 0, 0], // Right side of drone
-                    ]}
-                    color="#ffffff"
-                    transparent={true}
-                    opacity={0.25}
-                    lineWidth={LINE_WIDTH}
-                    worldUnits={true}
-                />
-            </group>
-            <group position={[0, 0, -0.5]}>
+                <group position={[0, 0, 0]}>
+                    <Line
+                        points={yawArcPoints}
+                        color="#ffffff"
+                        transparent={true}
+                        opacity={0.25}
+                        lineWidth={LINE_WIDTH}
+                        worldUnits={true}
+                    />
+                </group>
+            </group> }
+            {locs &&
+            <group position={[0, 0, 0]}>
                 <Billboard
-                    position={[0, 1.8, 0]}
+                    position={locs.rollBillboard}
                     follow
                     lockX={false}
                     lockY={false}
@@ -193,7 +268,7 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                         Roll
                     </Text>
                     <Text
-                        position={[0, -LINE_HEIGHT, 0]}
+                        position={locs.rollBillboard.map((a, i) => i === 1 ? -LINE_HEIGHT : a)}
                         fontSize={TEXT_SCALE * 0.75}
                         color="#ffffff"
                         anchorX="center"
@@ -240,22 +315,21 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                     lineWidth={LINE_WIDTH}
                     worldUnits
                 />
-            </group>
-            <group position={[0, 1, -2.6]}>
+            </group> }
+            { locs &&
+            <group position={locs.pitchBillboard}>
                 <Billboard
-                    position={
-                        [0.85, 0.2, 0] // Position the billboard above the drone
-                    }
+                    position={[0, -0.3, 0]}
                     follow={true}
                     lockX={false}
                     lockY={false}
                     lockZ={false}
                 >
                     <Text
-                        position={[0, 0, 0]}
+                        position={[0, -0.7, 0]}
                         fontSize={TEXT_SCALE * 1}
                         color="#ffffff"
-                        anchorX="right"
+                        anchorX="center"
                         anchorY="middle"
                     >
                         <meshStandardMaterial
@@ -267,10 +341,10 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                         Pitch
                     </Text>
                     <Text
-                        position={[0, -LINE_HEIGHT, 0]}
+                        position={[0, -0.7 - LINE_HEIGHT, 0]}
                         fontSize={TEXT_SCALE * 0.75}
                         color="#ffffff"
-                        anchorX="right"
+                        anchorX="center"
                         anchorY="middle"
                     >
                         <meshStandardMaterial
@@ -283,18 +357,17 @@ function Drone(props: { position: [number, number, number]; controlWrench: Contr
                     </Text>
                 </Billboard>
 
-                <Line
-                    points={[
-                        [0.2, 0, 0], // Left side of drone
-                        [0.7, 0.2, 0], // Right side of drone
-                    ]}
-                    color="#ffffff"
-                    transparent={true}
-                    opacity={0.25}
-                    lineWidth={LINE_WIDTH}
-                    worldUnits={true}
-                />
-            </group>
+                <group position={[0, 0, 0]}>
+                    <Line
+                        points={pitchArcPoints}
+                        color="#ffffff"
+                        transparent={true}
+                        opacity={0.25}
+                        lineWidth={LINE_WIDTH}
+                        worldUnits={true}
+                    />
+                </group>
+            </group> }
         </group>
     );
 }
@@ -302,11 +375,13 @@ export function App() {
     const [dronePosition, setDronePosition] = useState<[number, number, number]>([0, 0, 0]);
     const [controlWrench, setControlWrench] = useState<ControlWrench>({ heave: 0, sway: 0, surge: 0, yaw: 0, pitch: 0, roll: 0 });
     const [angleStatus, setAngleStatus] = useState<AngleStatus>({ angle: [0, 0, 0], yaw: 0 });
+    const [settings, setSettings] = useState<Object | null>(null);
 
     useEffect(() => {
         const spatialChannel = new BroadcastChannel('spatial-window');
         const handleMessage = (event: MessageEvent<Payload>) => {
             const payload = event.data;
+
             switch (payload.namespace) {
                 case 'location':
                     if (Array.isArray(payload.data?.position)) {
@@ -319,6 +394,16 @@ export function App() {
                 case 'angle':
                     setAngleStatus(payload.data as AngleStatus);
                     break;
+                case 'settings':
+                    console.log("Received settings:", payload);
+                    setSettings(payload.data);
+                    const pl: Payload = {
+                        event: 'ack',
+                        namespace: 'spatial-window',
+                        data: 'Settings received',
+                    }
+                    spatialChannel.postMessage(pl);
+                    break;
             }
         };
         spatialChannel.addEventListener('message', handleMessage);
@@ -327,6 +412,10 @@ export function App() {
             spatialChannel.close();
         };
     }, []);
+
+    useEffect(() => {
+        console.log('Settings updated:', settings);
+    }, [settings]);
 
     const deg2rad = (deg: number) => deg * (Math.PI / 180);
 
@@ -352,7 +441,7 @@ export function App() {
                     decay={0}
                     intensity={20}
                 />
-                <Drone position={dronePosition} controlWrench={controlWrench} angleStatus={angleStatus} />
+                <Drone position={dronePosition} controlWrench={controlWrench} angleStatus={angleStatus} settings={settings} />
                 <TOFArray dronePosition={dronePosition} droneOrientation={{ yaw: deg2rad(angleStatus.angle[1]), pitch: deg2rad(angleStatus.angle[0]), roll: deg2rad(angleStatus.angle[2]) }} />
                 <EffectComposer>
                     <N8AO
