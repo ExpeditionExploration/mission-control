@@ -374,7 +374,7 @@ function Drone(props: DroneProps) {
 export function App() {
     const [dronePosition, setDronePosition] = useState<[number, number, number]>([0, 0, 0]);
     const [controlWrench, setControlWrench] = useState<ControlWrench>({ heave: 0, sway: 0, surge: 0, yaw: 0, pitch: 0, roll: 0 });
-    const [angleStatus, setAngleStatus] = useState<AngleStatus>({ angle: [0, 0, 0], yaw: 0 });
+    const [angleStatus, setAngleStatus] = useState<AngleStatus>({ angle: [0, 0, 0] });
     const [settings, setSettings] = useState<Object | null>(null);
 
     useEffect(() => {

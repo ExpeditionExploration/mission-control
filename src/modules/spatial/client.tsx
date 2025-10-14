@@ -31,7 +31,6 @@ export class SpatialModuleClient extends Module {
             const angleStatus: AngleStatus = {
                 // TODO: Align IMU and spatial angles order
                 angle: [-imuOrientation[0], -imuOrientation[2], -imuOrientation[1]],
-                yaw: this.rad2deg(imuOrientation[2]),
             }
             this.sendStatusPayloadToWindow({
                 event: 'orientation',
