@@ -139,11 +139,10 @@
     },
     "tof": {
         "server": {
-            "enabled": false,
-            "position": [0, 0, 0],
+            "enabled": true,
             "vl53l5cx": {
-                "i2cBus": 1, // RaspberryPi_4B
-                // "i2cBus": 4, // OrangePi_5
+                // "i2cBus": 1, // RaspberryPi_4B
+                "i2cBus": 4, // OrangePi_5
                 "i2cAddr": "0x29",
                 "rangingFrequency": 5
             }
