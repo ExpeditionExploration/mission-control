@@ -16,6 +16,9 @@ const TEXT_SCALE = 0.15;
 const LINE_HEIGHT = TEXT_SCALE * 1.25;
 const LINE_WIDTH = 0.003;
 
+const roundToTenths = (value: number) => Math.round(value * 10) / 10;
+const roundOrientation = (orientation: AngleStatus['angle']) => orientation.map(roundToTenths) as AngleStatus['angle'];
+
 interface DroneProps {
     position: [number, number, number];
     controlWrench: ControlWrench;
@@ -392,7 +395,13 @@ export function App() {
                     setControlWrench(payload.data as ControlWrench);
                     break;
                 case 'angle':
-                    setAngleStatus(payload.data as AngleStatus);
+                    setAngleStatus((prev) => {
+                        const next = payload.data as AngleStatus;
+                        const roundedNextAngles = roundOrientation(next.angle);
+                        const roundedPrevAngles = roundOrientation(prev.angle);
+                        const anglesChanged = roundedNextAngles.some((value, index) => value !== roundedPrevAngles[index]);
+                        return anglesChanged ? next : prev;
+                    });
                     break;
                 case 'settings':
                     console.log("Received settings:", payload);
