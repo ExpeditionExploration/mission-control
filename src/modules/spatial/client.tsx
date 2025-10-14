@@ -10,6 +10,7 @@ import { AngleStatus } from './types';
 export class SpatialModuleClient extends Module {
     userInterface: UserInterface;
     private spatialChannel: BroadcastChannel;
+    private spatialWindowSettingsInterval?: NodeJS.Timeout;
 
     constructor(deps: ClientModuleDependencies) {
         super(deps);
@@ -30,7 +31,6 @@ export class SpatialModuleClient extends Module {
             const angleStatus: AngleStatus = {
                 // TODO: Align IMU and spatial angles order
                 angle: [-imuOrientation[0], -imuOrientation[2], -imuOrientation[1]],
-                yaw: this.rad2deg(imuOrientation[2]),
             }
             this.sendStatusPayloadToWindow({
                 event: 'orientation',
@@ -47,10 +47,18 @@ export class SpatialModuleClient extends Module {
             this.sendStatusPayloadToWindow(payload);
         });
 
-        // Relay configuration values to the spatial window.
-        this.broadcaster.on('*:configResponse', (payload: Payload) => {
-            this.sendStatusPayloadToWindow(payload);
-        });
+        this.spatialChannel.onmessage = (message: MessageEvent<Payload>) => {
+            const payload: Payload = message.data;
+            switch (payload.namespace) {
+                case 'spatial-window':
+                    if (payload.event === 'ack') {
+                        clearInterval(this.spatialWindowSettingsInterval);
+                        this.logger.info(`Settings received by spatial window.
+                            Cancelling send settings interval.`);
+                    }
+                    break;
+            }
+        }
     }
 
     sendStatusPayloadToWindow(payload: Payload) {
@@ -64,6 +72,16 @@ export class SpatialModuleClient extends Module {
             : '/spatial.html'; // Built filename
 
         window.open(windowUrl, "spatialWindow", 'width=800,height=600');
+        this.logger.info("Spatial window opened; Set interval to transmit config.");
+        const data = {...this.config.modules};
+        console.log("Transmitting settings:", data);
+        this.spatialWindowSettingsInterval = setInterval(() => {
+            this.sendStatusPayloadToWindow({
+                event: 'settings',
+                namespace: 'settings',
+                data,
+            });
+        }, 1000);
     }
 
     destroy() {

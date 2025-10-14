@@ -7,8 +7,6 @@ export type Stats = {
     storage: number;
 }
 
-type Yaw = number;
 export type AngleStatus = {
-    angle: Orientation,
-    yaw: Yaw
+    angle: Orientation
 }
