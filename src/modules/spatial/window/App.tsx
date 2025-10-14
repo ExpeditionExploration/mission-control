@@ -421,7 +421,7 @@ export function App() {
 
     return (
         <div className="bg-gray-900 bg-gradient-to-t from-gray-950 min-h-screen">
-            <Canvas camera={{ position: [1, 2, 3], fov: 30 }}>
+            <Canvas camera={{ position: [1, 2, 3], fov: 30 }} frameloop="demand">
                 <OrbitControls
                     enablePan={true}
                     enableZoom={true}
