@@ -22,6 +22,7 @@
     },
     "dependencies": {
         "@headlessui/react": "^2.2.4",
+        "@livekit/components-react": "^2.9.15",
         "@react-three/drei": "^10.1.2",
         "@react-three/fiber": "^9.1.2",
         "@react-three/postprocessing": "^3.0.4",
@@ -35,6 +36,7 @@
         "forever": "^4.0.3",
         "gstwebrtc-api": "github:ExpeditionExploration/gstwebrtc-api",
         "json5": "^2.2.3",
+        "livekit-client": "^2.15.10",
         "lucide-react": "^0.511.0",
         "mathjs": "^14.7.0",
         "mpegts.js": "^1.8.0",
