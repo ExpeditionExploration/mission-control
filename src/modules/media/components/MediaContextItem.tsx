@@ -51,30 +51,42 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = ({
             return;
         }
 
-        const fetchToken = async () => {
-            const token = await module.requestToken();
-            setToken(token);
+        const fetchToken = async (): Promise<any> => {
+            try {
+                const token = await module.requestToken();
+                if (!token) {
+                    return false;
+                }             
+                setToken(token);
+                module.logger.info("Token fetched successfully.");
+                return true;
+            } catch (_error) {
+                return false; // Suppress exception
+            }
         };
 
         fetchToken()
-            .then(() => console.info("Token fetched successfully."))
-            .catch((err) => {
-                console.warn('Error fetching LiveKit token. Setting retry interval.');
-                tokenRetryTimerRef.current = setInterval(() => {
+            .then((gotIt) => {
+                if (gotIt) {
+                    module.logger.info('LiveKit token fetched successfully.');
+                } else {
+                    module.logger.info('Setting token retry interval.');
+                    tokenRetryTimerRef.current = setInterval(() => {
                     if (!tokenRetryCountRef.current) {
-                        console.error("Token fetch retries exhausted, stopping.");
+                        module.logger.error("Token fetch retries exhausted, stopping.");
                         clearInterval(tokenRetryTimerRef.current);
                         tokenRetryTimerRef.current = null;
                         return;
                     }
                     fetchToken()
-                        .then(() => {
-                            console.info("Token fetched successfully on retry.");
-                        })
+                        .then()
                         .catch((err) => {
+                            module.logger.warn('Could not fetch token:', err);
                             tokenRetryCountRef.current -= 1;
                         });
                 }, waitBeforeRetryMs);
+            }}).catch((err) => {
+                module.logger.warn('Could not fetch LiveKit token:', err);
             });
 
         return () => {
@@ -92,6 +104,7 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = ({
                 token={token ?? undefined}
                 serverUrl={livekitHost ?? undefined}
                 connect={shouldConnect}
+                onError={(e) => module.logger.warn("LiveKit error:", e)}
             >
                 <Tracks module={module} />
             </LiveKitRoom>

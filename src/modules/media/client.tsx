@@ -37,7 +37,6 @@ export class MediaModuleClient extends Module {
                 clearInterval(this.tokenServerRequestInterval);
                 this.tokenServerRequestInterval = null;
             }
-            await this.requestToken();
         });
         this.on('response-env-var-livekit-url', (address: string) => {
             this.logger.info("Received LiveKit URL from be:", address);
@@ -58,25 +57,30 @@ export class MediaModuleClient extends Module {
             this.logger.warn("Token server address not set yet.");
             return null;
         }
-        
+
         this.logger.info("Requesting token from server:", this.tokenServer);
-        const response = await fetch(`${this.tokenServer}/token`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                identity: 'mc-client',
-                room: this.roomName,
-            }),
-        });
-        if (!response.ok) {
-            this.logger.warn("Failed to fetch token from server:", response.statusText);
+        try {
+            const response = await fetch(`${this.tokenServer}/token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    identity: 'mc-client',
+                    room: this.roomName,
+                }),
+            });
+            if (!response.ok) {
+                // Return null for no token
+                return null;
+            }
+            const data = await response.json();
+            this.token = data.token;
+            return this.token;
+        } catch (err) {
+            // Suppress error. Return null for no token
             return null;
         }
-        const data = await response.json();
-        this.token = data.token;
-        return this.token;
     }
 
     requestTokenServer() {
