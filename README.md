@@ -21,3 +21,7 @@ nix profile add \
 
 Note: Nix is a package manager, while NixOS is a Linux distro using it. Just to
       avoid confusion. It is also possible to install as a non-root user.
+
+Note: Please use real host device ip instead of vscode port forwards for
+        WebRTC to work.
+        
