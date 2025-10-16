@@ -71,7 +71,7 @@ export class MediaModuleClient extends Module {
             }),
         });
         if (!response.ok) {
-            this.logger.error("Failed to fetch token from server:", response.statusText);
+            this.logger.warn("Failed to fetch token from server:", response.statusText);
             return null;
         }
         const data = await response.json();

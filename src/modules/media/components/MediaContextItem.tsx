@@ -1,6 +1,6 @@
 import { ViewProps } from 'src/client/user-interface';
 import { type MediaModuleClient } from '../client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LiveKitRoom } from '@livekit/components-react';
 import { Tracks } from "./Tracks";
 
@@ -10,6 +10,10 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = ({
     const [token, setToken] = useState<string | null>(module.token);
     const [livekitHost, setLivekitHost] = useState<string | null>(module.livekitHost ?? null);
     const [tokenServer, setTokenServer] = useState<string | null>(module.tokenServer);
+
+    const tokenRetryTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const tokenRetryCountRef = useRef<number>(6);
+    const waitBeforeRetryMs = 10_000;
 
     useEffect(() => {
         const handleTokenServerResponse = (address: string) => {
@@ -42,33 +46,41 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = ({
     }, [module]);
 
     useEffect(() => {
-        let cancelled = false;
         if (!tokenServer || !livekitHost) {
-            setToken(null);
-            return undefined;
-        }
-
-        if (module.token) {
-            setToken(module.token);
-            return undefined;
+            // Can't fetch token until we have token server addr
+            return;
         }
 
         const fetchToken = async () => {
-            const fetchedToken = await module.requestToken();
-            if (!cancelled) {
-                setToken(fetchedToken);
-            }
+            const token = await module.requestToken();
+            setToken(token);
         };
 
-        fetchToken().catch((err) => {
-            console.error('Error fetching token:', err);
-            if (!cancelled) {
-                setToken(null);
-            }
-        });
+        fetchToken()
+            .then(() => console.info("Token fetched successfully."))
+            .catch((err) => {
+                console.warn('Error fetching LiveKit token. Setting retry interval.');
+                tokenRetryTimerRef.current = setInterval(() => {
+                    if (!tokenRetryCountRef.current) {
+                        console.error("Token fetch retries exhausted, stopping.");
+                        clearInterval(tokenRetryTimerRef.current);
+                        tokenRetryTimerRef.current = null;
+                        return;
+                    }
+                    fetchToken()
+                        .then(() => {
+                            console.info("Token fetched successfully on retry.");
+                        })
+                        .catch((err) => {
+                            tokenRetryCountRef.current -= 1;
+                        });
+                }, waitBeforeRetryMs);
+            });
 
         return () => {
-            cancelled = true;
+            if (tokenRetryTimerRef.current) {
+                clearInterval(tokenRetryTimerRef.current);
+            }
         };
     }, [module, tokenServer, livekitHost]);
 
