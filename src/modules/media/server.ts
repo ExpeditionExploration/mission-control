@@ -26,12 +26,12 @@ export class MediaModuleServer extends Module {
                         this.logger.error("TOKEN_SERVER environment variable is not set");
                     }
                     break;
-                case 'LIVEKIT_HOST':
-                    if (process.env.LIVEKIT_HOST) {
-                        this.logger.info("Emitting LIVEKIT_HOST:", process.env.LIVEKIT_HOST);
-                        this.emit('response-env-var-livekit-host', process.env.LIVEKIT_HOST);
+                case 'LIVEKIT_URL':
+                    if (process.env.LIVEKIT_URL) {
+                        this.logger.info("Emitting LIVEKIT_URL:", process.env.LIVEKIT_URL);
+                        this.emit('response-env-var-livekit-url', process.env.LIVEKIT_URL);
                     } else {
-                        this.logger.error("LIVEKIT_HOST environment variable is not set");
+                        this.logger.error("LIVEKIT_URL environment variable is not set");
                     }
                     break;
                 default:
@@ -69,15 +69,15 @@ export class MediaModuleServer extends Module {
             return;
         }
 
-        const { LIVEKIT_HOST, LIVEKIT_API_KEY, LIVEKIT_API_SECRET } = process.env;
-        if (!LIVEKIT_HOST || !LIVEKIT_API_KEY || !LIVEKIT_API_SECRET) {
-            this.logger.error('Missing LiveKit environment variables (LIVEKIT_HOST, LIVEKIT_API_KEY, LIVEKIT_API_SECRET)');
+        const { LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET } = process.env;
+        if (!LIVEKIT_URL || !LIVEKIT_API_KEY || !LIVEKIT_API_SECRET) {
+            this.logger.error('Missing LiveKit environment variables (LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET)');
             return;
         }
 
         let cliUrl: string;
         try {
-            const parsed = new URL(LIVEKIT_HOST);
+            const parsed = new URL(LIVEKIT_URL);
             if (parsed.protocol === 'wss:') {
                 parsed.protocol = 'https:';
             } else if (parsed.protocol === 'ws:') {
@@ -85,7 +85,7 @@ export class MediaModuleServer extends Module {
             }
             cliUrl = parsed.toString();
         } catch (error) {
-            this.logger.error('Invalid LIVEKIT_HOST value', error);
+            this.logger.error('Invalid LIVEKIT_URL value', error);
             return;
         }
 

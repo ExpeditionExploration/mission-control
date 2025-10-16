@@ -21,9 +21,9 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = ({
         };
 
         module.on('response-env-var-token-server', handleTokenServerResponse);
-        module.on('response-env-var-livekit-host', handleLivekitHostResponse);
+        module.on('response-env-var-livekit-url', handleLivekitHostResponse);
         module.requestTokenServer();
-        module.requestLiveKitHost();
+        module.requestLiveKitUrl();
 
         if (module.tokenServer) {
             setTokenServer(module.tokenServer);
@@ -37,7 +37,7 @@ export const MediaContextItem: React.FC<ViewProps<MediaModuleClient>> = ({
 
         return () => {
             module.off('response-env-var-token-server', handleTokenServerResponse);
-            module.off('response-env-var-livekit-host', handleLivekitHostResponse);
+            module.off('response-env-var-livekit-url', handleLivekitHostResponse);
         };
     }, [module]);
 

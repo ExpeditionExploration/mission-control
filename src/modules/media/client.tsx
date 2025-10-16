@@ -15,7 +15,7 @@ export class MediaModuleClient extends Module {
     private lastTestStreamRequest = 0;
     private readonly roomName = 'mission-control-test';
 
-    
+
     constructor(deps: ClientModuleDependencies) {
         super(deps);
         this.userInterface = deps.userInterface;
@@ -30,32 +30,27 @@ export class MediaModuleClient extends Module {
             side: Side.Right,
         });
 
-        this.on('response-env-var-token-server', (address: string) => {
+        this.on('response-env-var-token-server', async (address: string) => {
             this.logger.info("Received token server address from be:", address);
             this.tokenServer = address;
             if (this.tokenServerRequestInterval) {
                 clearInterval(this.tokenServerRequestInterval);
                 this.tokenServerRequestInterval = null;
             }
-            if (this.livekitHost) {
-                void this.requestToken();
-            }
+            await this.requestToken();
         });
-        this.on('response-env-var-livekit-host', (address: string) => {
-            this.logger.info("Received LiveKit HOST from be:", address);
+        this.on('response-env-var-livekit-url', (address: string) => {
+            this.logger.info("Received LiveKit URL from be:", address);
             this.livekitHost = address;
             if (this.livekitInterval) {
                 clearInterval(this.livekitInterval);
                 this.livekitInterval = null;
             }
-            if (this.tokenServer) {
-                void this.requestToken();
-            }
             this.requestTestStreamStart(true);
         });
 
         this.requestTokenServer();
-        this.requestLiveKitHost();
+        this.requestLiveKitUrl();
     }
 
     async requestToken() {
@@ -64,8 +59,7 @@ export class MediaModuleClient extends Module {
             return null;
         }
         
-        this.logger.error(`room: ${this.roomName}`);
-
+        this.logger.info("Requesting token from server:", this.tokenServer);
         const response = await fetch(`${this.tokenServer}/token`, {
             method: 'POST',
             headers: {
@@ -89,45 +83,45 @@ export class MediaModuleClient extends Module {
         if (this.tokenServerRequestInterval) {
             return;
         }
-        const requestTokenServer = () => {
+        const emitToBe = () => {
             this.logger.info("Requesting token server address from be");
             this.emit<string>('request-env-var', "TOKEN_SERVER");
         };
-        requestTokenServer();
-        this.tokenServerRequestInterval = setInterval(requestTokenServer, 3000);
+        emitToBe();
+        this.tokenServerRequestInterval = setInterval(emitToBe, 3000);
     }
 
-    requestLiveKitHost() {
+    requestLiveKitUrl() {
         if (this.livekitInterval) {
             return;
         }
-        const requestHost = () => {
-            this.logger.info("Requesting LiveKit HOST from be");
-            this.emit<string>('request-env-var', "LIVEKIT_HOST");
+        const requestUrl = () => {
+            this.logger.info("Requesting LiveKit URL from be");
+            this.emit<string>('request-env-var', "LIVEKIT_URL");
         };
-        requestHost();
-        this.livekitInterval = setInterval(requestHost, 3000);
+        requestUrl();
+        this.livekitInterval = setInterval(requestUrl, 3000);
     }
 
-
-    onDataChannelMessage = (message: ReceivedDataMessage<string>) => {
-        this.logger.info("Received data channel message:", message);
-        switch (message.topic) {
-            // Signal drone control messages from here to be.
-            case "drone-control":
-                this.logger.info("Drone control message:", message.payload);
-                // Handle drone control message
-                break;
-            case "livekit-stream-status":
-                if (typeof message.payload === 'string' && message.payload === 'ended') {
-                    this.logger.warn('LiveKit stream ended notification received; requesting restart');
-                    this.requestTestStreamStart(true);
-                }
-                break;
-            default:
-                this.logger.warn("Unknown data channel topic:", message.topic);
-        }
-    }
+    // Not at use yet
+    // onDataChannelMessage = (message: ReceivedDataMessage<string>) => {
+    //     this.logger.info("Received data channel message:", message);
+    //     switch (message.topic) {
+    //         // Signal drone control messages from here to be.
+    //         case "drone-control":
+    //             this.logger.info("Drone control message:", message.payload);
+    //             // Handle drone control message
+    //             break;
+    //         case "livekit-stream-status":
+    //             if (typeof message.payload === 'string' && message.payload === 'ended') {
+    //                 this.logger.warn('LiveKit stream ended notification received; requesting restart');
+    //                 this.requestTestStreamStart(true);
+    //             }
+    //             break;
+    //         default:
+    //             this.logger.warn("Unknown data channel topic:", message.topic);
+    //     }
+    // }
 
     requestTestStreamStart(force = false) {
         const now = Date.now();
