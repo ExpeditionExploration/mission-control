@@ -5,6 +5,10 @@ import { readFile } from 'fs/promises';
 
 export class MediaModuleServer extends Module {
     private testStreamProcess: ChildProcess | null = null;
+    private environmentVariablesNotSet = {};
+    // In case of a missing necessary environment variable or some other
+    // unrecoverable error.
+    private streamingFailedUnrecoverably = false;
 
     async onModuleInit() {
         this.on('takePicture', () => {
@@ -23,6 +27,10 @@ export class MediaModuleServer extends Module {
                         this.logger.info("Emitting TOKEN_SERVER:", process.env.TOKEN_SERVER);
                         this.emit('response-env-var-token-server', process.env.TOKEN_SERVER);
                     } else {
+                        if (this.environmentVariablesNotSet['TOKEN_SERVER'] === true) {
+                            return;
+                        }
+                        this.environmentVariablesNotSet['TOKEN_SERVER'] = true;
                         this.logger.error("TOKEN_SERVER environment variable is not set");
                     }
                     break;
@@ -31,6 +39,10 @@ export class MediaModuleServer extends Module {
                         this.logger.info("Emitting LIVEKIT_URL:", process.env.LIVEKIT_URL);
                         this.emit('response-env-var-livekit-url', process.env.LIVEKIT_URL);
                     } else {
+                        if (this.environmentVariablesNotSet['LIVEKIT_URL'] === true) {
+                            return;
+                        }
+                        this.environmentVariablesNotSet['LIVEKIT_URL'] = true;
                         this.logger.error("LIVEKIT_URL environment variable is not set");
                     }
                     break;
@@ -70,8 +82,19 @@ export class MediaModuleServer extends Module {
         }
 
         const { LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET } = process.env;
+        this.environmentVariablesNotSet['LIVEKIT_URL'] = process.env.LIVEKIT_URL ?? true;
+        this.environmentVariablesNotSet['LIVEKIT_API_KEY'] = process.env.LIVEKIT_API_KEY ?? true;
+        this.environmentVariablesNotSet['LIVEKIT_API_SECRET'] = process.env.LIVEKIT_API_SECRET ?? true;
         if (!LIVEKIT_URL || !LIVEKIT_API_KEY || !LIVEKIT_API_SECRET) {
-            this.logger.error('Missing LiveKit environment variables (LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET)');
+            if (this.streamingFailedUnrecoverably === true) {
+                // Already logged these errors.
+                return;
+            }
+            this.streamingFailedUnrecoverably = true;
+            this.logger.error(`Can't stream because one or more LiveKit environment variables are missing.`);
+            this.logger.error(`LIVEKIT_URL: ${LIVEKIT_URL ? 'set' : 'not set'}`);
+            this.logger.error(`LIVEKIT_API_KEY: ${LIVEKIT_API_KEY ? 'set' : 'not set'}`);
+            this.logger.error(`LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET ? 'set' : 'not set'}`);
             return;
         }
 
