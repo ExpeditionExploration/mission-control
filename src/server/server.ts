@@ -3,6 +3,8 @@ import { ApplicationDependencies, createContainer } from "src/container";
 import { ServerApplication } from "./server-application";
 import { asClass, AwilixContainer } from "awilix";
 import { ModuleDependencies } from "src/module-loader";
+import { config as configDotenv } from "dotenv";
+configDotenv();
 
 export type ServerApplicationDependencies = {} & ApplicationDependencies;
 export type ServerModuleDependencies = ModuleDependencies &

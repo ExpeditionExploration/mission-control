@@ -27,6 +27,11 @@ export default defineConfig({
             },
         },
     },
+    server: {
+        host: '0.0.0.0',
+        cors: true,
+        origin: '*',
+    },
     plugins: [react(), tailwindcss()],
     resolve: {
         alias: [
