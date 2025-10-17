@@ -76,7 +76,11 @@ export class MediaModuleServer extends Module {
     }
 
     private startLiveKitTestStream() {
-        if (this.testStreamProcess && !this.testStreamProcess.killed) {
+        if (
+            this.testStreamProcess &&
+            this.testStreamProcess.exitCode === null &&
+            !this.testStreamProcess.killed
+        ) {
             this.logger.warn('LiveKit test stream already running');
             return;
         }
